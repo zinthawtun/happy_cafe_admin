@@ -1,16 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Utilities;
-
-namespace Business.Entities
+﻿namespace Business.Entities
 {
     public class Employee
     {
-        public string Id { get; private set; }
+        public string ID { get; private set; }
 
         public string Name { get; private set; }
 
@@ -20,9 +12,9 @@ namespace Business.Entities
 
         public string Gender { get; private set; }
 
-        public Employee(string name, string emailAddress, string phone, string gender)
+        public Employee(string id, string name, string emailAddress, string phone, string gender)
         {
-            Id = UniqueIdGenerator.GenerateUniqueId();
+            ID = id;
             Name = name;
             EmailAddress = emailAddress;
             Phone = phone;

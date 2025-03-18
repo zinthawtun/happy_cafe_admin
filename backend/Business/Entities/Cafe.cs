@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Business.Entities
+﻿namespace Business.Entities
 {
     public class Cafe
     {
-        public Guid Id { get; private set; }
+        public Guid ID { get; private set; }
 
         public string Name { get; private set; }
 
@@ -18,9 +12,9 @@ namespace Business.Entities
 
         public string Location { get; private set; }
 
-        public Cafe(string name, string description, string logo, string location)
+        public Cafe(Guid id, string name, string description, string logo, string location)
         {
-            Id = Guid.NewGuid();
+            ID = id;
             Name = name;
             Description = description;
             Logo = logo;

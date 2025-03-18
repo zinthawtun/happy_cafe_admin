@@ -17,7 +17,7 @@ namespace Utilities
             string id;
             do
             {
-                id = "UI" + new string(Enumerable.Repeat("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 8)
+                id = "UI" + new string(Enumerable.Repeat("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 7)
                     .Select(s => s[random.Next(s.Length)]).ToArray());
             } while (!regex.IsMatch(id));
             return id;

@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "backend\Api\Api.cspr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Business", "backend\Business\Business.csproj", "{19946651-17D4-4B4E-BDFF-5CF09A3E6B22}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Database", "backend\Database\Database.csproj", "{E0C27A91-37A8-438F-8297-142C98815038}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccess", "backend\DataAccess\DataAccess.csproj", "{E0C27A91-37A8-438F-8297-142C98815038}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "backend\Infrastructure\Infrastructure.csproj", "{20B85007-4ED8-4236-84D6-C6B0BAC8D777}"
 EndProject
