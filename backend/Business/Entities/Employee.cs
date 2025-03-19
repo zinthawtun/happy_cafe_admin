@@ -2,7 +2,7 @@
 {
     public class Employee
     {
-        public string ID { get; private set; }
+        public string Id { get; private set; }
 
         public string Name { get; private set; }
 
@@ -12,9 +12,11 @@
 
         public string Gender { get; private set; }
 
+        public List<EmployeeCafe> EmployeeCafes { get; private set; } = new();
+
         public Employee(string id, string name, string emailAddress, string phone, string gender)
         {
-            ID = id;
+            Id = id;
             Name = name;
             EmailAddress = emailAddress;
             Phone = phone;

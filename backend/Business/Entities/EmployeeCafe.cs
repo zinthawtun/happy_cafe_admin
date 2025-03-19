@@ -2,20 +2,35 @@
 {
     public class EmployeeCafe
     {
-        public Guid CafeID { get; private set; }
+        public Guid Id { get; private set; }
 
-        public string EmployeeID { get; private set; }
+        public Guid CafeId { get; private set; }
 
-        public EmployeeCafe(Guid cafeID, string employeeID)
+        public string EmployeeId { get; private set; }
+
+        public bool IsActive { get; private set; }
+
+        public DateTime AssignedDate { get; private set; }
+
+        public Employee? Employee { get; private set; }
+
+        public Cafe? Cafe { get; private set; }
+
+        public EmployeeCafe(Guid id, Guid cafeId, string employeeId, DateTime assignedDate)
         {
-            CafeID = cafeID;
-            EmployeeID = employeeID;
+            Id = id;
+            CafeId = cafeId;
+            EmployeeId = employeeId;
+            IsActive = true;
+            AssignedDate = assignedDate;
         }
 
-        public void Update(Guid cafeID, string employeeID)
+        public void Update(Guid cafeId, string employeeId, bool isActive, DateTime assignedDate)
         {
-            CafeID = cafeID;
-            EmployeeID = employeeID;
+            CafeId = cafeId;
+            EmployeeId = employeeId;
+            IsActive = isActive;
+            AssignedDate = assignedDate;
         }
     }    
 }

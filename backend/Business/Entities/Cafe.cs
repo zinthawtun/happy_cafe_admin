@@ -2,7 +2,7 @@
 {
     public class Cafe
     {
-        public Guid ID { get; private set; }
+        public Guid Id { get; private set; }
 
         public string Name { get; private set; }
 
@@ -12,9 +12,11 @@
 
         public string Location { get; private set; }
 
+        public List<EmployeeCafe> EmployeeCafes { get; private set; } = new();
+
         public Cafe(Guid id, string name, string description, string logo, string location)
         {
-            ID = id;
+            Id = id;
             Name = name;
             Description = description;
             Logo = logo;
