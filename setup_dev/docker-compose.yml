@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:17.4
+    container_name: happy_cafe_admin_postgres_db_container
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-happy_cafe_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-happy_cafe_password}
+      POSTGRES_DB: ${POSTGRES_DB:-cafe_employee_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - happy_cafe_admin_pgdata:/var/lib/postgresql/data
+
+volumes:
+  happy_cafe_admin_pgdata:
+    driver: local

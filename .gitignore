@@ -40,6 +40,7 @@ ScaffoldingReadMe.txt
 ~$*
 *~
 CodeCoverage/
+.vs/
 
 # MSBuild Binary and Structured Log
 *.binlog
@@ -52,3 +53,20 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+# Environment variables
+.env
+dev-setup/.env
+
+# Docker volumes
+pgdata/
+
+# IDE files
+.idea/
+.vscode/
+*.suo
+*.user
+.vs/
+
+# Logs
+*.log
