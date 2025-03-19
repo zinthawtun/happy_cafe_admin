@@ -2,7 +2,6 @@ using Business.Entities;
 using DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Utilities;
-using Tests;
 
 namespace Tests.DataAccess
 {
