@@ -10,7 +10,7 @@ namespace DataAccess.Configuration
         {
             builder.HasKey(ec => ec.Id);
 
-            builder.HasIndex(ec => ec.EmployeeId).IsUnique();
+            builder.HasIndex(ec => ec.EmployeeId);
 
             builder.HasOne(ec => ec.Employee)
                 .WithMany(e => e.EmployeeCafes)

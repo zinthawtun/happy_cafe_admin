@@ -1,0 +1,26 @@
+using AutoMapper;
+using MediatR;
+using Resource.Interfaces;
+using Service.Queries.EmployeeCafes;
+
+namespace Service.Handlers.EmployeeCafes
+{
+    public class GetEmployeeCafesByCafeIdQueryHandler : IRequestHandler<GetEmployeeCafesByCafeIdQuery, IEnumerable<EmployeeCafeDto>>
+    {
+        private readonly IEmployeeCafeResource _employeeCafeResource;
+        private readonly IMapper _mapper;
+
+        public GetEmployeeCafesByCafeIdQueryHandler(IEmployeeCafeResource employeeCafeResource, IMapper mapper)
+        {
+            _employeeCafeResource = employeeCafeResource;
+            _mapper = mapper;
+        }
+
+        public async Task<IEnumerable<EmployeeCafeDto>> Handle(GetEmployeeCafesByCafeIdQuery request, CancellationToken cancellationToken)
+        {
+            var employeeCafes = await _employeeCafeResource.GetByCafeIdAsync(request.CafeId);
+            
+            return _mapper.Map<IEnumerable<EmployeeCafeDto>>(employeeCafes);
+        }
+    }
+} 
