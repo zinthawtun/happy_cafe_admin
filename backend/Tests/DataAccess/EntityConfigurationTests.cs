@@ -1,10 +1,6 @@
-using System;
-using System.Linq;
 using Business.Entities;
 using DataAccess;
 using Microsoft.EntityFrameworkCore;
-using Xunit;
-using Tests;
 
 namespace Tests.DataAccess
 {

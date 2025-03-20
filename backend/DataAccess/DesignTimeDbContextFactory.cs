@@ -9,6 +9,10 @@ namespace DataAccess
     {
         private readonly string? baseDirectory;
 
+        public DesignTimeDbContextFactory() : this(null)
+        {
+        }
+
         public DesignTimeDbContextFactory(string? baseDirectory = null)
         {
             this.baseDirectory = baseDirectory;
