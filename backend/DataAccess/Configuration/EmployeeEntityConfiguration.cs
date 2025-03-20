@@ -1,6 +1,7 @@
 ﻿using Business.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DataAccess.Configuration
 {
@@ -28,9 +29,11 @@ namespace DataAccess.Configuration
                 .IsRequired()
                 .HasMaxLength(15);
 
+            var converter = new EnumToStringConverter<Gender>();
             builder.Property(e => e.Gender)
                 .IsRequired()
-                .HasMaxLength(10);
+                .HasMaxLength(10)
+                .HasConversion(converter);
                 
             builder.Property(e => e.Id).HasColumnName("Id");
             builder.Property(e => e.Name).HasColumnName("Name");

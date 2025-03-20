@@ -3,6 +3,7 @@ using DotNetEnv;
 using Infrastructure.Configuration;
 using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace Tests
 {
@@ -24,6 +25,8 @@ namespace Tests
     {
         static TestDatabaseHelper()
         {
+            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
+
             string envFilePath = Configuration.FindEnvFilePath(".env");
             Console.WriteLine($"Loading .env file from: {envFilePath}");
 
@@ -37,25 +40,35 @@ namespace Tests
 
         public static DbContextOptions<AppDbContext> CreateDbContextOptions(string databaseName)
         {
-            string host = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
-            string port = Environment.GetEnvironmentVariable("DB_PORT") ?? "5432";
-            string dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? "username";
-            string dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "password";
-
-            return new DbContextOptionsBuilder<AppDbContext>()
-                .UseNpgsql($"Server={host};Port={port};Database={databaseName};User Id={dbUser};Password={dbPassword}")
-                .Options;
+            string? originalDbName = Environment.GetEnvironmentVariable("DB_NAME");
+            try
+            {
+                Environment.SetEnvironmentVariable("DB_NAME", databaseName);
+                
+                var configuration = new ConfigurationBuilder().Build();
+                
+                var connectionString = Configuration.GetConnectionString(configuration);
+                
+                return new DbContextOptionsBuilder<AppDbContext>()
+                    .UseNpgsql(connectionString)
+                    .Options;
+            }
+            finally
+            {
+                Environment.SetEnvironmentVariable("DB_NAME", originalDbName);
+            }
         }
 
         public static AppDbContext CreateFreshDbContext(string databaseName)
         {
-            string connectionString = $"Server={Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost"};" +
-                                 $"Port={Environment.GetEnvironmentVariable("DB_PORT") ?? "5432"};" +
-                                 $"Database={databaseName};" +
-                                 $"User Id={Environment.GetEnvironmentVariable("DB_USER") ?? "username"};" +
-                                 $"Password={Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "password"}";
+            string host = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
+            string port = Environment.GetEnvironmentVariable("DB_PORT") ?? "5432";
+            string username = Environment.GetEnvironmentVariable("DB_USER") ?? "username";
+            string password = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "password";
             
-            var connection = new TestDatabaseConnection(connectionString);
+            string testConnectionString = $"Server={host};Port={port};Database={databaseName};User Id={username};Password={password};";
+            
+            var connection = new TestDatabaseConnection(testConnectionString);
             var context = new AppDbContext(connection);
 
             context.Database.EnsureDeleted();

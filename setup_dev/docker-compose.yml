@@ -3,9 +3,16 @@ services:
     image: postgres:17.4
     container_name: happy_cafe_admin_postgres_db_container
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-happy_cafe_admin}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-happy_cafe_password}
-      POSTGRES_DB: ${POSTGRES_DB:-cafe_employee_db}
+
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      DB_HOST: postgres
+      DB_PORT: 5432
     ports:
       - "5432:5432"
     volumes:

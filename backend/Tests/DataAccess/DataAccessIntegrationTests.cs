@@ -19,24 +19,11 @@ namespace Tests.DataAccess
 
         private async Task SeedTestDataAsync()
         {
-            testCafeID = Guid.NewGuid();
-            Cafe cafe = new Cafe(
-                testCafeID,
-                "Happy Integration Cafe",
-                "A cafe for integration testing",
-                "integration-logo.png",
-                "Integration Test Location"
-            );
+            Cafe cafe = ScenarioHelper.CreateCafe("Happy Integration Cafe", "A cafe for integration testing", "integration-logo.png", "Integration Test Location");
+            testCafeID = cafe.Id;
             
-            testEmployeeID = UniqueIdGenerator.GenerateUniqueId();
-            Employee employee = new Employee(
-                testEmployeeID,
-                "Integration Tester",
-                "integration.tester@example.com",
-                "+1234567890",
-                "Male"
-            );
-            
+            Employee employee = ScenarioHelper.CreateEmployee("Integration Tester", "integration.tester@example.com", "+1234567890", Gender.Male);
+            testEmployeeID = employee.Id;
             await appDbContext.Cafes.AddAsync(cafe);
             await appDbContext.Employees.AddAsync(employee);
             await appDbContext.SaveChangesAsync();
@@ -103,6 +90,47 @@ namespace Tests.DataAccess
             Assert.Equal("Updated description for integration testing", updatedCafe.Description);
             Assert.Equal("updated-logo.png", updatedCafe.Logo);
             Assert.Equal("Updated Integration Location", updatedCafe.Location);
+        }
+
+        [Fact]
+        public async Task CanDeleteCafe_Test()
+        {
+            Cafe? cafe = await appDbContext.Cafes.FindAsync(testCafeID);
+            Assert.NotNull(cafe);
+            appDbContext.Cafes.Remove(cafe!);
+            await appDbContext.SaveChangesAsync();
+            Cafe? deletedCafe = await appDbContext.Cafes.FindAsync(testCafeID);
+            Assert.Null(deletedCafe);
+        }
+
+        [Fact]
+        public async Task CanDeleteEmployee_Test()
+        {
+            Employee? employee = await appDbContext.Employees.FindAsync(testEmployeeID);
+            Assert.NotNull(employee);
+            appDbContext.Employees.Remove(employee!);
+            await appDbContext.SaveChangesAsync();
+            Employee? deletedEmployee = await appDbContext.Employees.FindAsync(testEmployeeID);
+            Assert.Null(deletedEmployee);
+        }
+
+        [Fact]
+        public async Task CanDeleteEmployeeCafeRelationshipsByEmployeeId_Test()
+        {
+            List<EmployeeCafe> deletedEmployeeCafes = await appDbContext.EmployeeCafes
+                .Where(ec => ec.EmployeeId == testEmployeeID)
+                .ToListAsync();
+
+            Assert.Empty(deletedEmployeeCafes);
+        }
+
+        [Fact]
+        public async Task CanDeleteEmployeeCafeRelationshipsByCafeId_Test()
+        {
+            List<EmployeeCafe> deletedEmployeeCafes = await appDbContext.EmployeeCafes
+                .Where(ec => ec.CafeId == testCafeID)
+                .ToListAsync();
+            Assert.Empty(deletedEmployeeCafes);
         }
 
         public async Task DisposeAsync()
