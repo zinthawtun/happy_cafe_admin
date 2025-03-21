@@ -31,7 +31,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task CreateAsync_ShouldCreateEmployee()
+        public async Task CreateAsync_ShouldCreateEmployee_Test()
         {
             Employee employee = await resource.CreateAsync(
                 "John Doe",
@@ -52,7 +52,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task GetAllAsync_ShouldReturnAllEmployees()
+        public async Task GetAllAsync_ShouldReturnAllEmployees_Test()
         {
             List<Employee> employees = (await resource.GetAllAsync()).ToList();
 
@@ -69,7 +69,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task GetByIdAsync_WithValidId_ShouldReturnEmployee()
+        public async Task GetByIdAsync_WithValidId_ShouldReturnEmployee_Test()
         {
             Employee created = await resource.CreateAsync("John Doe", "john.doe@example.com", "1234567890", Gender.Male);
             
@@ -81,7 +81,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task GetByIdAsync_WithInvalidId_ShouldReturnNull()
+        public async Task GetByIdAsync_WithInvalidId_ShouldReturnNull_Test()
         {
             Employee? employee = await resource.GetByIdAsync("nonexistent-id");
             
@@ -89,7 +89,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task UpdateAsync_WithValidId_ShouldUpdateEmployee()
+        public async Task UpdateAsync_WithValidId_ShouldUpdateEmployee_Test()
         {
             Employee created = await resource.CreateAsync("John Doe", "john.doe@example.com", "1234567890", Gender.Male);
             
@@ -112,7 +112,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task UpdateAsync_WithInvalidId_ShouldReturnNull()
+        public async Task UpdateAsync_WithInvalidId_ShouldReturnNull_Test()
         {
             Employee? updated = await resource.UpdateAsync(
                 "nonexistent-id",
@@ -125,7 +125,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task DeleteAsync_WithValidId_AndNoRelationships_ShouldDeleteEmployee()
+        public async Task DeleteAsync_WithValidId_AndNoRelationships_ShouldDeleteEmployee_Test()
         {
             Employee created = await resource.CreateAsync("John Doe", "john.doe@example.com", "1234567890", Gender.Male);
             
@@ -138,7 +138,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task DeleteAsync_WithInvalidId_ShouldReturnFalse()
+        public async Task DeleteAsync_WithInvalidId_ShouldReturnFalse_Test()
         {
             bool result = await resource.DeleteAsync("nonexistent-id");
             
@@ -146,7 +146,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task DeleteAsync_WithActiveAssignments_ShouldReturnFalse()
+        public async Task DeleteAsync_WithActiveAssignments_ShouldReturnFalse_Test()
         {
             Employee employee = await resource.CreateAsync("John Doe", "john.doe@example.com", "1234567890", Gender.Male);
             
@@ -166,7 +166,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task GetByCafeIdAsync_ShouldReturnEmployeesAssignedToCafe()
+        public async Task GetByCafeIdAsync_ShouldReturnEmployeesAssignedToCafe_Test()
         {
             Employee employee1 = await resource.CreateAsync("John Doe", "john@example.com", "1234567890", Gender.Male);
             Employee employee2 = await resource.CreateAsync("Jane Smith", "jane@example.com", "0987654321", Gender.Female);
@@ -189,7 +189,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task ExistsAsync_WithValidId_ShouldReturnTrue()
+        public async Task ExistsAsync_WithValidId_ShouldReturnTrue_Test()
         {
             Employee created = await resource.CreateAsync("John Doe", "john.doe@example.com", "1234567890", Gender.Male);
             
@@ -199,7 +199,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task ExistsAsync_WithInvalidId_ShouldReturnFalse()
+        public async Task ExistsAsync_WithInvalidId_ShouldReturnFalse_Test()
         {
             bool exists = await resource.ExistsAsync("nonexistent-id");
             
@@ -207,7 +207,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task GetCountAsync_ShouldReturnCorrectCount()
+        public async Task GetCountAsync_ShouldReturnCorrectCount_Test()
         {
             int count = await resource.GetCountAsync();
 

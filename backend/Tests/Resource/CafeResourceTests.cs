@@ -25,7 +25,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task CreateAsync_ShouldCreateCafe()
+        public async Task CreateAsync_ShouldCreateCafe_Test()
         {
             Cafe cafe = await resource.CreateAsync(
                 "Coffee House", 
@@ -46,7 +46,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task GetAllAsync_ShouldReturnAllCafes()
+        public async Task GetAllAsync_ShouldReturnAllCafes_Test()
         {
             await resource.CreateAsync("Coffee House", "Description 1", "logo1.png", "Location 1");
             await resource.CreateAsync("Tea House", "Description 2", "logo2.png", "Location 2");
@@ -59,7 +59,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task GetByIdAsync_WithValidId_ShouldReturnCafe()
+        public async Task GetByIdAsync_WithValidId_ShouldReturnCafe_Test()
         {
             Cafe created = await resource.CreateAsync("Coffee House", "Description", "logo.png", "Location");
             
@@ -71,7 +71,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task GetByIdAsync_WithInvalidId_ShouldReturnNull()
+        public async Task GetByIdAsync_WithInvalidId_ShouldReturnNull_Test()
         {
             Cafe? cafe = await resource.GetByIdAsync(Guid.NewGuid());
             
@@ -79,7 +79,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task UpdateAsync_WithValidId_ShouldUpdateCafe()
+        public async Task UpdateAsync_WithValidId_ShouldUpdateCafe_Test()
         {
             Cafe created = await resource.CreateAsync("Coffee House", "Description", "logo.png", "Location");
             
@@ -103,7 +103,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task UpdateAsync_WithInvalidId_ShouldReturnNull()
+        public async Task UpdateAsync_WithInvalidId_ShouldReturnNull_Test()
         {
             Cafe? updated = await resource.UpdateAsync(
                 Guid.NewGuid(), 
@@ -116,7 +116,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task DeleteAsync_WithValidId_AndNoRelationships_ShouldDeleteCafe()
+        public async Task DeleteAsync_WithValidId_AndNoRelationships_ShouldDeleteCafe_Test()
         {
             Cafe created = await resource.CreateAsync("Coffee House", "Description", "logo.png", "Location");
             
@@ -129,7 +129,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task DeleteAsync_WithInvalidId_ShouldReturnFalse()
+        public async Task DeleteAsync_WithInvalidId_ShouldReturnFalse_Test()
         {
             bool result = await resource.DeleteAsync(Guid.NewGuid());
             
@@ -137,7 +137,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task DeleteAsync_WithActiveAssignments_ShouldReturnFalse()
+        public async Task DeleteAsync_WithActiveAssignments_ShouldReturnFalse_Test()
         {
             Cafe cafe = await resource.CreateAsync("Coffee House", "Description", "logo.png", "Location");
             
@@ -157,7 +157,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task GetByEmployeeIdAsync_ShouldReturnCafesAssignedToEmployee()
+        public async Task GetByEmployeeIdAsync_ShouldReturnCafesAssignedToEmployee_Test()
         {
             Cafe cafe1 = await resource.CreateAsync("Coffee House", "Description 1", "logo1.png", "Location 1");
             Cafe cafe2 = await resource.CreateAsync("Tea House", "Description 2", "logo2.png", "Location 2");
@@ -179,7 +179,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task ExistsAsync_WithValidId_ShouldReturnTrue()
+        public async Task ExistsAsync_WithValidId_ShouldReturnTrue_Test()
         {
             Cafe created = await resource.CreateAsync("Coffee House", "Description", "logo.png", "Location");
             
@@ -189,7 +189,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task ExistsAsync_WithInvalidId_ShouldReturnFalse()
+        public async Task ExistsAsync_WithInvalidId_ShouldReturnFalse_Test()
         {
             bool exists = await resource.ExistsAsync(Guid.NewGuid());
             
@@ -197,7 +197,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task GetCountAsync_ShouldReturnCorrectCount()
+        public async Task GetCountAsync_ShouldReturnCorrectCount_Test()
         {
             await resource.CreateAsync("Coffee House", "Description 1", "logo1.png", "Location 1");
             await resource.CreateAsync("Tea House", "Description 2", "logo2.png", "Location 2");
@@ -209,7 +209,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task GetByLocationLikeAsync_ShouldReturnMatchingCafes()
+        public async Task GetByLocationLikeAsync_ShouldReturnMatchingCafes_Test()
         {
             await resource.CreateAsync("Downtown Coffee", "Description 1", "logo1.png", "Downtown");
             await resource.CreateAsync("Downtown Tea", "Description 2", "logo2.png", "Downtown");
