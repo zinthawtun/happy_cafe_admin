@@ -34,7 +34,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task CreateAsync_WithValidData_ShouldCreateEmployeeCafe()
+        public async Task CreateAsync_WithValidData_ShouldCreateEmployeeCafe_Test()
         {
             Employee employee = new Employee(employeeId, "John Doe", "john@example.com", "1234567890", Gender.Male);
             Cafe cafe = new Cafe(Guid.NewGuid(), "Coffee House", "Description", "logo.png", "Location");
@@ -65,7 +65,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task CreateAsync_WithInvalidEmployeeId_ShouldThrowException()
+        public async Task CreateAsync_WithInvalidEmployeeId_ShouldThrowException_Test()
         {
             Cafe cafe = new Cafe(Guid.NewGuid(), "Coffee House", "Description", "logo.png", "Location");
             context.Cafes.Add(cafe);
@@ -76,7 +76,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task CreateAsync_WithInvalidCafeId_ShouldThrowException()
+        public async Task CreateAsync_WithInvalidCafeId_ShouldThrowException_Test()
         {
             Employee employee = new Employee(employeeId, "John Doe", "john@example.com", "1234567890", Gender.Male);
             context.Employees.Add(employee);
@@ -87,7 +87,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task GetAllAsync_ShouldReturnAllEmployeeCafeAssignments()
+        public async Task GetAllAsync_ShouldReturnAllEmployeeCafeAssignments_Test()
         {
             Employee employee = new Employee(employeeId, "John Doe", "john@example.com", "1234567890", Gender.Male);
             Employee employee1 = new Employee(UniqueIdGenerator.GenerateUniqueId(), "Jane Smith", "jane.smith@example.com", "09876592393", Gender.Female);
@@ -112,7 +112,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task GetAllAsync_ShouldReturnEmployeeOrCafeNotExitError()
+        public async Task GetAllAsync_ShouldReturnEmployeeOrCafeNotExitError_Test()
         {
             Cafe cafe1 = new Cafe(Guid.NewGuid(), "Coffee House", "Description 1", "logo1.png", "Location 1");
             Cafe cafe2 = new Cafe(Guid.NewGuid(), "Tea House", "Description 2", "logo2.png", "Location 2");
@@ -128,7 +128,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task GetByIdAsync_WithValidId_ShouldReturnEmployeeCafe()
+        public async Task GetByIdAsync_WithValidId_ShouldReturnEmployeeCafe_Test()
         {
             Employee employee = new Employee(employeeId, "John Doe", "john@example.com", "1234567890", Gender.Male);
             Cafe cafe = new Cafe(Guid.NewGuid(), "Coffee House", "Description", "logo.png", "Location");
@@ -149,7 +149,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task GetByIdAsync_WithInvalidId_ShouldReturnNull()
+        public async Task GetByIdAsync_WithInvalidId_ShouldReturnNull_Test()
         {
             EmployeeCafe? employeeCafe = await resource.GetByIdAsync(Guid.NewGuid());
             
@@ -157,7 +157,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task UpdateAsync_WithValidId_ShouldUpdateEmployeeCafe()
+        public async Task UpdateAsync_WithValidId_ShouldUpdateEmployeeCafe_Test()
         {
             Employee employee = new Employee(employeeId, "John Doe", "john@example.com", "1234567890", Gender.Male);
             Cafe cafe1 = new Cafe(Guid.NewGuid(), "Coffee House", "Description 1", "logo1.png", "Location 1");
@@ -191,7 +191,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task UpdateAsync_WithInvalidId_ShouldReturnNull()
+        public async Task UpdateAsync_WithInvalidId_ShouldReturnNull_Test()
         {
             EmployeeCafe? updated = await resource.UpdateAsync(
                 Guid.NewGuid(),
@@ -204,7 +204,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task DeleteAsync_WithValidId_ShouldDeleteEmployeeCafe()
+        public async Task DeleteAsync_WithValidId_ShouldDeleteEmployeeCafe_Test()
         {
             Employee employee = new Employee(employeeId, "John Doe", "john@example.com", "1234567890", Gender.Male);
             Cafe cafe = new Cafe(Guid.NewGuid(), "Coffee House", "Description", "logo.png", "Location");
@@ -225,7 +225,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task DeleteAsync_WithInvalidId_ShouldReturnFalse()
+        public async Task DeleteAsync_WithInvalidId_ShouldReturnFalse_Test()
         {
             bool result = await resource.DeleteAsync(Guid.NewGuid());
             
@@ -233,7 +233,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task GetByEmployeeIdAsync_ShouldReturnAllAssignmentsForEmployee()
+        public async Task GetByEmployeeIdAsync_ShouldReturnAllAssignmentsForEmployee_Test()
         {
             Employee employee = new Employee(employeeId, "John Doe", "john@example.com", "1234567890", Gender.Male);
             Cafe cafe1 = new Cafe(Guid.NewGuid(), "Coffee House", "Description 1", "logo1.png", "Location 1");
@@ -255,7 +255,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task ExistsAsync_WithValidId_ShouldReturnTrue()
+        public async Task ExistsAsync_WithValidId_ShouldReturnTrue_Test()
         {
             Employee employee = new Employee(employeeId, "John Doe", "john@example.com", "1234567890", Gender.Male);
             Cafe cafe = new Cafe(Guid.NewGuid(), "Coffee House", "Description", "logo.png", "Location");
@@ -273,7 +273,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task ExistsAsync_WithInvalidId_ShouldReturnFalse()
+        public async Task ExistsAsync_WithInvalidId_ShouldReturnFalse_Test()
         {
             bool exists = await resource.ExistsAsync(Guid.NewGuid());
             
@@ -281,7 +281,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task IsEmployeeAssignedToCafeAsync_WithValidAssignment_ShouldReturnTrue()
+        public async Task IsEmployeeAssignedToCafeAsync_WithValidAssignment_ShouldReturnTrue_Test()
         {
             Employee employee = new Employee(employeeId, "John Doe", "john@example.com", "1234567890", Gender.Male);
             Cafe cafe = new Cafe(Guid.NewGuid(), "Coffee House", "Description", "logo.png", "Location");
@@ -298,7 +298,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task IsEmployeeAssignedToCafeAsync_WithInactiveAssignment_ShouldReturnFalse()
+        public async Task IsEmployeeAssignedToCafeAsync_WithInactiveAssignment_ShouldReturnFalse_Test()
         {
             Employee employee = new Employee(employeeId, "John Doe", "john@example.com", "1234567890", Gender.Male);
             Cafe cafe = new Cafe(Guid.NewGuid(), "Coffee House", "Description", "logo.png", "Location");
@@ -316,7 +316,7 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task IsEmployeeAssignedToCafeAsync_WithNoAssignment_ShouldReturnFalse()
+        public async Task IsEmployeeAssignedToCafeAsync_WithNoAssignment_ShouldReturnFalse_Test()
         {
             bool isAssigned = await resource.IsEmployeeAssignedToCafeAsync("EMP123", Guid.NewGuid());
             

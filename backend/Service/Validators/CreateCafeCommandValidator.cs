@@ -13,7 +13,7 @@ namespace Service.Validators
 
             RuleFor(x => x.Location)
                 .NotEmpty().WithMessage("Location is required")
-                .MaximumLength(200).WithMessage("Location cannot exceed 200 characters");
+                .MaximumLength(200).WithMessage("Location must be less than 200 characters.");
 
             RuleFor(x => x.Description)
                 .MaximumLength(500).WithMessage("Description cannot exceed 500 characters");

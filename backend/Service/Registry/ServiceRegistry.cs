@@ -4,6 +4,8 @@ using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Resource.Registry;
+using Service.Interfaces;
+using Service.Services;
 using System.Reflection;
 
 namespace Service.Registry
@@ -21,10 +23,22 @@ namespace Service.Registry
         {
             builder.RegisterModule(new ResourceRegistry(_configuration));
 
+            builder.RegisterType<CafeService>()
+                .As<ICafeService>()
+                .InstancePerLifetimeScope();
+                
+            builder.RegisterType<EmployeeService>()
+                .As<IEmployeeService>()
+                .InstancePerLifetimeScope();
+                
+            builder.RegisterType<EmployeeCafeService>()
+                .As<IEmployeeCafeService>()
+                .InstancePerLifetimeScope();
+
             builder.RegisterAssemblyTypes(typeof(IMediator).GetTypeInfo().Assembly)
                 .AsImplementedInterfaces();
 
-            Type[] mediatrOpenTypes = new[]
+            var mediatrOpenTypes = new[]
             {
                 typeof(IRequestHandler<,>),
                 typeof(IRequestHandler<>),
