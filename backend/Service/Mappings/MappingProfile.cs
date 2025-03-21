@@ -15,7 +15,19 @@ namespace Service.Mappings
         public MappingProfile()
         {
             CreateMap<Cafe, CafeDto>();
-            CreateMap<EmployeeCafe, EmployeeCafeDto>();
+
+            CreateMap<CafeDto, Cafe>()
+                .ForMember(dest => dest.EmployeeCafes, opt => opt.Ignore())
+                .ConstructUsing(src => new Cafe(src.Id, src.Name, src.Description, src.Logo, src.Location));
+
+            CreateMap<EmployeeCafe, EmployeeCafeDto>()
+                .ForMember(dest => dest.CafeName, opt => opt.MapFrom(src => src.Cafe != null ? src.Cafe.Name : string.Empty))
+                .ForMember(dest => dest.EmployeeName, opt => opt.MapFrom(src => src.Employee != null ? src.Employee.Name : string.Empty));
+
+            CreateMap<EmployeeCafeDto, EmployeeCafe>()
+                .ForMember(dest => dest.Employee, opt => opt.Ignore())
+                .ForMember(dest => dest.Cafe, opt => opt.Ignore())
+                .ConstructUsing(src => new EmployeeCafe(src.Id, src.CafeId, src.EmployeeId, src.AssignedDate));
 
             CreateMap<CreateCafeCommand, Cafe>()
                 .ForMember(dest => dest.EmployeeCafes, opt => opt.Ignore())
@@ -37,6 +49,10 @@ namespace Service.Mappings
 
             CreateMap<Employee, EmployeeDto>()
                 .ForMember(dest => dest.JoinedDate, opt => opt.Ignore());
+
+            CreateMap<EmployeeDto, Employee>()
+                .ForMember(dest => dest.EmployeeCafes, opt => opt.Ignore())
+                .ConstructUsing(src => new Employee(src.Id, src.Name, src.EmailAddress, src.Phone, src.Gender));
 
             CreateMap<AssignEmployeeToCafeCommand, EmployeeCafe>()
                 .ForMember(dest => dest.Employee, opt => opt.Ignore())

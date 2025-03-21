@@ -189,7 +189,19 @@ namespace Api.Controllers
             if (employeeCafe != null && employeeCafe.IsActive)
             {
                 daysWorked = (int)Math.Ceiling((DateTime.UtcNow - employeeCafe.AssignedDate).TotalDays);
-                cafeName = employeeCafe.Cafe?.Name ?? string.Empty;
+                
+                if (employeeCafe.Cafe != null)
+                {
+                    cafeName = employeeCafe.Cafe.Name;
+                }
+                else if (employeeCafe.CafeId != Guid.Empty)
+                {
+                    var cafe = cafeService.GetByIdAsync(employeeCafe.CafeId).GetAwaiter().GetResult();
+                    if (cafe != null)
+                    {
+                        cafeName = cafe.Name;
+                    }
+                }
             }
 
             return new EmployeeResponseModel
