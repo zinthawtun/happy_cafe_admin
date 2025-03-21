@@ -17,9 +17,9 @@ namespace Tests.Service.Mappings
 
         public MappingProfileTests()
         {
-            var configuration = new MapperConfiguration(cfg =>
+            MapperConfiguration configuration = new MapperConfiguration(config =>
             {
-                cfg.AddProfile<MappingProfile>();
+                config.AddProfile<MappingProfile>();
             });
 
             configuration.AssertConfigurationIsValid();

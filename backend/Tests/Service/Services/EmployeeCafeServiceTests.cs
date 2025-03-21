@@ -148,35 +148,113 @@ namespace Tests.Service.Services
         }
 
         [Fact]
-        public async Task GetByEmployeeIdAsync_ShouldReturnEmployeeCafes_WhenAssignmentsExist_Test()
+        public async Task GetByEmployeeIdAsync_ShouldReturnActiveEmployeeCafe_WhenAssignmentsExist_Test()
         {
             string employeeId = UniqueIdGenerator.GenerateUniqueId();
             DateTime assignedDate = DateTime.UtcNow.Date;
 
             List<EmployeeCafeDto> employeeCafeDtos = new List<EmployeeCafeDto>
             {
-                new EmployeeCafeDto { Id = Guid.NewGuid(), EmployeeId = employeeId, CafeId = Guid.NewGuid() }
+                new EmployeeCafeDto { 
+                    Id = Guid.NewGuid(), 
+                    EmployeeId = employeeId, 
+                    CafeId = Guid.NewGuid(), 
+                    IsActive = true,
+                    AssignedDate = assignedDate
+                },
+                new EmployeeCafeDto { 
+                    Id = Guid.NewGuid(), 
+                    EmployeeId = employeeId, 
+                    CafeId = Guid.NewGuid(), 
+                    IsActive = false,
+                    AssignedDate = assignedDate.AddDays(-10)
+                }
             };
 
-            IEnumerable<EmployeeCafe> employeeCafes = new List<EmployeeCafe>
-            {
-                new EmployeeCafe(employeeCafeDtos[0].Id, employeeCafeDtos[0].CafeId, employeeId, assignedDate)
-            };
+            EmployeeCafe activeEmployeeCafe = new EmployeeCafe(
+                employeeCafeDtos[0].Id, 
+                employeeCafeDtos[0].CafeId, 
+                employeeId, 
+                assignedDate
+            );
 
             mediatorMock
                 .Setup(m => m.Send(It.Is<GetEmployeeCafesByEmployeeIdQuery>(q => q.EmployeeId == employeeId), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(employeeCafeDtos);
 
             mapperMock
-                .Setup(m => m.Map<IEnumerable<EmployeeCafe>>(employeeCafeDtos))
-                .Returns(employeeCafes);
+                .Setup(m => m.Map<EmployeeCafe>(It.Is<EmployeeCafeDto>(dto => dto.IsActive)))
+                .Returns(activeEmployeeCafe);
 
-            IEnumerable<EmployeeCafe> result = await employeeCafeService.GetByEmployeeIdAsync(employeeId);
+            EmployeeCafe? result = await employeeCafeService.GetByEmployeeIdAsync(employeeId);
 
             Assert.NotNull(result);
-            Assert.Single(result);
-            Assert.All(result, ec => Assert.Equal(employeeId, ec.EmployeeId));
+            Assert.Equal(employeeId, result.EmployeeId);
+            Assert.Equal(employeeCafeDtos[0].Id, result.Id);
 
+            mediatorMock.Verify(m => m.Send(It.Is<GetEmployeeCafesByEmployeeIdQuery>(q => q.EmployeeId == employeeId), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetByEmployeeIdAsync_ShouldReturnNull_WhenNoActiveAssignmentsExist_Test()
+        {
+            string employeeId = UniqueIdGenerator.GenerateUniqueId();
+            DateTime olderDate = DateTime.UtcNow.AddDays(-10);
+            DateTime newerDate = DateTime.UtcNow.AddDays(-5);
+
+            List<EmployeeCafeDto> employeeCafeDtos = new List<EmployeeCafeDto>
+            {
+                new EmployeeCafeDto { 
+                    Id = Guid.NewGuid(), 
+                    EmployeeId = employeeId, 
+                    CafeId = Guid.NewGuid(), 
+                    IsActive = false,
+                    AssignedDate = olderDate
+                },
+                new EmployeeCafeDto { 
+                    Id = Guid.NewGuid(), 
+                    EmployeeId = employeeId, 
+                    CafeId = Guid.NewGuid(), 
+                    IsActive = false,
+                    AssignedDate = newerDate
+                }
+            };
+
+            EmployeeCafe mostRecentEmployeeCafe = new EmployeeCafe(
+                employeeCafeDtos[1].Id, 
+                employeeCafeDtos[1].CafeId, 
+                employeeId, 
+                newerDate
+            );
+
+            mediatorMock
+                .Setup(m => m.Send(It.Is<GetEmployeeCafesByEmployeeIdQuery>(q => q.EmployeeId == employeeId), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(employeeCafeDtos);
+
+            mapperMock
+                .Setup(m => m.Map<EmployeeCafe>(It.Is<EmployeeCafeDto>(dto => dto.AssignedDate == newerDate)))
+                .Returns(mostRecentEmployeeCafe);
+
+            EmployeeCafe? result = await employeeCafeService.GetByEmployeeIdAsync(employeeId);
+
+            Assert.Null(result);
+
+            mediatorMock.Verify(m => m.Send(It.Is<GetEmployeeCafesByEmployeeIdQuery>(q => q.EmployeeId == employeeId), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetByEmployeeIdAsync_ShouldReturnNull_WhenNoAssignmentsExist_Test()
+        {
+            string employeeId = UniqueIdGenerator.GenerateUniqueId();
+            List<EmployeeCafeDto> emptyList = new List<EmployeeCafeDto>();
+
+            mediatorMock
+                .Setup(m => m.Send(It.Is<GetEmployeeCafesByEmployeeIdQuery>(q => q.EmployeeId == employeeId), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(emptyList);
+
+            EmployeeCafe? result = await employeeCafeService.GetByEmployeeIdAsync(employeeId);
+
+            Assert.Null(result);
             mediatorMock.Verify(m => m.Send(It.Is<GetEmployeeCafesByEmployeeIdQuery>(q => q.EmployeeId == employeeId), It.IsAny<CancellationToken>()), Times.Once);
         }
 
@@ -315,39 +393,28 @@ namespace Tests.Service.Services
             string employeeId = UniqueIdGenerator.GenerateUniqueId();
             Guid cafeId = Guid.NewGuid();
             DateTime assignedDate = DateTime.UtcNow.Date;
-            
-            EmployeeCafeDto employeeCafeDto = new EmployeeCafeDto 
-            { 
-                Id = Guid.NewGuid(), 
-                EmployeeId = employeeId, 
-                CafeId = cafeId, 
-                IsActive = true 
-            };
-            
-            EmployeeCafe employeeCafe = new EmployeeCafe(
-                employeeCafeDto.Id,
+
+            EmployeeCafe activeAssignment = new EmployeeCafe(
+                Guid.NewGuid(),
                 cafeId,
                 employeeId,
                 assignedDate
             );
             
-            List<EmployeeCafeDto> employeeCafeDtos = new List<EmployeeCafeDto> { employeeCafeDto };
-            List<EmployeeCafe> employeeCafes = new List<EmployeeCafe> { employeeCafe };
-            
             mediatorMock
                 .Setup(m => m.Send(It.Is<GetEmployeeCafesByEmployeeIdQuery>(q => q.EmployeeId == employeeId), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(employeeCafeDtos);
+                .ReturnsAsync(new List<EmployeeCafeDto> 
+                {
+                    new EmployeeCafeDto { Id = activeAssignment.Id, CafeId = cafeId, EmployeeId = employeeId, IsActive = true }
+                });
                 
             mapperMock
-                .Setup(m => m.Map<IEnumerable<EmployeeCafe>>(It.Is<IEnumerable<EmployeeCafeDto>>(dtos => dtos.Contains(employeeCafeDto))))
-                .Returns(employeeCafes);
+                .Setup(m => m.Map<EmployeeCafe>(It.IsAny<EmployeeCafeDto>()))
+                .Returns(activeAssignment);
 
             bool result = await employeeCafeService.IsEmployeeAssignedToCafeAsync(employeeId, cafeId);
 
             Assert.True(result);
-            
-            mediatorMock.Verify(m => m.Send(It.Is<GetEmployeeCafesByEmployeeIdQuery>(q => q.EmployeeId == employeeId), It.IsAny<CancellationToken>()), Times.Once);
-            mapperMock.Verify(m => m.Map<IEnumerable<EmployeeCafe>>(It.IsAny<IEnumerable<EmployeeCafeDto>>()), Times.Once);
         }
 
         [Fact]
@@ -356,40 +423,45 @@ namespace Tests.Service.Services
             string employeeId = UniqueIdGenerator.GenerateUniqueId();
             Guid cafeId = Guid.NewGuid();
             Guid differentCafeId = Guid.NewGuid();
+
+            mediatorMock
+                .Setup(m => m.Send(It.Is<GetEmployeeCafesByEmployeeIdQuery>(q => q.EmployeeId == employeeId), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new List<EmployeeCafeDto>());
+
+            bool result = await employeeCafeService.IsEmployeeAssignedToCafeAsync(employeeId, cafeId);
+
+            Assert.False(result);
+        }
+
+        [Fact]
+        public async Task IsEmployeeAssignedToCafeAsync_ShouldReturnFalse_WhenAssignedToDifferentCafe_Test()
+        {
+            string employeeId = UniqueIdGenerator.GenerateUniqueId();
+            Guid cafeId = Guid.NewGuid();
+            Guid differentCafeId = Guid.NewGuid();
             DateTime assignedDate = DateTime.UtcNow.Date;
-            
-            EmployeeCafeDto employeeCafeDto = new EmployeeCafeDto 
-            { 
-                Id = Guid.NewGuid(), 
-                EmployeeId = employeeId, 
-                CafeId = differentCafeId, 
-                IsActive = true 
-            };
-            
-            EmployeeCafe employeeCafe = new EmployeeCafe(
-                employeeCafeDto.Id,
+
+            EmployeeCafe activeAssignment = new EmployeeCafe(
+                Guid.NewGuid(),
                 differentCafeId,
                 employeeId,
                 assignedDate
             );
             
-            List<EmployeeCafeDto> employeeCafeDtos = new List<EmployeeCafeDto> { employeeCafeDto };
-            List<EmployeeCafe> employeeCafes = new List<EmployeeCafe> { employeeCafe };
-            
             mediatorMock
                 .Setup(m => m.Send(It.Is<GetEmployeeCafesByEmployeeIdQuery>(q => q.EmployeeId == employeeId), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(employeeCafeDtos);
+                .ReturnsAsync(new List<EmployeeCafeDto> 
+                {
+                    new EmployeeCafeDto { Id = activeAssignment.Id, CafeId = differentCafeId, EmployeeId = employeeId, IsActive = true }
+                });
                 
             mapperMock
-                .Setup(m => m.Map<IEnumerable<EmployeeCafe>>(It.Is<IEnumerable<EmployeeCafeDto>>(dtos => dtos.Contains(employeeCafeDto))))
-                .Returns(employeeCafes);
+                .Setup(m => m.Map<EmployeeCafe>(It.IsAny<EmployeeCafeDto>()))
+                .Returns(activeAssignment);
 
             bool result = await employeeCafeService.IsEmployeeAssignedToCafeAsync(employeeId, cafeId);
 
             Assert.False(result);
-            
-            mediatorMock.Verify(m => m.Send(It.Is<GetEmployeeCafesByEmployeeIdQuery>(q => q.EmployeeId == employeeId), It.IsAny<CancellationToken>()), Times.Once);
-            mapperMock.Verify(m => m.Map<IEnumerable<EmployeeCafe>>(It.IsAny<IEnumerable<EmployeeCafeDto>>()), Times.Once);
         }
 
         [Fact]
@@ -427,10 +499,9 @@ namespace Tests.Service.Services
 
             bool result = await employeeCafeService.IsEmployeeAssignedToCafeAsync(employeeId, cafeId);
 
-            Assert.True(result);
+            Assert.False(result);
             
             mediatorMock.Verify(m => m.Send(It.Is<GetEmployeeCafesByEmployeeIdQuery>(q => q.EmployeeId == employeeId), It.IsAny<CancellationToken>()), Times.Once);
-            mapperMock.Verify(m => m.Map<IEnumerable<EmployeeCafe>>(It.IsAny<IEnumerable<EmployeeCafeDto>>()), Times.Once);
         }
     }
 } 

@@ -45,9 +45,9 @@ namespace Tests
             {
                 Environment.SetEnvironmentVariable("DB_NAME", databaseName);
                 
-                var configuration = new ConfigurationBuilder().Build();
+                IConfigurationRoot configuration = new ConfigurationBuilder().Build();
                 
-                var connectionString = Configuration.GetConnectionString(configuration);
+                string connectionString = Configuration.GetConnectionString(configuration);
                 
                 return new DbContextOptionsBuilder<AppDbContext>()
                     .UseNpgsql(connectionString)
@@ -67,9 +67,9 @@ namespace Tests
             string password = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "password";
             
             string testConnectionString = $"Server={host};Port={port};Database={databaseName};User Id={username};Password={password};";
-            
-            var connection = new TestDatabaseConnection(testConnectionString);
-            var context = new AppDbContext(connection);
+
+            TestDatabaseConnection connection = new TestDatabaseConnection(testConnectionString);
+            AppDbContext context = new AppDbContext(connection);
 
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();

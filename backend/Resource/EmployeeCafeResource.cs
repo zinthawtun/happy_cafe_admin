@@ -59,7 +59,7 @@ namespace Resource
             if (!employeeExists || !cafeExists)
                 throw new InvalidOperationException("Employee or Cafe does not exist");
 
-            var employeeCafe = new EmployeeCafe(Guid.NewGuid(), cafeId, employeeId, assignedDate);
+            EmployeeCafe employeeCafe = new EmployeeCafe(Guid.NewGuid(), cafeId, employeeId, assignedDate);
             
             await dbContext.EmployeeCafes.AddAsync(employeeCafe);
             await dbContext.SaveChangesAsync();
@@ -69,7 +69,8 @@ namespace Resource
 
         public async Task<EmployeeCafe?> UpdateAsync(Guid id, Guid cafeId, string employeeId, bool isActive, DateTime assignedDate)
         {
-            var employeeCafe = await dbContext.EmployeeCafes.FindAsync(id);
+            EmployeeCafe? employeeCafe = await dbContext.EmployeeCafes.FindAsync(id);
+
             if (employeeCafe == null)
                 return null;
 
@@ -88,7 +89,8 @@ namespace Resource
 
         public async Task<bool> DeleteAsync(Guid id)
         {
-            var employeeCafe = await dbContext.EmployeeCafes.FindAsync(id);
+            EmployeeCafe? employeeCafe = await dbContext.EmployeeCafes.FindAsync(id);
+
             if (employeeCafe == null)
                 return false;
 

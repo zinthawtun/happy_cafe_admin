@@ -121,7 +121,7 @@ namespace Tests.Resource
             context.Cafes.Add(cafe2);
             await context.SaveChangesAsync();
 
-            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            InvalidOperationException? exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
                 resource.CreateAsync(cafe1.Id, "invalid-employee-id", DateTime.UtcNow));
 
             Assert.Equal("Employee or Cafe does not exist", exception.Message);

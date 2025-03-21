@@ -1,9 +1,8 @@
 using AutoMapper;
+using Business.Entities;
 using MediatR;
 using Resource.Interfaces;
 using Service.Queries.Employees;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Service.Handlers.Employees
 {
@@ -20,7 +19,7 @@ namespace Service.Handlers.Employees
 
         public async Task<EmployeeDto?> Handle(GetEmployeeByIdQuery request, CancellationToken cancellationToken)
         {
-            var employee = await employeeResource.GetByIdAsync(request.Id);
+            Employee? employee = await employeeResource.GetByIdAsync(request.Id);
             
             return employee != null ? mapper.Map<EmployeeDto>(employee) : null;
         }

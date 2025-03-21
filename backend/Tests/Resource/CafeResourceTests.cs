@@ -216,23 +216,23 @@ namespace Tests.Resource
             await resource.CreateAsync("Uptown Cafe", "Description 3", "logo3.png", "Uptown");
             await resource.CreateAsync("Suburban Coffee", "Description 4", "logo4.png", "Suburban");
             
-            List<Cafe> downtownCafes = (await resource.GetByLocationLikeAsync("Downtown")).ToList();
+            List<Cafe> downtownCafes = (await resource.GetByLocationAsync("Downtown")).ToList();
             
             Assert.Equal(2, downtownCafes.Count);
             Assert.All(downtownCafes, cafe => Assert.Equal("Downtown", cafe.Location));
             
-            List<Cafe> townCafes = (await resource.GetByLocationLikeAsync("town")).ToList();
+            List<Cafe> townCafes = (await resource.GetByLocationAsync("town")).ToList();
             
             Assert.Equal(3, townCafes.Count);
             Assert.Contains(townCafes, c => c.Location == "Downtown");
             Assert.Contains(townCafes, c => c.Location == "Uptown");
             
-            List<Cafe> downtownCafesCaseInsensitive = (await resource.GetByLocationLikeAsync("downtown")).ToList();
+            List<Cafe> downtownCafesCaseInsensitive = (await resource.GetByLocationAsync("downtown")).ToList();
             
             Assert.Equal(2, downtownCafesCaseInsensitive.Count);
             Assert.All(downtownCafesCaseInsensitive, cafe => Assert.Equal("Downtown", cafe.Location));
             
-            List<Cafe> noMatches = (await resource.GetByLocationLikeAsync("Nonexistent")).ToList();
+            List<Cafe> noMatches = (await resource.GetByLocationAsync("Nonexistent")).ToList();
             
             Assert.Empty(noMatches);
         }

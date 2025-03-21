@@ -4,6 +4,7 @@ using MediatR;
 using Service.Commands.EmployeeCafes;
 using Service.Interfaces;
 using Service.Queries.EmployeeCafes;
+using Service.Queries.Employees;
 
 namespace Service.Services
 {
@@ -48,13 +49,22 @@ namespace Service.Services
             return mapper.Map<IEnumerable<EmployeeCafe>>(employeeCafeDtos);
         }
 
-        public async Task<IEnumerable<EmployeeCafe>> GetByEmployeeIdAsync(string employeeId)
+        public async Task<EmployeeCafe?> GetByEmployeeIdAsync(string employeeId)
         {
             GetEmployeeCafesByEmployeeIdQuery query = new GetEmployeeCafesByEmployeeIdQuery { EmployeeId = employeeId };
 
             IEnumerable<EmployeeCafeDto> employeeCafeDtos = await mediator.Send(query);
             
-            return mapper.Map<IEnumerable<EmployeeCafe>>(employeeCafeDtos);
+            List<EmployeeCafeDto> employeeCafeDtoList = employeeCafeDtos.ToList();
+            
+            EmployeeCafeDto? activeEmployeeCafe = employeeCafeDtoList.FirstOrDefault(ec => ec.IsActive);
+
+            if (activeEmployeeCafe != null)
+            {
+                return mapper.Map<EmployeeCafe>(activeEmployeeCafe);
+            }
+            
+            return null;
         }
 
         public async Task<EmployeeCafe> AssignEmployeeToCafeAsync(Guid cafeId, string employeeId, DateTime assignedDate)
@@ -92,9 +102,9 @@ namespace Service.Services
 
         public async Task<bool> IsEmployeeAssignedToCafeAsync(string employeeId, Guid cafeId)
         {
-            IEnumerable<EmployeeCafe> assignments = await GetByEmployeeIdAsync(employeeId);
+            EmployeeCafe? assignment = await GetByEmployeeIdAsync(employeeId);
 
-            return assignments.Any(a => a.CafeId == cafeId && a.IsActive);
+            return assignment != null && assignment.CafeId == cafeId && assignment.IsActive;
         }
     }
 } 

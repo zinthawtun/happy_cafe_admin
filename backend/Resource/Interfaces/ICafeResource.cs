@@ -9,7 +9,7 @@ namespace Resource.Interfaces
     {
         Task<Cafe?> GetByIdAsync(Guid id);
 
-        Task<IEnumerable<Cafe>> GetByLocationLikeAsync(string location);
+        Task<IEnumerable<Cafe>> GetByLocationAsync(string location);
 
         Task<IEnumerable<Cafe>> GetAllAsync();
 

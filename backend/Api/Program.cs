@@ -1,15 +1,25 @@
+using Api.Registry;
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using Service.Registry;
+
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddOpenApi();
+ApiRegistry.AddOpenApi(builder.Services);
+builder.Services.ConfigureApiServices();
+
+builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
+builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder =>
+{
+    containerBuilder.RegisterService(builder.Configuration);
+});
 
 WebApplication app = builder.Build();
 
 app.MapOpenApi();
 
-// Add middleware
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();

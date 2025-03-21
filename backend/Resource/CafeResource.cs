@@ -25,7 +25,7 @@ namespace Resource
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
 
-        public async Task<IEnumerable<Cafe>> GetByLocationLikeAsync(string location)
+        public async Task<IEnumerable<Cafe>> GetByLocationAsync(string location)
         {
             return await dbContext.Cafes
                 .Where(c => EF.Functions.Like(c.Location.ToLower(), $"%{location.ToLower()}%"))
@@ -52,8 +52,10 @@ namespace Resource
 
         public async Task<Cafe> CreateAsync(string name, string description, string logo, string location)
         {
-            var cafe = new Cafe(Guid.NewGuid(), name, description, logo, location);
+            Cafe cafe = new Cafe(Guid.NewGuid(), name, description, logo, location);
+
             await dbContext.Cafes.AddAsync(cafe);
+
             await dbContext.SaveChangesAsync();
             
             return cafe;
@@ -61,12 +63,15 @@ namespace Resource
 
         public async Task<Cafe?> UpdateAsync(Guid id, string name, string description, string logo, string location)
         {
-            var cafe = await dbContext.Cafes.FindAsync(id);
+            Cafe? cafe = await dbContext.Cafes.FindAsync(id);
+
             if (cafe == null)
                 return null;
 
             cafe.Update(name, description, logo, location);
+
             dbContext.Cafes.Update(cafe);
+
             await dbContext.SaveChangesAsync();
             
             return cafe;
@@ -74,7 +79,8 @@ namespace Resource
 
         public async Task<bool> DeleteAsync(Guid id)
         {
-            var cafe = await dbContext.Cafes.FindAsync(id);
+            Cafe? cafe = await dbContext.Cafes.FindAsync(id);
+
             if (cafe == null)
                 return false;
 

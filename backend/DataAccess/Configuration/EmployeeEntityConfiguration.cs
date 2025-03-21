@@ -29,7 +29,8 @@ namespace DataAccess.Configuration
                 .IsRequired()
                 .HasMaxLength(15);
 
-            var converter = new EnumToStringConverter<Gender>();
+            EnumToStringConverter<Gender> converter = new EnumToStringConverter<Gender>();
+
             builder.Property(e => e.Gender)
                 .IsRequired()
                 .HasMaxLength(10)

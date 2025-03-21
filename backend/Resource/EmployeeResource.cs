@@ -49,7 +49,8 @@ namespace Resource
                 id = UniqueIdGenerator.GenerateUniqueId();
             } while (await dbContext.Employees.AnyAsync(e => e.Id == id));
 
-            var employee = new Employee(id, name, emailAddress, phone, gender);
+            Employee employee = new Employee(id, name, emailAddress, phone, gender);
+
             await dbContext.Employees.AddAsync(employee);
             await dbContext.SaveChangesAsync();
             
@@ -58,7 +59,8 @@ namespace Resource
 
         public async Task<Employee?> UpdateAsync(string id, string name, string emailAddress, string phone, Gender gender)
         {
-            var employee = await dbContext.Employees.FindAsync(id);
+            Employee? employee = await dbContext.Employees.FindAsync(id);
+
             if (employee == null)
                 return null;
 
@@ -71,7 +73,8 @@ namespace Resource
 
         public async Task<bool> DeleteAsync(string id)
         {
-            var employee = await dbContext.Employees.FindAsync(id);
+            Employee? employee = await dbContext.Employees.FindAsync(id);
+
             if (employee == null)
                 return false;
 
