@@ -1,19 +1,24 @@
-using Business.Entities;
+using Service.Commands.EmployeeCafes;
+using Service.Queries.EmployeeCafes;
 
 namespace Service.Interfaces
 {
     public interface IEmployeeCafeService
     {
-        Task<EmployeeCafe?> GetByIdAsync(Guid id);
-        Task<IEnumerable<EmployeeCafe>> GetAllAsync();
-        Task<IEnumerable<EmployeeCafe>> GetByCafeIdAsync(Guid cafeId);
-        Task<IEnumerable<EmployeeCafe>> GetByEmployeeIdAsync(string employeeId);
-        
+        Task<EmployeeCafeDto?> GetByIdAsync(Guid id);
 
-        Task<EmployeeCafe> AssignEmployeeToCafeAsync(Guid cafeId, string employeeId, DateTime assignedDate);
-        Task<EmployeeCafe?> UpdateAssignmentAsync(Guid id, Guid cafeId, string employeeId, bool isActive, DateTime assignedDate);
+        Task<IEnumerable<EmployeeCafeDto>> GetAllAsync();
+
+        Task<IEnumerable<EmployeeCafeDto>> GetByCafeIdAsync(Guid cafeId);
+
+        Task<EmployeeCafeDto?> GetByEmployeeIdAsync(string employeeId);
+
+        Task<EmployeeCafeDto?> AssignEmployeeToCafeAsync(AssignEmployeeToCafeCommand command);
+
+        Task<EmployeeCafeDto?> UpdateAssignmentAsync(UpdateEmployeeCafeAssignmentCommand command);
+
         Task<bool> UnassignEmployeeFromCafeAsync(Guid id);
-        
+
         Task<bool> IsEmployeeAssignedToCafeAsync(string employeeId, Guid cafeId);
     }
 } 

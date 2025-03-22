@@ -1,7 +1,4 @@
 using Business.Entities;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Resource.Interfaces
 {
@@ -9,7 +6,7 @@ namespace Resource.Interfaces
     {
         Task<Cafe?> GetByIdAsync(Guid id);
 
-        Task<IEnumerable<Cafe>> GetByLocationLikeAsync(string location);
+        Task<IEnumerable<Cafe>> GetByLocationAsync(string location);
 
         Task<IEnumerable<Cafe>> GetAllAsync();
 
@@ -24,5 +21,7 @@ namespace Resource.Interfaces
         Task<int> GetCountAsync();
 
         Task<bool> ExistsAsync(Guid id);
+
+        Task<bool> ExistsByNameAsync(string name);
     }
 } 

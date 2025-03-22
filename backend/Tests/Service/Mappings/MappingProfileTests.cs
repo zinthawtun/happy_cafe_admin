@@ -2,12 +2,13 @@ using AutoMapper;
 using Business.Entities;
 using Service.Commands.Cafes;
 using Service.Commands.EmployeeCafes;
+using Service.Commands.Employees;
 using Service.Mappings;
 using Service.Queries.Cafes;
 using Service.Queries.EmployeeCafes;
 using Service.Queries.Employees;
+using System.Reflection;
 using Utilities;
-using Service.Commands.Employees;
 
 namespace Tests.Service.Mappings
 {
@@ -17,9 +18,9 @@ namespace Tests.Service.Mappings
 
         public MappingProfileTests()
         {
-            var configuration = new MapperConfiguration(cfg =>
+            MapperConfiguration configuration = new MapperConfiguration(config =>
             {
-                cfg.AddProfile<MappingProfile>();
+                config.AddProfile<MappingProfile>();
             });
 
             configuration.AssertConfigurationIsValid();
@@ -43,6 +44,26 @@ namespace Tests.Service.Mappings
             Assert.Equal(command.Description, cafe.Description);
             Assert.Equal(command.Logo, cafe.Logo);
             Assert.Equal(command.Location, cafe.Location);
+        }
+
+        [Fact]
+        public void Map_CreateEmployeeCommand_To_Employee_Test()
+        {
+            CreateEmployeeCommand command = new CreateEmployeeCommand
+            {
+                Name = "Test Employee",
+                EmailAddress = "test.employee@example.com",
+                Phone = "1234567890",
+                Gender = Gender.Male
+            };
+
+            Employee employee = mapper.Map<Employee>(command);
+
+            Assert.Equal(command.Name, employee.Name);
+            Assert.Equal(command.EmailAddress, employee.EmailAddress);
+            Assert.Equal(command.Phone, employee.Phone);
+            Assert.Equal(command.Gender, employee.Gender);
+            Assert.False(string.IsNullOrEmpty(employee.Id));
         }
 
         [Fact]
@@ -91,7 +112,7 @@ namespace Tests.Service.Mappings
         public void Map_Employee_To_EmployeeDto_Test()
         {
             Employee employee = new Employee(
-                id: "EMP001",
+                id: UniqueIdGenerator.GenerateUniqueId(),
                 name: "John Doe",
                 emailAddress: "john.doe@example.com",
                 phone: "1234567890",
@@ -110,10 +131,54 @@ namespace Tests.Service.Mappings
         [Fact]
         public void Map_EmployeeCafe_To_EmployeeCafeDto_Test()
         {
+            Cafe cafe = new Cafe(
+                id: System.Guid.NewGuid(),
+                name: "Test Cafe",
+                description: "Test Description",
+                logo: "Test Logo",
+                location: "Test Location"
+            );
+
+            Employee employee = new Employee(
+                id: UniqueIdGenerator.GenerateUniqueId(),
+                name: "John Doe",
+                emailAddress: "john.doe@example.com",
+                phone: "1234567890",
+                gender: Gender.Male
+            );
+
+            EmployeeCafe employeeCafe = new EmployeeCafe(
+                id: System.Guid.NewGuid(),
+                cafeId: cafe.Id,
+                employeeId: employee.Id,
+                assignedDate: System.DateTime.Now.Date
+            );
+            
+            typeof(EmployeeCafe).GetProperty("Cafe", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                ?.SetValue(employeeCafe, cafe);
+            
+            typeof(EmployeeCafe).GetProperty("Employee", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                ?.SetValue(employeeCafe, employee);
+
+            EmployeeCafeDto dto = mapper.Map<EmployeeCafeDto>(employeeCafe);
+
+            Assert.Equal(employeeCafe.Id, dto.Id);
+            Assert.Equal(employeeCafe.EmployeeId, dto.EmployeeId);
+            Assert.Equal(employeeCafe.CafeId, dto.CafeId);
+            Assert.Equal(employeeCafe.AssignedDate, dto.AssignedDate);
+            Assert.Equal(employeeCafe.IsActive, dto.IsActive);
+            
+            Assert.Equal(cafe.Name, dto.CafeName);
+            Assert.Equal(employee.Name, dto.EmployeeName);
+        }
+
+        [Fact]
+        public void Map_EmployeeCafe_To_EmployeeCafeDto_WithNullNavigation_Test()
+        {
             EmployeeCafe employeeCafe = new EmployeeCafe(
                 id: System.Guid.NewGuid(),
                 cafeId: System.Guid.NewGuid(),
-                employeeId: "EMP001",
+                employeeId: UniqueIdGenerator.GenerateUniqueId(),
                 assignedDate: System.DateTime.Now.Date
             );
 
@@ -124,6 +189,35 @@ namespace Tests.Service.Mappings
             Assert.Equal(employeeCafe.CafeId, dto.CafeId);
             Assert.Equal(employeeCafe.AssignedDate, dto.AssignedDate);
             Assert.Equal(employeeCafe.IsActive, dto.IsActive);
+            
+            Assert.Equal(string.Empty, dto.CafeName);
+            Assert.Equal(string.Empty, dto.EmployeeName);
+        }
+
+        [Fact]
+        public void Map_EmployeeCafeDto_To_EmployeeCafe_Test()
+        {
+            EmployeeCafeDto dto = new EmployeeCafeDto
+            {
+                Id = System.Guid.NewGuid(),
+                CafeId = System.Guid.NewGuid(),
+                EmployeeId = UniqueIdGenerator.GenerateUniqueId(),
+                AssignedDate = System.DateTime.Now.Date,
+                IsActive = true,
+                CafeName = "Test Cafe",
+                EmployeeName = "John Doe"
+            };
+
+            EmployeeCafe employeeCafe = mapper.Map<EmployeeCafe>(dto);
+
+            Assert.Equal(dto.Id, employeeCafe.Id);
+            Assert.Equal(dto.EmployeeId, employeeCafe.EmployeeId);
+            Assert.Equal(dto.CafeId, employeeCafe.CafeId);
+            Assert.Equal(dto.AssignedDate, employeeCafe.AssignedDate);
+            Assert.Equal(dto.IsActive, employeeCafe.IsActive);
+            
+            Assert.Null(employeeCafe.Cafe);
+            Assert.Null(employeeCafe.Employee);
         }
 
         [Fact]
@@ -147,7 +241,7 @@ namespace Tests.Service.Mappings
         [Fact]
         public void Map_UpdateEmployeeCommand_To_Employee_Test()
         {
-            string employeeId = "EMP001";
+            string employeeId = UniqueIdGenerator.GenerateUniqueId();
             UpdateEmployeeCommand command = new UpdateEmployeeCommand
             {
                 Id = employeeId,
@@ -171,7 +265,7 @@ namespace Tests.Service.Mappings
         {
             Guid assignmentId = System.Guid.NewGuid();
             Guid cafeId = System.Guid.NewGuid();
-            string employeeId = "EMP001";
+            string employeeId = UniqueIdGenerator.GenerateUniqueId();
             DateTime assignedDate = System.DateTime.Now.Date;
             
             UpdateEmployeeCafeAssignmentCommand command = new UpdateEmployeeCafeAssignmentCommand
@@ -189,6 +283,253 @@ namespace Tests.Service.Mappings
             Assert.Equal(cafeId, employeeCafe.CafeId);
             Assert.Equal(employeeId, employeeCafe.EmployeeId);
             Assert.Equal(assignedDate, employeeCafe.AssignedDate);
+        }
+
+        [Fact]
+        public void Map_Employee_To_EmployeeDto_WithNullEmployeeCafes_Test()
+        {
+            Employee employee = new Employee(
+                id: UniqueIdGenerator.GenerateUniqueId(),
+                name: "John Doe",
+                emailAddress: "john.doe@example.com",
+                phone: "1234567890",
+                gender: Gender.Male
+            );
+            
+            EmployeeDto dto = mapper.Map<EmployeeDto>(employee);
+            
+            Assert.Equal(employee.Id, dto.Id);
+            Assert.Null(dto.CafeId);
+            Assert.Equal(string.Empty, dto.CafeName);
+            Assert.Equal(0, dto.DaysWorked);
+            Assert.False(dto.IsAssignedToCafe);
+        }
+        
+        [Fact]
+        public void Map_Employee_To_EmployeeDto_WithEmptyEmployeeCafes_Test()
+        {
+            Employee employee = new Employee(
+                id: UniqueIdGenerator.GenerateUniqueId(),
+                name: "Jane Smith",
+                emailAddress: "jane.smith@example.com",
+                phone: "9876543210",
+                gender: Gender.Female
+            );
+            
+            typeof(Employee).GetProperty("EmployeeCafes", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                ?.SetValue(employee, new List<EmployeeCafe>());
+            
+            EmployeeDto dto = mapper.Map<EmployeeDto>(employee);
+            
+            Assert.Equal(employee.Id, dto.Id);
+            Assert.Null(dto.CafeId);
+            Assert.Equal(string.Empty, dto.CafeName);
+            Assert.Equal(0, dto.DaysWorked);
+            Assert.False(dto.IsAssignedToCafe);
+        }
+        
+        [Fact]
+        public void Map_Employee_To_EmployeeDto_WithActiveCafeAssignment_Test()
+        {
+            Guid cafeId = Guid.NewGuid();
+            string employeeId = UniqueIdGenerator.GenerateUniqueId();
+            DateTime assignedDate = DateTime.UtcNow.AddDays(-10);
+            
+            Cafe cafe = new Cafe(
+                id: cafeId,
+                name: "Test Cafe",
+                description: "Test Description",
+                logo: "test-logo.png",
+                location: "Test Location"
+            );
+            
+            Employee employee = new Employee(
+                id: employeeId,
+                name: "Bob Johnson",
+                emailAddress: "bob.johnson@example.com",
+                phone: "5551234567",
+                gender: Gender.Male
+            );
+            
+            EmployeeCafe employeeCafe = new EmployeeCafe(
+                id: Guid.NewGuid(),
+                cafeId: cafeId,
+                employeeId: employeeId,
+                assignedDate: assignedDate
+            );
+            
+            typeof(EmployeeCafe).GetProperty("Cafe", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                ?.SetValue(employeeCafe, cafe);
+                
+            typeof(EmployeeCafe).GetProperty("IsActive", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                ?.SetValue(employeeCafe, true);
+                
+            typeof(Employee).GetProperty("EmployeeCafes", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                ?.SetValue(employee, new List<EmployeeCafe> { employeeCafe });
+            
+            EmployeeDto dto = mapper.Map<EmployeeDto>(employee);
+            
+            Assert.Equal(employee.Id, dto.Id);
+            Assert.Equal(cafeId, dto.CafeId);
+            Assert.Equal("Test Cafe", dto.CafeName);
+            Assert.Equal((int)Math.Ceiling((DateTime.UtcNow - assignedDate).TotalDays), dto.DaysWorked);
+            Assert.True(dto.IsAssignedToCafe);
+        }
+        
+        [Fact]
+        public void Map_Employee_To_EmployeeDto_WithActiveAssignmentButNullCafe_Test()
+        {
+            Guid cafeId = Guid.NewGuid();
+            string employeeId = UniqueIdGenerator.GenerateUniqueId();
+            DateTime assignedDate = DateTime.UtcNow.AddDays(-5);
+            
+            Employee employee = new Employee(
+                id: employeeId,
+                name: "Alice Williams",
+                emailAddress: "alice.williams@example.com",
+                phone: "5559876543",
+                gender: Gender.Female
+            );
+            
+            EmployeeCafe employeeCafe = new EmployeeCafe(
+                id: Guid.NewGuid(),
+                cafeId: cafeId,
+                employeeId: employeeId,
+                assignedDate: assignedDate
+            );
+            
+            typeof(EmployeeCafe).GetProperty("IsActive", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                ?.SetValue(employeeCafe, true);
+                
+            typeof(Employee).GetProperty("EmployeeCafes", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                ?.SetValue(employee, new List<EmployeeCafe> { employeeCafe });
+            
+            EmployeeDto dto = mapper.Map<EmployeeDto>(employee);
+            
+            Assert.Equal(employee.Id, dto.Id);
+            Assert.Equal(cafeId, dto.CafeId);
+            Assert.Equal(string.Empty, dto.CafeName);
+            Assert.Equal((int)Math.Ceiling((DateTime.UtcNow - assignedDate).TotalDays), dto.DaysWorked);
+            Assert.True(dto.IsAssignedToCafe);
+        }
+        
+        [Fact]
+        public void Map_Employee_To_EmployeeDto_WithOnlyInactiveCafeAssignments_Test()
+        {
+            Guid cafeId = Guid.NewGuid();
+            string employeeId = UniqueIdGenerator.GenerateUniqueId();
+            DateTime assignedDate = DateTime.UtcNow.AddDays(-30);
+            
+            Cafe cafe = new Cafe(
+                id: cafeId,
+                name: "Test Cafe",
+                description: "Test Description",
+                logo: "test-logo.png",
+                location: "Test Location"
+            );
+            
+            Employee employee = new Employee(
+                id: employeeId,
+                name: "Charlie Brown",
+                emailAddress: "charlie.brown@example.com",
+                phone: "5558889999",
+                gender: Gender.Male
+            );
+            
+            EmployeeCafe employeeCafe = new EmployeeCafe(
+                id: Guid.NewGuid(),
+                cafeId: cafeId,
+                employeeId: employeeId,
+                assignedDate: assignedDate
+            );
+            
+            typeof(EmployeeCafe).GetProperty("Cafe", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                ?.SetValue(employeeCafe, cafe);
+                
+            typeof(EmployeeCafe).GetProperty("IsActive", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                ?.SetValue(employeeCafe, false);
+                
+            typeof(Employee).GetProperty("EmployeeCafes", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                ?.SetValue(employee, new List<EmployeeCafe> { employeeCafe });
+            
+            EmployeeDto dto = mapper.Map<EmployeeDto>(employee);
+            
+            Assert.Equal(employee.Id, dto.Id);
+            Assert.Null(dto.CafeId);
+            Assert.Equal(string.Empty, dto.CafeName);
+            Assert.Equal(0, dto.DaysWorked);
+            Assert.False(dto.IsAssignedToCafe);
+        }
+
+        [Fact]
+        public void Map_Employee_To_EmployeeDto_WithMultipleCafeAssignments_Test()
+        {
+            Guid activeCafeId = Guid.NewGuid();
+            Guid inactiveCafeId = Guid.NewGuid();
+            string employeeId = UniqueIdGenerator.GenerateUniqueId();
+            DateTime activeAssignedDate = DateTime.UtcNow.AddDays(-3);
+            DateTime inactiveAssignedDate = DateTime.UtcNow.AddDays(-15);
+            
+            Cafe activeCafe = new Cafe(
+                id: activeCafeId,
+                name: "Active Cafe",
+                description: "Currently Active",
+                logo: "active-logo.png",
+                location: "Main Street"
+            );
+            
+            Cafe inactiveCafe = new Cafe(
+                id: inactiveCafeId,
+                name: "Previous Cafe",
+                description: "Previously Assigned",
+                logo: "inactive-logo.png",
+                location: "Side Street"
+            );
+            
+            Employee employee = new Employee(
+                id: employeeId,
+                name: "Multiple Assignment Employee",
+                emailAddress: "multiple.assignments@example.com",
+                phone: "5551112222",
+                gender: Gender.Male
+            );
+            
+            EmployeeCafe activeEmployeeCafe = new EmployeeCafe(
+                id: Guid.NewGuid(),
+                cafeId: activeCafeId,
+                employeeId: employeeId,
+                assignedDate: activeAssignedDate
+            );
+            
+            EmployeeCafe inactiveEmployeeCafe = new EmployeeCafe(
+                id: Guid.NewGuid(),
+                cafeId: inactiveCafeId,
+                employeeId: employeeId,
+                assignedDate: inactiveAssignedDate
+            );
+            
+            typeof(EmployeeCafe).GetProperty("Cafe", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                ?.SetValue(activeEmployeeCafe, activeCafe);
+            
+            typeof(EmployeeCafe).GetProperty("Cafe", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                ?.SetValue(inactiveEmployeeCafe, inactiveCafe);
+                
+            typeof(EmployeeCafe).GetProperty("IsActive", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                ?.SetValue(activeEmployeeCafe, true);
+                
+            typeof(EmployeeCafe).GetProperty("IsActive", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                ?.SetValue(inactiveEmployeeCafe, false);
+                
+            typeof(Employee).GetProperty("EmployeeCafes", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                ?.SetValue(employee, new List<EmployeeCafe> { activeEmployeeCafe, inactiveEmployeeCafe });
+            
+            EmployeeDto dto = mapper.Map<EmployeeDto>(employee);
+            
+            Assert.Equal(employee.Id, dto.Id);
+            Assert.Equal(activeCafeId, dto.CafeId);
+            Assert.Equal("Active Cafe", dto.CafeName);
+            Assert.Equal((int)Math.Ceiling((DateTime.UtcNow - activeAssignedDate).TotalDays), dto.DaysWorked);
+            Assert.True(dto.IsAssignedToCafe);
         }
     }
 } 

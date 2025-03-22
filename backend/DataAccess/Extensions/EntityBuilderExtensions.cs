@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace DataAccess
@@ -11,7 +12,7 @@ namespace DataAccess
             if (types.Length == 0)
                 return builder;
 
-            var constructorBindingData = builder.Metadata.GetAnnotations()
+            IAnnotation? constructorBindingData = builder.Metadata.GetAnnotations()
                 .FirstOrDefault(a => a.Name == "ConstructorBinding");
 
             if (constructorBindingData != null)

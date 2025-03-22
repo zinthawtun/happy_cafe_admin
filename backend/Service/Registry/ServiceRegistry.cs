@@ -1,10 +1,12 @@
 using Autofac;
 using AutoMapper;
 using FluentValidation;
+using FluentValidation.Results;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Resource.Registry;
 using Service.Interfaces;
+using Service.Mappings;
 using Service.Services;
 using System.Reflection;
 
@@ -12,28 +14,32 @@ namespace Service.Registry
 {
     public class ServiceRegistry : Autofac.Module
     {
-        private readonly IConfiguration _configuration;
+        private readonly IConfiguration configuration;
 
         public ServiceRegistry(IConfiguration configuration)
         {
-            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterModule(new ResourceRegistry(_configuration));
+            builder.RegisterModule(new ResourceRegistry(configuration));
 
             builder.RegisterType<CafeService>()
                 .As<ICafeService>()
                 .InstancePerLifetimeScope();
-                
+
             builder.RegisterType<EmployeeService>()
                 .As<IEmployeeService>()
                 .InstancePerLifetimeScope();
-                
+
             builder.RegisterType<EmployeeCafeService>()
                 .As<IEmployeeCafeService>()
                 .InstancePerLifetimeScope();
+
+            builder.RegisterType<EmployeeCafeIdResolver>().AsSelf().InstancePerLifetimeScope();
+            builder.RegisterType<EmployeeCafeNameResolver>().AsSelf().InstancePerLifetimeScope();
+            builder.RegisterType<CalculateDaysWorkedResolver>().AsSelf().InstancePerLifetimeScope();
 
             builder.RegisterAssemblyTypes(typeof(IMediator).GetTypeInfo().Assembly)
                 .AsImplementedInterfaces();
@@ -64,7 +70,7 @@ namespace Service.Registry
 
             builder.Register(context => new MapperConfiguration(cfg =>
             {
-                foreach (var profile in context.Resolve<IEnumerable<Profile>>())
+                foreach (Profile profile in context.Resolve<IEnumerable<Profile>>())
                 {
                     cfg.AddProfile(profile);
                 }
@@ -72,8 +78,9 @@ namespace Service.Registry
 
             builder.Register(c =>
             {
-                var context = c.Resolve<IComponentContext>();
-                var config = context.Resolve<MapperConfiguration>();
+                IComponentContext context = c.Resolve<IComponentContext>();
+                MapperConfiguration config = context.Resolve<MapperConfiguration>();
+
                 return config.CreateMapper(context.Resolve);
             }).As<IMapper>().InstancePerLifetimeScope();
 
@@ -86,22 +93,23 @@ namespace Service.Registry
     public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
         where TRequest : IRequest<TResponse>
     {
-        private readonly IEnumerable<IValidator<TRequest>> _validators;
+        private readonly IEnumerable<IValidator<TRequest>> validators;
 
         public ValidationBehavior(IEnumerable<IValidator<TRequest>> validators)
         {
-            _validators = validators;
+            this.validators = validators;
         }
 
         public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
         {
-            if (_validators.Any())
+            if (validators.Any())
             {
-                var context = new ValidationContext<TRequest>(request);
-                var validationResults = await Task.WhenAll(
-                    _validators.Select(v => v.ValidateAsync(context, cancellationToken)));
+                ValidationContext<TRequest> context = new ValidationContext<TRequest>(request);
 
-                var failures = validationResults
+                IEnumerable<ValidationResult> validationResults = await Task.WhenAll(
+                    validators.Select(v => v.ValidateAsync(context, cancellationToken)));
+
+                List<ValidationFailure> failures = validationResults
                     .SelectMany(r => r.Errors)
                     .Where(f => f != null)
                     .ToList();

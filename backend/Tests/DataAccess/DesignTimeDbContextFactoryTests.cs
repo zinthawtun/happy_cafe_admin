@@ -28,10 +28,10 @@ namespace Tests.DataAccess
         [Fact]
         public void CreateDbContext_WithValidConfiguration_CreatesDbContext()
         {
-            var factory = new DesignTimeDbContextFactory(testProjectRoot);
+            DesignTimeDbContextFactory factory = new DesignTimeDbContextFactory(testProjectRoot);
             Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
 
-            var dbContext = factory.CreateDbContext(Array.Empty<string>());
+            AppDbContext dbContext = factory.CreateDbContext(Array.Empty<string>());
 
             Assert.NotNull(dbContext);
             Assert.IsType<AppDbContext>(dbContext);
@@ -40,10 +40,10 @@ namespace Tests.DataAccess
         [Fact]
         public void CreateDbContext_WithMissingEnvironment_SetsDevelopmentEnvironment()
         {
-            var factory = new DesignTimeDbContextFactory(testProjectRoot);
+            DesignTimeDbContextFactory factory = new DesignTimeDbContextFactory(testProjectRoot);
             Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", null);
 
-            var dbContext = factory.CreateDbContext(Array.Empty<string>());
+            AppDbContext dbContext = factory.CreateDbContext(Array.Empty<string>());
 
             Assert.NotNull(dbContext);
             Assert.Equal("Development", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"));
@@ -52,24 +52,25 @@ namespace Tests.DataAccess
         [Fact]
         public void CreateDbContext_WithMissingConfigFiles_ThrowsException()
         {
-            var factory = new DesignTimeDbContextFactory(testProjectRoot);
+            DesignTimeDbContextFactory factory = new DesignTimeDbContextFactory(testProjectRoot);
             Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
 
             File.Delete(testConfigPath);
             File.Delete(testApiConfigPath);
             File.Delete(testBackendApiConfigPath);
 
-            var exception = Assert.Throws<InvalidOperationException>(() => factory.CreateDbContext(Array.Empty<string>()));
+            InvalidOperationException? exception = Assert.Throws<InvalidOperationException>(() => factory.CreateDbContext(Array.Empty<string>()));
+
             Assert.Equal("No configuration files found.", exception.Message);
         }
 
         [Fact]
         public void CreateDbContext_WithCustomEnvironment_UsesCorrectEnvironment()
         {
-            var factory = new DesignTimeDbContextFactory(testProjectRoot);
+            DesignTimeDbContextFactory factory = new DesignTimeDbContextFactory(testProjectRoot);
             Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Production");
 
-            var dbContext = factory.CreateDbContext(Array.Empty<string>());
+            AppDbContext dbContext = factory.CreateDbContext(Array.Empty<string>());
 
             Assert.NotNull(dbContext);
             Assert.Equal("Production", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"));

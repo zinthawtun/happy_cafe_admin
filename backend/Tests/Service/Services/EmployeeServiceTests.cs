@@ -5,13 +5,6 @@ using Moq;
 using Service.Commands.Employees;
 using Service.Queries.Employees;
 using Service.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Utilities;
-using Xunit;
 
 namespace Tests.Service.Services
 {
@@ -29,25 +22,20 @@ namespace Tests.Service.Services
         }
 
         [Fact]
-        public async Task GetByIdAsync_ShouldReturnEmployee_WhenEmployeeExists_Test()
+        public async Task GetByIdAsync_ShouldReturnEmployeeDto_WhenEmployeeExists_Test()
         {
-            string employeeId = UniqueIdGenerator.GenerateUniqueId();
-            EmployeeDto employeeDto = new EmployeeDto { Id = employeeId, Name = "John Doe" };
-            Employee employee = new Employee(employeeId, "John Doe", "john.doe@example.com", "1234567890", Gender.Male);
+            string employeeId = "employee1";
+            EmployeeDto employeeDto = new EmployeeDto { Id = employeeId, Name = "Test Employee" };
             
             mediatorMock
                 .Setup(m => m.Send(It.Is<GetEmployeeByIdQuery>(q => q.Id == employeeId), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(employeeDto);
-                
-            mapperMock
-                .Setup(m => m.Map<Employee>(employeeDto))
-                .Returns(employee);
 
-            Employee? result = await employeeService.GetByIdAsync(employeeId);
+            EmployeeDto? result = await employeeService.GetByIdAsync(employeeId);
 
             Assert.NotNull(result);
             Assert.Equal(employeeId, result.Id);
-            Assert.Equal("John Doe", result.Name);
+            Assert.Equal("Test Employee", result.Name);
             
             mediatorMock.Verify(m => m.Send(It.Is<GetEmployeeByIdQuery>(q => q.Id == employeeId), It.IsAny<CancellationToken>()), Times.Once);
         }
@@ -55,87 +43,61 @@ namespace Tests.Service.Services
         [Fact]
         public async Task GetByIdAsync_ShouldReturnNull_WhenEmployeeDoesNotExist_Test()
         {
-            string employeeId = "NonExistentEMP";
+            string employeeId = "nonexistent";
             
             mediatorMock
                 .Setup(m => m.Send(It.Is<GetEmployeeByIdQuery>(q => q.Id == employeeId), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((EmployeeDto?)null);
 
-            Employee? result = await employeeService.GetByIdAsync(employeeId);
+            EmployeeDto? result = await employeeService.GetByIdAsync(employeeId);
 
             Assert.Null(result);
         }
 
         [Fact]
-        public async Task GetAllAsync_ShouldReturnAllEmployees_Test()
+        public async Task GetAllAsync_ShouldReturnAllEmployeeDtos_Test()
         {
-            string empID1 = UniqueIdGenerator.GenerateUniqueId();
-            string empID2 = UniqueIdGenerator.GenerateUniqueId();
-            string empID3 = UniqueIdGenerator.GenerateUniqueId();
-
             List<EmployeeDto> employeeDtos = new List<EmployeeDto>
             {
-                new EmployeeDto { Id = empID1, Name = "John Doe" },
-                new EmployeeDto { Id = empID2, Name = "Jane Smith" },
-                new EmployeeDto { Id = empID3, Name = "Bob Johnson" }
-            };
-            
-            IEnumerable<Employee> employees = new List<Employee>
-            {
-                new Employee(empID1, "John Doe", "john.doe@example.com", "1234567890", Gender.Male),
-                new Employee(empID2, "Jane Smith", "jane.smith@example.com", "0987654321", Gender.Female),
-                new Employee(empID3, "Bob Johnson", "bob.johnson@example.com", "5555555555", Gender.Male)
+                new EmployeeDto { Id = "employee1", Name = "Employee 1" },
+                new EmployeeDto { Id = "employee2", Name = "Employee 2" },
+                new EmployeeDto { Id = "employee3", Name = "Employee 3" }
             };
             
             mediatorMock
                 .Setup(m => m.Send(It.IsAny<GetAllEmployeesQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(employeeDtos);
-                
-            mapperMock
-                .Setup(m => m.Map<IEnumerable<Employee>>(employeeDtos))
-                .Returns(employees);
 
-            IEnumerable<Employee> result = await employeeService.GetAllAsync();
+            IEnumerable<EmployeeDto> result = await employeeService.GetAllAsync();
 
             Assert.NotNull(result);
             Assert.Equal(3, result.Count());
+            Assert.Contains(result, e => e.Name == "Employee 1");
+            Assert.Contains(result, e => e.Name == "Employee 2");
+            Assert.Contains(result, e => e.Name == "Employee 3");
             
             mediatorMock.Verify(m => m.Send(It.IsAny<GetAllEmployeesQuery>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
-        public async Task GetByCafeIdAsync_ShouldReturnEmployees_WhenEmployeesExist_Test()
+        public async Task GetByCafeIdAsync_ShouldReturnEmployeeDtos_WhenEmployeesExist_Test()
         {
             Guid cafeId = Guid.NewGuid();
-            string empID1 = UniqueIdGenerator.GenerateUniqueId();
-            string empID2 = UniqueIdGenerator.GenerateUniqueId();
-
             List<EmployeeDto> employeeDtos = new List<EmployeeDto>
             {
-                new EmployeeDto { Id = empID1, Name = "John Doe" },
-                new EmployeeDto { Id = empID2, Name = "Jane Smith" }
-            };
-            
-            IEnumerable<Employee> employees = new List<Employee>
-            {
-                new Employee(empID1, "John Doe", "john.doe@example.com", "1234567890", Gender.Male),
-                new Employee(empID2, "Jane Smith", "jane.smith@example.com", "0987654321", Gender.Female)
+                new EmployeeDto { Id = "employee1", Name = "Employee 1", CafeId = cafeId },
+                new EmployeeDto { Id = "employee2", Name = "Employee 2", CafeId = cafeId }
             };
             
             mediatorMock
                 .Setup(m => m.Send(It.Is<GetEmployeesByCafeIdQuery>(q => q.CafeId == cafeId), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(employeeDtos);
-                
-            mapperMock
-                .Setup(m => m.Map<IEnumerable<Employee>>(employeeDtos))
-                .Returns(employees);
 
-            IEnumerable<Employee> result = await employeeService.GetByCafeIdAsync(cafeId);
+            IEnumerable<EmployeeDto> result = await employeeService.GetByCafeIdAsync(cafeId);
 
             Assert.NotNull(result);
             Assert.Equal(2, result.Count());
-            Assert.Contains(result, e => e.Name == "John Doe");
-            Assert.Contains(result, e => e.Name == "Jane Smith");
+            Assert.All(result, e => Assert.Equal(cafeId, e.CafeId));
             
             mediatorMock.Verify(m => m.Send(It.Is<GetEmployeesByCafeIdQuery>(q => q.CafeId == cafeId), It.IsAny<CancellationToken>()), Times.Once);
         }
@@ -154,103 +116,134 @@ namespace Tests.Service.Services
                 .Setup(m => m.Map<IEnumerable<Employee>>(emptyList))
                 .Returns(new List<Employee>());
 
-            IEnumerable<Employee> result = await employeeService.GetByCafeIdAsync(cafeId);
+            IEnumerable<EmployeeDto> result = await employeeService.GetByCafeIdAsync(cafeId);
 
             Assert.NotNull(result);
             Assert.Empty(result);
         }
 
         [Fact]
-        public async Task CreateAsync_ShouldSendCreateCommand_AndReturnCreatedEmployee_Test()
+        public async Task CreateAsync_ShouldSendCreateCommand_AndReturnCreatedEmployeeDto_Test()
         {
-            string name = "New Employee";
-            string email = "new.employee@example.com";
-            string phone = "123-456-7890";
+            string employeeId = "newemployee";
+            string employeeName = "New Employee";
+            string emailAddress = "new.employee@example.com";
+            string phone = "1234567890";
             Gender gender = Gender.Male;
-            
-            Employee employee = new Employee("", name, email, phone, gender);
-            
-            Employee createdEmployee = new Employee(UniqueIdGenerator.GenerateUniqueId(), name, email, phone, gender);
-            
+
+            CreateEmployeeCommand command = new CreateEmployeeCommand
+            {
+                Name = employeeName,
+                EmailAddress = emailAddress,
+                Phone = phone,
+                Gender = gender
+            };
+
+            Employee createdEmployee = new Employee(employeeId, employeeName, emailAddress, phone, gender);
+            EmployeeDto employeeDto = new EmployeeDto 
+            { 
+                Id = employeeId, 
+                Name = employeeName, 
+                EmailAddress = emailAddress, 
+                Phone = phone, 
+                Gender = gender 
+            };
+
             mediatorMock
-                .Setup(m => m.Send(It.IsAny<CreateEmployeeCommand>(), It.IsAny<CancellationToken>()))
+                .Setup(m => m.Send(command, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(createdEmployee);
 
-            Employee result = await employeeService.CreateAsync(employee);
+            mapperMock
+                .Setup(m => m.Map<EmployeeDto>(createdEmployee))
+                .Returns(employeeDto);
+
+            EmployeeDto? result = await employeeService.CreateAsync(command);
 
             Assert.NotNull(result);
-            Assert.Equal(createdEmployee.Id, result.Id);
-            Assert.Equal(employee.Name, result.Name);
+            Assert.Equal(employeeId, result.Id);
+            Assert.Equal(employeeName, result.Name);
+            Assert.Equal(emailAddress, result.EmailAddress);
             
-            mediatorMock.Verify(m => m.Send(
-                It.Is<CreateEmployeeCommand>(cmd => 
-                    cmd.Name == employee.Name && 
-                    cmd.EmailAddress == email && 
-                    cmd.Phone == phone && 
-                    cmd.Gender == gender), 
-                It.IsAny<CancellationToken>()), 
-                Times.Once);
+            mediatorMock.Verify(m => m.Send(command, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
-        public async Task UpdateAsync_ShouldSendUpdateCommand_AndReturnUpdatedEmployee_Test()
+        public async Task UpdateAsync_ShouldSendUpdateCommand_AndReturnUpdatedEmployeeDto_Test()
         {
-            string id = UniqueIdGenerator.GenerateUniqueId();
-            string name = "Updated Employee";
-            string email = "updated.employee@example.com";
-            string phone = "987-654-3210";
+            string employeeId = "employee1";
+            string updatedName = "Updated Employee";
+            string updatedEmail = "updated.employee@example.com";
+            string updatedPhone = "9876543210";
             Gender gender = Gender.Female;
-            
-            Employee employee = new Employee(id, name, email, phone, gender);
-            
-            mediatorMock
-                .Setup(m => m.Send(It.IsAny<UpdateEmployeeCommand>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(employee);
 
-            Employee? result = await employeeService.UpdateAsync(employee);
+            UpdateEmployeeCommand command = new UpdateEmployeeCommand
+            {
+                Id = employeeId,
+                Name = updatedName,
+                EmailAddress = updatedEmail,
+                Phone = updatedPhone,
+                Gender = gender
+            };
+
+            Employee updatedEmployee = new Employee(employeeId, updatedName, updatedEmail, updatedPhone, gender);
+            EmployeeDto employeeDto = new EmployeeDto 
+            { 
+                Id = employeeId, 
+                Name = updatedName, 
+                EmailAddress = updatedEmail, 
+                Phone = updatedPhone, 
+                Gender = gender 
+            };
+
+            mediatorMock
+                .Setup(m => m.Send(command, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(updatedEmployee);
+
+            mapperMock
+                .Setup(m => m.Map<EmployeeDto>(updatedEmployee))
+                .Returns(employeeDto);
+
+            EmployeeDto? result = await employeeService.UpdateAsync(command);
 
             Assert.NotNull(result);
-            Assert.Equal(employee.Id, result.Id);
-            Assert.Equal(employee.Name, result.Name);
+            Assert.Equal(employeeId, result.Id);
+            Assert.Equal(updatedName, result.Name);
+            Assert.Equal(updatedEmail, result.EmailAddress);
+            Assert.Equal(updatedPhone, result.Phone);
             
-            mediatorMock.Verify(m => m.Send(
-                It.Is<UpdateEmployeeCommand>(cmd => 
-                    cmd.Id == employee.Id &&
-                    cmd.Name == employee.Name && 
-                    cmd.EmailAddress == email && 
-                    cmd.Phone == phone && 
-                    cmd.Gender == gender), 
-                It.IsAny<CancellationToken>()), 
-                Times.Once);
+            mediatorMock.Verify(m => m.Send(command, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task UpdateAsync_ShouldReturnNull_WhenEmployeeDoesNotExist_Test()
         {
-            string id = "NonExistentEMP";
-            string name = "Non-existent Employee";
-            string email = "nonexistent@example.com";
-            string phone = "000-000-0000";
-            Gender gender = Gender.Male;
-            
-            Employee employee = new Employee(id, name, email, phone, gender);
-            
+            string nonExistentEmployeeId = "nonexistent";
+            UpdateEmployeeCommand command = new UpdateEmployeeCommand
+            {
+                Id = nonExistentEmployeeId,
+                Name = "Updated Name",
+                EmailAddress = "updated.email@example.com",
+                Phone = "1234567890",
+                Gender = Gender.Male
+            };
+
             mediatorMock
-                .Setup(m => m.Send(It.IsAny<UpdateEmployeeCommand>(), It.IsAny<CancellationToken>()))
+                .Setup(m => m.Send(command, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Employee?)null);
 
-            Employee? result = await employeeService.UpdateAsync(employee);
+            EmployeeDto? result = await employeeService.UpdateAsync(command);
 
             Assert.Null(result);
             
-            mediatorMock.Verify(m => m.Send(It.IsAny<UpdateEmployeeCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            mediatorMock.Verify(m => m.Send(command, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task DeleteAsync_ShouldSendDeleteCommand_AndReturnTrue_WhenEmployeeExists_Test()
         {
-            string employeeId = UniqueIdGenerator.GenerateUniqueId();
-            
+            string employeeId = "employee1";
+            DeleteEmployeeCommand command = new DeleteEmployeeCommand { Id = employeeId };
+
             mediatorMock
                 .Setup(m => m.Send(It.Is<DeleteEmployeeCommand>(cmd => cmd.Id == employeeId), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
@@ -265,17 +258,18 @@ namespace Tests.Service.Services
         [Fact]
         public async Task DeleteAsync_ShouldReturnFalse_WhenEmployeeDoesNotExist_Test()
         {
-            string employeeId = "NonExistentEMP";
+            string nonExistentEmployeeId = "nonexistent";
+            DeleteEmployeeCommand command = new DeleteEmployeeCommand { Id = nonExistentEmployeeId };
             
             mediatorMock
-                .Setup(m => m.Send(It.Is<DeleteEmployeeCommand>(cmd => cmd.Id == employeeId), It.IsAny<CancellationToken>()))
+                .Setup(m => m.Send(command, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(false);
 
-            bool result = await employeeService.DeleteAsync(employeeId);
+            bool result = await employeeService.DeleteAsync(nonExistentEmployeeId);
 
             Assert.False(result);
 
-            mediatorMock.Verify(m => m.Send(It.Is<DeleteEmployeeCommand>(cmd => cmd.Id == employeeId), It.IsAny<CancellationToken>()), Times.Once);
+            mediatorMock.Verify(m => m.Send(It.Is<DeleteEmployeeCommand>(cmd => cmd.Id == nonExistentEmployeeId), It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 } 

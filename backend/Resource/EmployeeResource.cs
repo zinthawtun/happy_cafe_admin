@@ -18,16 +18,16 @@ namespace Resource
         public async Task<Employee?> GetByIdAsync(string id)
         {
             return await dbContext.Employees
-                .Include(e => e.EmployeeCafes)
-                .ThenInclude(ec => ec.Cafe)
+                .Include(e => e.EmployeeCafes!)
+                .ThenInclude(ec => ec.Cafe!)
                 .FirstOrDefaultAsync(e => e.Id == id);
         }
 
         public async Task<IEnumerable<Employee>> GetAllAsync()
         {
             return await dbContext.Employees
-                .Include(e => e.EmployeeCafes)
-                .ThenInclude(ec => ec.Cafe)
+                .Include(e => e.EmployeeCafes!)
+                .ThenInclude(ec => ec.Cafe!)
                 .ToListAsync();
         }
 
@@ -35,7 +35,9 @@ namespace Resource
         {
             return await dbContext.EmployeeCafes
                 .Where(ec => ec.CafeId == cafeId && ec.IsActive)
-                .Include(ec => ec.Employee)
+                .Include(ec => ec.Employee!)
+                .ThenInclude(e => e.EmployeeCafes!)
+                .ThenInclude(ec => ec.Cafe!)
                 .Select(ec => ec.Employee!)
                 .Distinct()
                 .ToListAsync();
@@ -49,7 +51,8 @@ namespace Resource
                 id = UniqueIdGenerator.GenerateUniqueId();
             } while (await dbContext.Employees.AnyAsync(e => e.Id == id));
 
-            var employee = new Employee(id, name, emailAddress, phone, gender);
+            Employee employee = new Employee(id, name, emailAddress, phone, gender);
+
             await dbContext.Employees.AddAsync(employee);
             await dbContext.SaveChangesAsync();
             
@@ -58,7 +61,8 @@ namespace Resource
 
         public async Task<Employee?> UpdateAsync(string id, string name, string emailAddress, string phone, Gender gender)
         {
-            var employee = await dbContext.Employees.FindAsync(id);
+            Employee? employee = await dbContext.Employees.FindAsync(id);
+
             if (employee == null)
                 return null;
 
@@ -71,7 +75,8 @@ namespace Resource
 
         public async Task<bool> DeleteAsync(string id)
         {
-            var employee = await dbContext.Employees.FindAsync(id);
+            Employee? employee = await dbContext.Employees.FindAsync(id);
+
             if (employee == null)
                 return false;
 
@@ -94,6 +99,15 @@ namespace Resource
         public async Task<bool> ExistsAsync(string id)
         {
             return await dbContext.Employees.AnyAsync(e => e.Id == id);
+        }
+
+        public async Task<Employee?> FindByEmailOrPhoneAsync(string emailAddress, string phone)
+        {
+            IQueryable<Employee> query = dbContext.Employees.AsQueryable();
+            
+            return await query.FirstOrDefaultAsync(e => 
+                e.EmailAddress.ToLower() == emailAddress.ToLower() || 
+                e.Phone == phone);
         }
     }
 } 

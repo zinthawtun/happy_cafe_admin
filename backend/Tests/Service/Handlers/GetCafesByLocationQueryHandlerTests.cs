@@ -51,7 +51,7 @@ namespace Tests.Service.Handlers
             };
 
             cafeResourceMock
-                .Setup(r => r.GetByLocationLikeAsync(location))
+                .Setup(r => r.GetByLocationAsync(location))
                 .ReturnsAsync(cafes);
 
             mapperMock
@@ -64,7 +64,7 @@ namespace Tests.Service.Handlers
             Assert.Equal(cafes.Count, result.Count());
             Assert.All(result, dto => Assert.Equal(location, dto.Location));
 
-            cafeResourceMock.Verify(r => r.GetByLocationLikeAsync(location), Times.Once);
+            cafeResourceMock.Verify(r => r.GetByLocationAsync(location), Times.Once);
         }
 
         [Fact]
@@ -77,7 +77,7 @@ namespace Tests.Service.Handlers
             List<CafeDto> cafeDtos = new List<CafeDto>();
 
             cafeResourceMock
-                .Setup(r => r.GetByLocationLikeAsync(location))
+                .Setup(r => r.GetByLocationAsync(location))
                 .ReturnsAsync(cafes);
 
             mapperMock
@@ -89,7 +89,7 @@ namespace Tests.Service.Handlers
             Assert.NotNull(result);
             Assert.Empty(result);
 
-            cafeResourceMock.Verify(r => r.GetByLocationLikeAsync(location), Times.Once);
+            cafeResourceMock.Verify(r => r.GetByLocationAsync(location), Times.Once);
         }
     }
 } 

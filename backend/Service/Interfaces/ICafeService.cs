@@ -1,15 +1,22 @@
-using Business.Entities;
+using Service.Commands.Cafes;
+using Service.Queries.Cafes;
 
 namespace Service.Interfaces
 {
     public interface ICafeService
     {
-        Task<Cafe?> GetByIdAsync(Guid id);
-        Task<IEnumerable<Cafe>> GetByLocationAsync(string location);
-        Task<IEnumerable<Cafe>> GetAllAsync();
+        Task<CafeDto?> GetByIdAsync(Guid id);
+
+        Task<IEnumerable<CafeDto>> GetByLocationAsync(string location);
+
+        Task<IEnumerable<CafeDto>> GetAllAsync();
         
-        Task<Cafe> CreateAsync(Cafe cafe);
-        Task<Cafe?> UpdateAsync(Cafe cafe);
+        Task<CafeDto?> CreateAsync(CreateCafeCommand command);
+
+        Task<CafeDto?> UpdateAsync(UpdateCafeCommand command);
+
         Task<bool> DeleteAsync(Guid id);
+
+        Task<bool> ExistsByNameAsync(string name);
     }
 } 

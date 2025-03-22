@@ -8,16 +8,16 @@ namespace Resource.Registry
 {
     public class ResourceRegistry : Module
     {
-        private readonly IConfiguration _configuration;
+        private readonly IConfiguration configuration;
 
         public ResourceRegistry(IConfiguration configuration)
         {
-            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterModule(new DataAccessRegistry(_configuration));
+            builder.RegisterModule(new DataAccessRegistry(configuration));
 
             builder.RegisterType<EmployeeResource>()
                 .As<IEmployeeResource>()

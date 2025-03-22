@@ -219,7 +219,8 @@ namespace Tests.DataAccess
 
             appDbContext.ChangeTracker.Clear();
 
-            var cafeToDelete = appDbContext.Cafes.Find(cafe.Id);
+            Cafe? cafeToDelete = appDbContext.Cafes.Find(cafe.Id);
+
             Assert.NotNull(cafeToDelete);
             appDbContext.Cafes.Remove(cafeToDelete!);
             appDbContext.SaveChanges();
@@ -253,7 +254,8 @@ namespace Tests.DataAccess
 
             appDbContext.ChangeTracker.Clear();
 
-            var employeeToDelete = appDbContext.Employees.Find(employee.Id);
+            Employee? employeeToDelete = appDbContext.Employees.Find(employee.Id);
+
             Assert.NotNull(employeeToDelete);
             appDbContext.Employees.Remove(employeeToDelete!);
 

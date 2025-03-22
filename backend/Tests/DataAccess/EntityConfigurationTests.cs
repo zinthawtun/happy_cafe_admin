@@ -1,6 +1,7 @@
 using Business.Entities;
 using DataAccess;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Tests.DataAccess
 {
@@ -19,26 +20,30 @@ namespace Tests.DataAccess
         [Fact]
         public void EmployeeConfiguration_PropertiesAreConfiguredCorrectly_Test()
         {
-            var entityType = appDbContext.Model.FindEntityType(typeof(Employee));
+            IEntityType? entityType = appDbContext.Model.FindEntityType(typeof(Employee));
             
             Assert.NotNull(entityType);
             
-            var primaryKey = entityType!.FindPrimaryKey();
+            IKey? primaryKey = entityType!.FindPrimaryKey();
+
             Assert.NotNull(primaryKey);
             Assert.Single(primaryKey.Properties);
             Assert.Equal("Id", primaryKey.Properties.First().Name);
             
-            var emailProperty = entityType.FindProperty("EmailAddress");
+            IProperty? emailProperty = entityType.FindProperty("EmailAddress");
+
             Assert.NotNull(emailProperty);
             
-            var emailIndex = entityType.GetIndexes().FirstOrDefault(i => i.Properties.Any(p => p.Name == "EmailAddress"));
+            IIndex? emailIndex = entityType.GetIndexes().FirstOrDefault(i => i.Properties.Any(p => p.Name == "EmailAddress"));
+
             if (emailIndex != null)
             {
                 Assert.True(emailIndex.IsUnique);
             }
             
-            var nameProperty = entityType.FindProperty("Name");
-            var phoneProperty = entityType.FindProperty("Phone");
+            IProperty? nameProperty = entityType.FindProperty("Name");
+            IProperty? phoneProperty = entityType.FindProperty("Phone");
+
             Assert.NotNull(nameProperty);
             Assert.NotNull(phoneProperty);
             Assert.False(nameProperty!.IsNullable);
@@ -48,17 +53,19 @@ namespace Tests.DataAccess
         [Fact]
         public void CafeConfiguration_PropertiesAreConfiguredCorrectly_Test()
         {
-            var entityType = appDbContext.Model.FindEntityType(typeof(Cafe));
-            
+            IEntityType? entityType = appDbContext.Model.FindEntityType(typeof(Cafe));
+
             Assert.NotNull(entityType);
-            
-            var primaryKey = entityType!.FindPrimaryKey();
+
+            IKey? primaryKey = entityType!.FindPrimaryKey();
+
             Assert.NotNull(primaryKey);
             Assert.Single(primaryKey.Properties);
             Assert.Equal("Id", primaryKey.Properties.First().Name);
-            
-            var nameProperty = entityType.FindProperty("Name");
-            var locationProperty = entityType.FindProperty("Location");
+
+            IProperty? nameProperty = entityType.FindProperty("Name");
+            IProperty? locationProperty = entityType.FindProperty("Location");
+
             Assert.NotNull(nameProperty);
             Assert.NotNull(locationProperty);
             Assert.False(nameProperty!.IsNullable);
@@ -68,24 +75,25 @@ namespace Tests.DataAccess
         [Fact]
         public void EmployeeCafeConfiguration_RelationshipsAreConfiguredCorrectly_Test()
         {
-            var entityType = appDbContext.Model.FindEntityType(typeof(EmployeeCafe));
-            
+            IEntityType? entityType = appDbContext.Model.FindEntityType(typeof(EmployeeCafe));
+
             Assert.NotNull(entityType);
-            
-            var primaryKey = entityType!.FindPrimaryKey();
+
+            IKey? primaryKey = entityType!.FindPrimaryKey();
+
             Assert.NotNull(primaryKey);
             Assert.Single(primaryKey.Properties);
             Assert.Equal("Id", primaryKey.Properties.First().Name);
-            
-            var foreignKeys = entityType.GetForeignKeys().ToList();
-            
+
+            List<IForeignKey> foreignKeys = entityType.GetForeignKeys().ToList();
+
             Assert.Equal(2, foreignKeys.Count);
             Assert.Contains(foreignKeys, fk => fk.PrincipalEntityType.ClrType == typeof(Employee));
             Assert.Contains(foreignKeys, fk => fk.PrincipalEntityType.ClrType == typeof(Cafe));
-            
-            var employeeFk = foreignKeys.First(fk => fk.PrincipalEntityType.ClrType == typeof(Employee));
-            var cafeFk = foreignKeys.First(fk => fk.PrincipalEntityType.ClrType == typeof(Cafe));
-            
+
+            IForeignKey employeeFk = foreignKeys.First(fk => fk.PrincipalEntityType.ClrType == typeof(Employee));
+            IForeignKey cafeFk = foreignKeys.First(fk => fk.PrincipalEntityType.ClrType == typeof(Cafe));
+
             Assert.Equal(DeleteBehavior.Cascade, employeeFk.DeleteBehavior);
             Assert.Equal(DeleteBehavior.Cascade, cafeFk.DeleteBehavior);
         }

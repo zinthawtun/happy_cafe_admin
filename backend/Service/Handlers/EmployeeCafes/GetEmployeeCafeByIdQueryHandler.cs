@@ -1,4 +1,5 @@
 using AutoMapper;
+using Business.Entities;
 using MediatR;
 using Resource.Interfaces;
 using Service.Queries.EmployeeCafes;
@@ -7,20 +8,20 @@ namespace Service.Handlers.EmployeeCafes
 {
     public class GetEmployeeCafeByIdQueryHandler : IRequestHandler<GetEmployeeCafeByIdQuery, EmployeeCafeDto?>
     {
-        private readonly IEmployeeCafeResource _employeeCafeResource;
-        private readonly IMapper _mapper;
+        private readonly IEmployeeCafeResource employeeCafeResource;
+        private readonly IMapper mapper;
 
         public GetEmployeeCafeByIdQueryHandler(IEmployeeCafeResource employeeCafeResource, IMapper mapper)
         {
-            _employeeCafeResource = employeeCafeResource;
-            _mapper = mapper;
+            this.employeeCafeResource = employeeCafeResource;
+            this.mapper = mapper;
         }
 
         public async Task<EmployeeCafeDto?> Handle(GetEmployeeCafeByIdQuery request, CancellationToken cancellationToken)
         {
-            var employeeCafe = await _employeeCafeResource.GetByIdAsync(request.Id);
+            EmployeeCafe? employeeCafe = await employeeCafeResource.GetByIdAsync(request.Id);
             
-            return employeeCafe != null ? _mapper.Map<EmployeeCafeDto>(employeeCafe) : null;
+            return employeeCafe != null ? mapper.Map<EmployeeCafeDto>(employeeCafe) : null;
         }
     }
 } 

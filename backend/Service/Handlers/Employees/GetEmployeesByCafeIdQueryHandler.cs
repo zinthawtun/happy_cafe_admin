@@ -1,10 +1,8 @@
 using AutoMapper;
+using Business.Entities;
 using MediatR;
 using Resource.Interfaces;
 using Service.Queries.Employees;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Service.Handlers.Employees
 {
@@ -21,7 +19,7 @@ namespace Service.Handlers.Employees
 
         public async Task<IEnumerable<EmployeeDto>> Handle(GetEmployeesByCafeIdQuery request, CancellationToken cancellationToken)
         {
-            var employees = await employeeResource.GetByCafeIdAsync(request.CafeId);
+            IEnumerable<Employee> employees = await employeeResource.GetByCafeIdAsync(request.CafeId);
             
             return mapper.Map<IEnumerable<EmployeeDto>>(employees);
         }

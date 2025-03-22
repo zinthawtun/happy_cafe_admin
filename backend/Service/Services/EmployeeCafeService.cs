@@ -18,69 +18,51 @@ namespace Service.Services
             this.mapper = mapper;
         }
 
-        public async Task<EmployeeCafe?> GetByIdAsync(Guid id)
+        public async Task<EmployeeCafeDto?> GetByIdAsync(Guid id)
         {
             GetEmployeeCafeByIdQuery query = new GetEmployeeCafeByIdQuery { Id = id };
 
-            EmployeeCafeDto? employeeCafeDto = await mediator.Send(query);
-            
-            if (employeeCafeDto == null)
-                return null;
-                
-            return mapper.Map<EmployeeCafe>(employeeCafeDto);
+            return await mediator.Send(query);
         }
 
-        public async Task<IEnumerable<EmployeeCafe>> GetAllAsync()
+        public async Task<IEnumerable<EmployeeCafeDto>> GetAllAsync()
         {
             GetAllEmployeeCafesQuery query = new GetAllEmployeeCafesQuery();
 
-            IEnumerable<EmployeeCafeDto> employeeCafeDtos = await mediator.Send(query);
-            
-            return mapper.Map<IEnumerable<EmployeeCafe>>(employeeCafeDtos);
+            return await mediator.Send(query);
         }
 
-        public async Task<IEnumerable<EmployeeCafe>> GetByCafeIdAsync(Guid cafeId)
+        public async Task<IEnumerable<EmployeeCafeDto>> GetByCafeIdAsync(Guid cafeId)
         {
             GetEmployeeCafesByCafeIdQuery query = new GetEmployeeCafesByCafeIdQuery { CafeId = cafeId };
 
-            IEnumerable<EmployeeCafeDto> employeeCafeDtos = await mediator.Send(query);
-            
-            return mapper.Map<IEnumerable<EmployeeCafe>>(employeeCafeDtos);
+            return await mediator.Send(query);
         }
 
-        public async Task<IEnumerable<EmployeeCafe>> GetByEmployeeIdAsync(string employeeId)
+        public async Task<EmployeeCafeDto?> GetByEmployeeIdAsync(string employeeId)
         {
             GetEmployeeCafesByEmployeeIdQuery query = new GetEmployeeCafesByEmployeeIdQuery { EmployeeId = employeeId };
 
             IEnumerable<EmployeeCafeDto> employeeCafeDtos = await mediator.Send(query);
-            
-            return mapper.Map<IEnumerable<EmployeeCafe>>(employeeCafeDtos);
+
+            return employeeCafeDtos.FirstOrDefault(ec => ec.IsActive);
         }
 
-        public async Task<EmployeeCafe> AssignEmployeeToCafeAsync(Guid cafeId, string employeeId, DateTime assignedDate)
+        public async Task<EmployeeCafeDto?> AssignEmployeeToCafeAsync(AssignEmployeeToCafeCommand command)
         {
-            AssignEmployeeToCafeCommand command = new AssignEmployeeToCafeCommand
-            {
-                CafeId = cafeId,
-                EmployeeId = employeeId,
-                AssignedDate = assignedDate
-            };
-            
-            return await mediator.Send(command);
+            EmployeeCafe employeeCafe = await mediator.Send(command);
+
+            return mapper.Map<EmployeeCafeDto>(employeeCafe);
         }
 
-        public async Task<EmployeeCafe?> UpdateAssignmentAsync(Guid id, Guid cafeId, string employeeId, bool isActive, DateTime assignedDate)
+        public async Task<EmployeeCafeDto?> UpdateAssignmentAsync(UpdateEmployeeCafeAssignmentCommand command)
         {
-            UpdateEmployeeCafeAssignmentCommand command = new UpdateEmployeeCafeAssignmentCommand
-            {
-                Id = id,
-                CafeId = cafeId,
-                EmployeeId = employeeId,
-                IsActive = isActive,
-                AssignedDate = assignedDate
-            };
-            
-            return await mediator.Send(command);
+            EmployeeCafe? employeeCafe = await mediator.Send(command);
+
+            if (employeeCafe == null)
+                return null;
+
+            return mapper.Map<EmployeeCafeDto>(employeeCafe);
         }
 
         public async Task<bool> UnassignEmployeeFromCafeAsync(Guid id)
@@ -92,9 +74,9 @@ namespace Service.Services
 
         public async Task<bool> IsEmployeeAssignedToCafeAsync(string employeeId, Guid cafeId)
         {
-            IEnumerable<EmployeeCafe> assignments = await GetByEmployeeIdAsync(employeeId);
+            EmployeeCafeDto? assignment = await GetByEmployeeIdAsync(employeeId);
 
-            return assignments.Any(a => a.CafeId == cafeId && a.IsActive);
+            return assignment != null && assignment.CafeId == cafeId && assignment.IsActive;
         }
     }
 } 

@@ -4,7 +4,6 @@ using MediatR;
 using Service.Commands.Cafes;
 using Service.Interfaces;
 using Service.Queries.Cafes;
-using System.Runtime.ConstrainedExecution;
 
 namespace Service.Services
 {
@@ -19,61 +18,42 @@ namespace Service.Services
             this.mapper = mapper;
         }
 
-        public async Task<Cafe?> GetByIdAsync(Guid id)
+        public async Task<CafeDto?> GetByIdAsync(Guid id)
         {
             GetCafeByIdQuery query = new GetCafeByIdQuery { Id = id };
 
-            CafeDto? cafeDto = await mediator.Send(query);
-            
-            if (cafeDto == null)
-                return null;
-                
-            return mapper.Map<Cafe>(cafeDto);
+            return await mediator.Send(query);
         }
 
-        public async Task<IEnumerable<Cafe>> GetByLocationAsync(string location)
+        public async Task<IEnumerable<CafeDto>> GetByLocationAsync(string location)
         {
             GetCafesByLocationQuery query = new GetCafesByLocationQuery { Location = location };
 
-            IEnumerable<CafeDto> cafeDtos = await mediator.Send(query);
-            
-            return mapper.Map<IEnumerable<Cafe>>(cafeDtos);
+            return await mediator.Send(query);
         }
 
-        public async Task<IEnumerable<Cafe>> GetAllAsync()
+        public async Task<IEnumerable<CafeDto>> GetAllAsync()
         {
             GetAllCafesQuery query = new GetAllCafesQuery();
 
-            IEnumerable<CafeDto> cafeDtos = await mediator.Send(query);
-
-            return mapper.Map<IEnumerable<Cafe>>(cafeDtos);
+            return await mediator.Send(query);
         }
 
-        public async Task<Cafe> CreateAsync(Cafe cafe)
+        public async Task<CafeDto?> CreateAsync(CreateCafeCommand command)
         {
-            CreateCafeCommand command = new CreateCafeCommand
-            {
-                Name = cafe.Name,
-                Description = cafe.Description,
-                Logo = cafe.Logo,
-                Location = cafe.Location
-            };
-            
-            return await mediator.Send(command);
+            Cafe cafe = await mediator.Send(command);
+
+            return mapper.Map<CafeDto>(cafe);
         }
 
-        public async Task<Cafe?> UpdateAsync(Cafe cafe)
+        public async Task<CafeDto?> UpdateAsync(UpdateCafeCommand command)
         {
-            UpdateCafeCommand command = new UpdateCafeCommand
-            {
-                Id = cafe.Id,
-                Name = cafe.Name,
-                Description = cafe.Description,
-                Logo = cafe.Logo,
-                Location = cafe.Location
-            };
-            
-            return await mediator.Send(command);
+            Cafe? cafe = await mediator.Send(command);
+
+            if (cafe == null)
+                return null;
+
+            return mapper.Map<CafeDto>(cafe);
         }
 
         public async Task<bool> DeleteAsync(Guid id)
@@ -81,6 +61,13 @@ namespace Service.Services
             DeleteCafeCommand command = new DeleteCafeCommand { Id = id };
 
             return await mediator.Send(command);
+        }
+
+        public async Task<bool> ExistsByNameAsync(string name)
+        {
+            ExistsCafeByNameQuery query = new ExistsCafeByNameQuery { Name = name };
+
+            return await mediator.Send(query);
         }
     }
 } 

@@ -1,4 +1,5 @@
 using AutoMapper;
+using Business.Entities;
 using MediatR;
 using Resource.Interfaces;
 using Service.Queries.Cafes;
@@ -18,7 +19,7 @@ namespace Service.Handlers.Cafes
 
         public async Task<IEnumerable<CafeDto>> Handle(GetCafesByLocationQuery request, CancellationToken cancellationToken)
         {
-            var cafes = await cafeResource.GetByLocationLikeAsync(request.Location);
+            IEnumerable<Cafe> cafes = await cafeResource.GetByLocationAsync(request.Location);
             
             return mapper.Map<IEnumerable<CafeDto>>(cafes);
         }
