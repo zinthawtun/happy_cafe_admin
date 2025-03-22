@@ -98,6 +98,58 @@ namespace Tests.DataAccess
             Assert.Equal(DeleteBehavior.Cascade, cafeFk.DeleteBehavior);
         }
 
+        [Fact]
+        public void EmployeeConfiguration_EmailAddressFormat_ShouldBeValidated_Test()
+        {
+            int initialCount = appDbContext.Employees.Count();
+            
+            Employee validEmployee1 = new Employee(
+                "test-id1", 
+                "Test Employee", 
+                "test@example.com", 
+                "89123456", 
+                Gender.Male);
+            
+            Employee validEmployee2 = new Employee(
+                "test-id2", 
+                "Test Employee 2", 
+                "user.name+tag@domain.co.uk", 
+                "89123457", 
+                Gender.Male);
+            
+            appDbContext.Employees.Add(validEmployee1);
+            appDbContext.Employees.Add(validEmployee2);
+            
+            appDbContext.SaveChanges();
+            
+            Assert.Equal(initialCount + 2, appDbContext.Employees.Count());
+            
+            Employee invalidEmployee1 = new Employee(
+                "test-id3", 
+                "Invalid Email", 
+                "not-an-email",
+                "89123458", 
+                Gender.Male);
+            
+            appDbContext.Employees.Add(invalidEmployee1);
+
+            DbUpdateException exception = Assert.Throws<DbUpdateException>(() => appDbContext.SaveChanges());
+
+            string? exceptionMessage = exception.InnerException?.Message;
+            Assert.NotNull(exceptionMessage);
+            Assert.Contains("CK_Employee_EmailAddress_Format", exceptionMessage);
+            
+            appDbContext.ChangeTracker.Clear();
+            
+            Assert.Equal(initialCount + 2, appDbContext.Employees.Count());
+            Assert.DoesNotContain(appDbContext.Employees, e => e.Id == "test-id3");
+            
+            appDbContext.Employees.RemoveRange(
+                appDbContext.Employees.Where(e => e.Id == "test-id1" || e.Id == "test-id2")
+            );
+            appDbContext.SaveChanges();
+        }
+
         public void Dispose()
         {
             appDbContext.Database.EnsureDeleted();

@@ -128,7 +128,7 @@ namespace Tests.Service.Services
             string employeeId = "newemployee";
             string employeeName = "New Employee";
             string emailAddress = "new.employee@example.com";
-            string phone = "1234567890";
+            string phone = "87654321";
             Gender gender = Gender.Male;
 
             CreateEmployeeCommand command = new CreateEmployeeCommand
@@ -173,7 +173,7 @@ namespace Tests.Service.Services
             string employeeId = "employee1";
             string updatedName = "Updated Employee";
             string updatedEmail = "updated.employee@example.com";
-            string updatedPhone = "9876543210";
+            string updatedPhone = "98765432";
             Gender gender = Gender.Female;
 
             UpdateEmployeeCommand command = new UpdateEmployeeCommand
@@ -223,7 +223,7 @@ namespace Tests.Service.Services
                 Id = nonExistentEmployeeId,
                 Name = "Updated Name",
                 EmailAddress = "updated.email@example.com",
-                Phone = "1234567890",
+                Phone = "87654321",
                 Gender = Gender.Male
             };
 

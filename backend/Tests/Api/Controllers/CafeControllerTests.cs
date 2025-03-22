@@ -451,5 +451,66 @@ namespace Tests.Api.Controllers
             
             cafeServiceMock.Verify(s => s.DeleteAsync(It.IsAny<Guid>()), Times.Never);
         }
+
+        [Fact]
+        public async Task GetCafeById_ShouldReturnCafeDetails_WhenValidId_Test()
+        {
+            Guid cafeId = Guid.NewGuid();
+            
+            CafeDto cafeDto = new CafeDto
+            {
+                Id = cafeId,
+                Name = "Test Cafe",
+                Description = "A test cafe",
+                Location = "Test Location",
+                Logo = "test-logo.png"
+            };
+
+            List<EmployeeCafeDto> employeeCafeDtos = new List<EmployeeCafeDto>
+            {
+                new EmployeeCafeDto { Id = Guid.NewGuid(), CafeId = cafeId, EmployeeId = UniqueIdGenerator.GenerateUniqueId(), AssignedDate = DateTime.UtcNow, IsActive = true },
+                new EmployeeCafeDto { Id = Guid.NewGuid(), CafeId = cafeId, EmployeeId = UniqueIdGenerator.GenerateUniqueId(), AssignedDate = DateTime.UtcNow, IsActive = true },
+                new EmployeeCafeDto { Id = Guid.NewGuid(), CafeId = cafeId, EmployeeId = UniqueIdGenerator.GenerateUniqueId(), AssignedDate = DateTime.UtcNow, IsActive = true }
+            };
+
+            cafeServiceMock
+                .Setup(s => s.GetByIdAsync(cafeId))
+                .ReturnsAsync(cafeDto);
+
+            employeeCafeServiceMock
+                .Setup(s => s.GetByCafeIdAsync(cafeId))
+                .ReturnsAsync(employeeCafeDtos);
+
+            ActionResult<CafeDetailResponseModel> result = await cafesController.GetCafeById(cafeId);
+
+            OkObjectResult okResult = Assert.IsType<OkObjectResult>(result.Result);
+            CafeDetailResponseModel returnedCafe = Assert.IsType<CafeDetailResponseModel>(okResult.Value);
+            
+            Assert.Equal(cafeId, returnedCafe.Id);
+            Assert.Equal("Test Cafe", returnedCafe.Name);
+            Assert.Equal("A test cafe", returnedCafe.Description);
+            Assert.Equal("Test Location", returnedCafe.Location);
+            Assert.Equal("test-logo.png", returnedCafe.Logo);
+            Assert.Equal(3, returnedCafe.Employees);
+            
+            cafeServiceMock.Verify(s => s.GetByIdAsync(cafeId), Times.Once);
+            employeeCafeServiceMock.Verify(s => s.GetByCafeIdAsync(cafeId), Times.Once);
+        }
+        
+        [Fact]
+        public async Task GetCafeById_ShouldReturnNotFound_WhenInvalidId_Test()
+        {
+            Guid cafeId = Guid.NewGuid();
+            
+            cafeServiceMock
+                .Setup(s => s.GetByIdAsync(cafeId))
+                .ReturnsAsync((CafeDto?)null);
+
+            ActionResult<CafeDetailResponseModel> result = await cafesController.GetCafeById(cafeId);
+
+            Assert.IsType<NotFoundObjectResult>(result.Result);
+            
+            cafeServiceMock.Verify(s => s.GetByIdAsync(cafeId), Times.Once);
+        }
     }
 } 

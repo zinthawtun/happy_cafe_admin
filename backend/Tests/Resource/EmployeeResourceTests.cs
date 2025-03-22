@@ -35,15 +35,15 @@ namespace Tests.Resource
         {
             Employee employee = await resource.CreateAsync(
                 "John Doe",
-                "john.doe@example.com",
-                "1234567890",
+                "john.doe2@example.com",
+                "89123456",
                 Gender.Male);
             
             Assert.NotNull(employee);
             Assert.NotEmpty(employee.Id);
             Assert.Equal("John Doe", employee.Name);
-            Assert.Equal("john.doe@example.com", employee.EmailAddress);
-            Assert.Equal("1234567890", employee.Phone);
+            Assert.Equal("john.doe2@example.com", employee.EmailAddress);
+            Assert.Equal("89123456", employee.Phone);
             Assert.Equal(Gender.Male, employee.Gender);
             
             Employee? savedEmployee = await context.Employees.FindAsync(employee.Id);
@@ -58,8 +58,8 @@ namespace Tests.Resource
 
             Assert.Equal(2, employees.Count);
 
-            await resource.CreateAsync("John Doe", "john.doe@example.com", "1234567890", Gender.Male);
-            await resource.CreateAsync("Jane Smith", "jane.smith@example.com", "0987654321", Gender.Female);
+            await resource.CreateAsync("John Doe", "john.doe7@example.com", "89123457", Gender.Male);
+            await resource.CreateAsync("Jane Smith", "jane.smith7@example.com", "90123457", Gender.Female);
             
             employees = (await resource.GetAllAsync()).ToList();
             
@@ -71,7 +71,7 @@ namespace Tests.Resource
         [Fact]
         public async Task GetByIdAsync_WithValidId_ShouldReturnEmployee_Test()
         {
-            Employee created = await resource.CreateAsync("John Doe", "john.doe@example.com", "1234567890", Gender.Male);
+            Employee created = await resource.CreateAsync("John Doe", "john.doe8@example.com", "89123458", Gender.Male);
             
             Employee? employee = await resource.GetByIdAsync(created.Id);
             
@@ -91,20 +91,20 @@ namespace Tests.Resource
         [Fact]
         public async Task UpdateAsync_WithValidId_ShouldUpdateEmployee_Test()
         {
-            Employee created = await resource.CreateAsync("John Doe", "john.doe@example.com", "1234567890", Gender.Male);
+            Employee created = await resource.CreateAsync("John Doe", "john.doe0@example.com", "89123410", Gender.Male);
             
             Employee? updated = await resource.UpdateAsync(
                 created.Id,
                 "John Updated",
-                "john.updated@example.com",
-                "0987654321",
+                "john.updated0@example.com",
+                "90123410",
                 Gender.Male);
             
             Assert.NotNull(updated);
             Assert.Equal(created.Id, updated.Id);
             Assert.Equal("John Updated", updated.Name);
-            Assert.Equal("john.updated@example.com", updated.EmailAddress);
-            Assert.Equal("0987654321", updated.Phone);
+            Assert.Equal("john.updated0@example.com", updated.EmailAddress);
+            Assert.Equal("90123410", updated.Phone);
             
             Employee? savedEmployee = await context.Employees.FindAsync(created.Id);
             Assert.NotNull(savedEmployee);
@@ -118,7 +118,7 @@ namespace Tests.Resource
                 "nonexistent-id",
                 "John Updated",
                 "john.updated@example.com",
-                "0987654321",
+                "89876543",
                 Gender.Male);
             
             Assert.Null(updated);
@@ -127,7 +127,7 @@ namespace Tests.Resource
         [Fact]
         public async Task DeleteAsync_WithValidId_AndNoRelationships_ShouldDeleteEmployee_Test()
         {
-            Employee created = await resource.CreateAsync("John Doe", "john.doe@example.com", "1234567890", Gender.Male);
+            Employee created = await resource.CreateAsync("John Doe", "john.doe4@example.com", "89123454", Gender.Male);
             
             bool result = await resource.DeleteAsync(created.Id);
             
@@ -148,7 +148,7 @@ namespace Tests.Resource
         [Fact]
         public async Task DeleteAsync_WithActiveAssignments_ShouldReturnFalse_Test()
         {
-            Employee employee = await resource.CreateAsync("John Doe", "john.doe@example.com", "1234567890", Gender.Male);
+            Employee employee = await resource.CreateAsync("John Doe", "john.doe3@example.com", "89123453", Gender.Male);
             
             Cafe cafe = new Cafe(Guid.NewGuid(), "Test Cafe", "Description", "logo.png", "Location");
             context.Cafes.Add(cafe);
@@ -168,9 +168,9 @@ namespace Tests.Resource
         [Fact]
         public async Task GetByCafeIdAsync_ShouldReturnEmployeesAssignedToCafe_Test()
         {
-            Employee employee1 = await resource.CreateAsync("John Doe", "john@example.com", "1234567890", Gender.Male);
-            Employee employee2 = await resource.CreateAsync("Jane Smith", "jane@example.com", "0987654321", Gender.Female);
-            Employee employee3 = await resource.CreateAsync("Bob Johnson", "bob@example.com", "5555555555", Gender.Male);
+            Employee employee1 = await resource.CreateAsync("John Doe", "john@example.com", "89123450", Gender.Male);
+            Employee employee2 = await resource.CreateAsync("Jane Smith", "jane@example.com", "90123451", Gender.Female);
+            Employee employee3 = await resource.CreateAsync("Bob Johnson", "bob@example.com", "89123452", Gender.Male);
             
             Cafe cafe = new Cafe(Guid.NewGuid(), "Test Cafe", "Description", "logo.png", "Location");
             context.Cafes.Add(cafe);
@@ -191,7 +191,7 @@ namespace Tests.Resource
         [Fact]
         public async Task ExistsAsync_WithValidId_ShouldReturnTrue_Test()
         {
-            Employee created = await resource.CreateAsync("John Doe", "john.doe@example.com", "1234567890", Gender.Male);
+            Employee created = await resource.CreateAsync("John Doe", "john.doe5@example.com", "89123455", Gender.Male);
             
             bool exists = await resource.ExistsAsync(created.Id);
             
@@ -213,9 +213,9 @@ namespace Tests.Resource
 
             Assert.Equal(2, count);
 
-            await resource.CreateAsync("John Doe", "john.doe@example.com", "1234567890", Gender.Male);
-            await resource.CreateAsync("Jane Smith", "jane.smith@example.com", "0987654321", Gender.Female);
-            await resource.CreateAsync("Bob Johnson", "bob.johnson@example.com", "5555555555", Gender.Male);
+            await resource.CreateAsync("John Doe", "john.doe6@example.com", "89123456", Gender.Male);
+            await resource.CreateAsync("Jane Smith", "jane.smith6@example.com", "90123456", Gender.Female);
+            await resource.CreateAsync("Bob Johnson", "bob.johnson6@example.com", "89123446", Gender.Male);
             
             count = await resource.GetCountAsync();
             

@@ -12,6 +12,10 @@ namespace DataAccess.Configuration
             builder.HasKey(e => e.Id);
 
             builder.HasIndex(e => e.Id).IsUnique();
+            
+            builder.HasIndex(e => e.EmailAddress).IsUnique();
+            
+            builder.HasIndex(e => e.Phone);
 
             builder.Property(e => e.Id)
                 .IsRequired()
@@ -25,9 +29,13 @@ namespace DataAccess.Configuration
                 .IsRequired()
                 .HasMaxLength(150);
 
+            builder.ToTable(t => t.HasCheckConstraint("CK_Employee_EmailAddress_Format", "\"EmailAddress\" ~ '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$'"));
+
             builder.Property(e => e.Phone)
                 .IsRequired()
-                .HasMaxLength(15);
+                .HasMaxLength(8);
+                
+            builder.ToTable(t => t.HasCheckConstraint("CK_Employee_Phone", "\"Phone\" ~ '^[89]\\d{7}$'"));
 
             EnumToStringConverter<Gender> converter = new EnumToStringConverter<Gender>();
 

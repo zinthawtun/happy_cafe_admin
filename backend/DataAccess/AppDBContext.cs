@@ -79,14 +79,14 @@ namespace DataAccess
                     id: employee1Id,
                     name: "John Doe",
                     emailAddress: "john.doe@example.com",
-                    phone: "1234567890",
+                    phone: "89123456",
                     gender: Gender.Male
                 ),
                 new Employee(
                     id: employee2Id,
                     name: "Jane Smith",
                     emailAddress: "jane.smith@example.com",
-                    phone: "0987654321",
+                    phone: "98123456",
                     gender: Gender.Female
                 )
             );

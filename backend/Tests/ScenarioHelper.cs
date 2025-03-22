@@ -1,5 +1,6 @@
 ﻿using Business.Entities;
 using Utilities;
+using System.Text.RegularExpressions;
 
 namespace Tests
 {
@@ -7,11 +8,17 @@ namespace Tests
     {
         public static Employee CreateEmployee(string name, string email, string phone, Gender gender)
         {
+            string validPhone = phone;
+            if (!Regex.IsMatch(phone, @"^[89]\d{7}$"))
+            {
+                validPhone = "8" + new string('0', 7);
+            }
+            
             return new Employee(
                 UniqueIdGenerator.GenerateUniqueId(),
                 name,
                 email,
-                phone,
+                validPhone,
                 gender);
         }
 

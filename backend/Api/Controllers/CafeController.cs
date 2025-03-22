@@ -97,6 +97,33 @@ namespace Api.Controllers
             });
         }
 
+        [HttpGet]
+        [Route("cafe")]
+        public async Task<ActionResult<CafeDetailResponseModel>> GetCafeById([FromQuery] Guid id)
+        {
+            CafeDto? cafeDto = await cafeService.GetByIdAsync(id);
+            
+            if (cafeDto == null)
+            {
+                return NotFound($"Cafe with ID {id} not found");
+            }
+
+            IEnumerable<EmployeeCafeDto> employeeCafes = await employeeCafeService.GetByCafeIdAsync(id);
+            int employeeCount = employeeCafes.Count();
+
+            CafeDetailResponseModel response = new CafeDetailResponseModel
+            {
+                Id = cafeDto.Id,
+                Name = cafeDto.Name,
+                Description = cafeDto.Description,
+                Location = cafeDto.Location,
+                Logo = cafeDto.Logo,
+                Employees = employeeCount
+            };
+
+            return Ok(response);
+        }
+
         [HttpPut]
         [Route("~/cafe")]
         public async Task<ActionResult<CafeResponseModel>> UpdateCafe([FromBody] UpdateCafeModel model)

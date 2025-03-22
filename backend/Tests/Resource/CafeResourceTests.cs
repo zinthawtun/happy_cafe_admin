@@ -141,7 +141,7 @@ namespace Tests.Resource
         {
             Cafe cafe = await resource.CreateAsync("Coffee House", "Description", "logo.png", "Location");
             
-            Employee employee = new Employee("EMP123", "John Doe", "john@example.com", "1234567890", Gender.Male);
+            Employee employee = new Employee("EMP123", "John Doe", "john@example.com", "89876543", Gender.Male);
             context.Employees.Add(employee);
             
             EmployeeCafe employeeCafe = new EmployeeCafe(Guid.NewGuid(), cafe.Id, employee.Id, DateTime.UtcNow);
@@ -164,7 +164,7 @@ namespace Tests.Resource
             Cafe cafe3 = await resource.CreateAsync("Juice Bar", "Description 3", "logo3.png", "Location 3");
             
             string eeID = UniqueIdGenerator.GenerateUniqueId();
-            Employee employee = new Employee(eeID, "John Doe", "john@example.com", "1234567890", Gender.Male);
+            Employee employee = new Employee(eeID, "John Doe", "john@example.com", "89876543", Gender.Male);
             context.Employees.Add(employee);
             
             context.EmployeeCafes.Add(new EmployeeCafe(Guid.NewGuid(), cafe1.Id, employee.Id, DateTime.UtcNow));

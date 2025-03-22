@@ -37,8 +37,8 @@ namespace Tests.Api.Controllers
         {
             List<EmployeeDto> employeeDtos = new List<EmployeeDto>
             {
-                new EmployeeDto { Id = UniqueIdGenerator.GenerateUniqueId(), Name = "John Doe", EmailAddress = "john@example.com", Phone = "1234567890", Gender = Gender.Male },
-                new EmployeeDto { Id = UniqueIdGenerator.GenerateUniqueId(), Name = "Jane Smith", EmailAddress = "jane@example.com", Phone = "0987654321", Gender = Gender.Female }
+                new EmployeeDto { Id = UniqueIdGenerator.GenerateUniqueId(), Name = "John Doe", EmailAddress = "john@example.com", Phone = "87654321", Gender = Gender.Male },
+                new EmployeeDto { Id = UniqueIdGenerator.GenerateUniqueId(), Name = "Jane Smith", EmailAddress = "jane@example.com", Phone = "98765432", Gender = Gender.Female }
             };
 
             employeeServiceMock
@@ -64,8 +64,8 @@ namespace Tests.Api.Controllers
 
             List<EmployeeDto> employeeDtos = new List<EmployeeDto>
             {
-                new EmployeeDto { Id = emp1, Name = "John Doe", EmailAddress = "john@example.com", Phone = "1234567890", Gender = Gender.Male, CafeName = "Test Cafe" },
-                new EmployeeDto { Id = emp2, Name = "Jane Smith", EmailAddress = "jane@example.com", Phone = "0987654321", Gender = Gender.Female, CafeName = "Test Cafe" }
+                new EmployeeDto { Id = emp1, Name = "John Doe", EmailAddress = "john@example.com", Phone = "87654321", Gender = Gender.Male, CafeName = "Test Cafe" },
+                new EmployeeDto { Id = emp2, Name = "Jane Smith", EmailAddress = "jane@example.com", Phone = "98765432", Gender = Gender.Female, CafeName = "Test Cafe" }
             };
 
             CafeDto cafeDto = new CafeDto
@@ -116,7 +116,7 @@ namespace Tests.Api.Controllers
                 Id = employeeId,
                 Name = "John Doe",
                 EmailAddress = "john@example.com",
-                Phone = "1234567890",
+                Phone = "87654321",
                 Gender = Gender.Male,
                 DaysWorked = 30,
                 CafeName = "Test Cafe"
@@ -183,7 +183,7 @@ namespace Tests.Api.Controllers
             CreateEmployeeModel createModel = new CreateEmployeeModel
             {
                 Name = "John Doe",
-                Phone = "123 Main St",
+                Phone = "89876543",
                 EmailAddress = "john@example.com",
                 Gender = "Male"
             };
@@ -192,7 +192,7 @@ namespace Tests.Api.Controllers
             {
                 Name = "John Doe",
                 EmailAddress = "john@example.com",
-                Phone = "123 Main St",
+                Phone = "89876543",
                 Gender = Gender.Male
             };
 
@@ -201,7 +201,7 @@ namespace Tests.Api.Controllers
                 Id = employeeId,
                 Name = "John Doe",
                 EmailAddress = "john@example.com",
-                Phone = "123 Main St",
+                Phone = "89876543",
                 Gender = Gender.Male
             };
 
@@ -228,13 +228,13 @@ namespace Tests.Api.Controllers
         [Fact]
         public async Task CreateEmployee_ShouldAssignToCafe_WhenCafeIdProvided_Test()
         {
-            string employeeId = "emp123";
+            string employeeId = UniqueIdGenerator.GenerateUniqueId();
             Guid cafeId = Guid.NewGuid();
             
             CreateEmployeeModel createModel = new CreateEmployeeModel
             {
                 Name = "John Doe",
-                Phone = "123 Main St",
+                Phone = "89876543",
                 EmailAddress = "john@example.com",
                 Gender = "Male",
                 CafeId = cafeId
@@ -245,7 +245,7 @@ namespace Tests.Api.Controllers
                 Id = employeeId,
                 Name = "John Doe",
                 EmailAddress = "john@example.com",
-                Phone = "123 Main St",
+                Phone = "89876543",
                 Gender = Gender.Male
             };
 
@@ -310,7 +310,7 @@ namespace Tests.Api.Controllers
             CreateEmployeeModel createModel = new CreateEmployeeModel
             {
                 Name = "John Doe",
-                Phone = "123 Main St",
+                Phone = "89876543",
                 EmailAddress = "john@example.com",
                 Gender = "Male",
                 CafeId = invalidCafeId
@@ -334,7 +334,7 @@ namespace Tests.Api.Controllers
             CreateEmployeeModel createModel = new CreateEmployeeModel
             {
                 Name = "John Doe",
-                Phone = "123-456-7890",
+                Phone = "89876543",
                 EmailAddress = "john@example.com",
                 Gender = "Male"
             };
@@ -355,13 +355,13 @@ namespace Tests.Api.Controllers
         [Fact]
         public async Task UpdateEmployee_ShouldReturnUpdatedEmployee_WhenValidData_Test()
         {
-            string employeeId = "emp123";
+            string employeeId = UniqueIdGenerator.GenerateUniqueId();
             
             UpdateEmployeeModel updateModel = new UpdateEmployeeModel
             {
                 Id = employeeId,
                 Name = "Updated John Doe",
-                Phone = "456 Updated St",
+                Phone = "98765432",
                 EmailAddress = "updated.john@example.com",
                 Gender = "Male"
             };
@@ -371,7 +371,7 @@ namespace Tests.Api.Controllers
                 Id = employeeId,
                 Name = "John Doe",
                 EmailAddress = "john@example.com",
-                Phone = "123 Main St",
+                Phone = "87654321",
                 Gender = Gender.Male
             };
 
@@ -380,7 +380,7 @@ namespace Tests.Api.Controllers
                 Id = employeeId,
                 Name = "Updated John Doe",
                 EmailAddress = "updated.john@example.com",
-                Phone = "456 Updated St",
+                Phone = "98765432",
                 Gender = Gender.Male
             };
 
@@ -412,7 +412,7 @@ namespace Tests.Api.Controllers
         [Fact]
         public async Task UpdateEmployee_ShouldChangeCafeAssignment_WhenCafeIdChanged_Test()
         {
-            string employeeId = "emp123";
+            string employeeId = UniqueIdGenerator.GenerateUniqueId();
             Guid oldCafeId = Guid.NewGuid();
             Guid newCafeId = Guid.NewGuid();
             Guid employeeCafeId = Guid.NewGuid();
@@ -421,7 +421,7 @@ namespace Tests.Api.Controllers
             {
                 Id = employeeId,
                 Name = "John Doe",
-                Phone = "123 Main St",
+                Phone = "89876543",
                 EmailAddress = "john@example.com",
                 Gender = "Male",
                 CafeId = newCafeId
@@ -432,7 +432,7 @@ namespace Tests.Api.Controllers
                 Id = employeeId,
                 Name = "John Doe",
                 EmailAddress = "john@example.com",
-                Phone = "123 Main St",
+                Phone = "87654321",
                 Gender = Gender.Male,
                 CafeName = "Old Cafe"
             };
@@ -442,7 +442,7 @@ namespace Tests.Api.Controllers
                 Id = employeeId,
                 Name = "John Doe",
                 EmailAddress = "john@example.com",
-                Phone = "123 Main St",
+                Phone = "89876543",
                 Gender = Gender.Male,
                 CafeName = "New Cafe"
             };
@@ -538,7 +538,7 @@ namespace Tests.Api.Controllers
             {
                 Id = nonExistentEmployeeId,
                 Name = "Updated Name",
-                Phone = "Updated Address",
+                Phone = "87654321",
                 EmailAddress = "updated.email@example.com",
                 Gender = "Male"
             };
@@ -558,7 +558,7 @@ namespace Tests.Api.Controllers
         [Fact]
         public async Task DeleteEmployee_ShouldReturnNoContent_WhenSuccessful_Test()
         {
-            string employeeId = "emp123";
+            string employeeId = UniqueIdGenerator.GenerateUniqueId();
             DeleteEmployeeModel deleteModel = new DeleteEmployeeModel { Id = employeeId };
 
             employeeServiceMock
@@ -579,7 +579,7 @@ namespace Tests.Api.Controllers
         [Fact]
         public async Task DeleteEmployee_ShouldUnassignFromCafe_BeforeDeleting_Test()
         {
-            string employeeId = "emp123";
+            string employeeId = UniqueIdGenerator.GenerateUniqueId();
             Guid cafeId = Guid.NewGuid();
             Guid employeeCafeId = Guid.NewGuid();
             
@@ -635,6 +635,74 @@ namespace Tests.Api.Controllers
             
             employeeCafeServiceMock.Verify(s => s.GetByEmployeeIdAsync(nonExistentEmployeeId), Times.Once);
             employeeServiceMock.Verify(s => s.DeleteAsync(nonExistentEmployeeId), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetEmployeeById_ShouldReturnEmployeeDetails_WhenValidId_Test()
+        {
+            string employeeId = UniqueIdGenerator.GenerateUniqueId();
+            Guid cafeId = Guid.NewGuid();
+            DateTime assignedDate = DateTime.UtcNow.AddDays(-30);
+
+            EmployeeDto employeeDto = new EmployeeDto
+            {
+                Id = employeeId,
+                Name = "John Doe",
+                EmailAddress = "john@example.com",
+                Phone = "87654321",
+                Gender = Gender.Male
+            };
+
+            EmployeeCafeDto employeeCafeDto = new EmployeeCafeDto
+            {
+                Id = Guid.NewGuid(),
+                CafeId = cafeId,
+                CafeName = "Test Cafe",
+                EmployeeId = employeeId,
+                AssignedDate = assignedDate,
+                IsActive = true
+            };
+
+            employeeServiceMock
+                .Setup(s => s.GetByIdAsync(employeeId))
+                .ReturnsAsync(employeeDto);
+
+            employeeCafeServiceMock
+                .Setup(s => s.GetByEmployeeIdAsync(employeeId))
+                .ReturnsAsync(employeeCafeDto);
+
+            ActionResult<EmployeeDetailResponseModel> result = await employeesController.GetEmployeeById(employeeId);
+
+            OkObjectResult okResult = Assert.IsType<OkObjectResult>(result.Result);
+            EmployeeDetailResponseModel returnedEmployee = Assert.IsType<EmployeeDetailResponseModel>(okResult.Value);
+            
+            Assert.Equal(employeeId, returnedEmployee.Id);
+            Assert.Equal("John Doe", returnedEmployee.Name);
+            Assert.Equal("john@example.com", returnedEmployee.EmailAddress);
+            Assert.Equal("87654321", returnedEmployee.Phone);
+            Assert.Equal("Male", returnedEmployee.Gender);
+            Assert.Equal(cafeId, returnedEmployee.CafeId);
+            Assert.Equal("Test Cafe", returnedEmployee.CafeName);
+            Assert.Equal(assignedDate, returnedEmployee.StartDate);
+            
+            employeeServiceMock.Verify(s => s.GetByIdAsync(employeeId), Times.Once);
+            employeeCafeServiceMock.Verify(s => s.GetByEmployeeIdAsync(employeeId), Times.Once);
+        }
+        
+        [Fact]
+        public async Task GetEmployeeById_ShouldReturnNotFound_WhenInvalidId_Test()
+        {
+            string employeeId = UniqueIdGenerator.GenerateUniqueId();
+            
+            employeeServiceMock
+                .Setup(s => s.GetByIdAsync(employeeId))
+                .ReturnsAsync((EmployeeDto?)null);
+
+            ActionResult<EmployeeDetailResponseModel> result = await employeesController.GetEmployeeById(employeeId);
+
+            Assert.IsType<NotFoundObjectResult>(result.Result);
+            
+            employeeServiceMock.Verify(s => s.GetByIdAsync(employeeId), Times.Once);
         }
     }
 } 

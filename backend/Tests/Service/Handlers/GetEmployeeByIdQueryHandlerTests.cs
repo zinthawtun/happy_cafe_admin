@@ -4,6 +4,7 @@ using Moq;
 using Resource.Interfaces;
 using Service.Handlers.Employees;
 using Service.Queries.Employees;
+using Utilities;
 
 namespace Tests.Service.Handlers
 {
@@ -21,40 +22,41 @@ namespace Tests.Service.Handlers
         }
 
         [Fact]
-        public async Task Handle_ShouldReturnEmployeeDto_WhenEmployeeExists_Test()
+        public async Task Handle_ShouldReturnEmployee_WhenEmployeeExists_Test()
         {
-            string employeeId = "employee1";
-            GetEmployeeByIdQuery query = new GetEmployeeByIdQuery { Id = employeeId };
-
-            Employee employee = new Employee(employeeId, "Test Employee", "test@example.com", "1234567890", Gender.Male);
-
+            string employeeId = UniqueIdGenerator.GenerateUniqueId();
+            Employee employee = new Employee(employeeId, "Test Employee", "test0@example.com", "89123456", Gender.Male);
+            
+            employeeResourceMock
+                .Setup(r => r.GetByIdAsync(employeeId))
+                .ReturnsAsync(employee);
+                
             EmployeeDto employeeDto = new EmployeeDto
             {
                 Id = employeeId,
                 Name = "Test Employee",
-                EmailAddress = "test@example.com",
-                Phone = "1234567890",
+                EmailAddress = "test0@example.com",
+                Phone = "89123456",
                 Gender = Gender.Male
             };
-
-            employeeResourceMock
-                .Setup(r => r.GetByIdAsync(employeeId))
-                .ReturnsAsync(employee);
-
+            
             mapperMock
                 .Setup(m => m.Map<EmployeeDto>(employee))
                 .Returns(employeeDto);
-
+            
+            GetEmployeeByIdQuery query = new GetEmployeeByIdQuery { Id = employeeId };
+            
             EmployeeDto? result = await handler.Handle(query, CancellationToken.None);
-
+            
             Assert.NotNull(result);
             Assert.Equal(employeeId, result.Id);
-            Assert.Equal(employee.Name, result.Name);
-            Assert.Equal(employee.EmailAddress, result.EmailAddress);
-            Assert.Equal(employee.Phone, result.Phone);
-            Assert.Equal(employee.Gender, result.Gender);
-
+            Assert.Equal("Test Employee", result.Name);
+            Assert.Equal("test0@example.com", result.EmailAddress);
+            Assert.Equal("89123456", result.Phone);
+            Assert.Equal(Gender.Male, result.Gender);
+            
             employeeResourceMock.Verify(r => r.GetByIdAsync(employeeId), Times.Once);
+            mapperMock.Verify(m => m.Map<EmployeeDto>(employee), Times.Once);
         }
 
         [Fact]

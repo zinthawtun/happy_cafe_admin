@@ -18,7 +18,7 @@ namespace Tests.Service.Validators
         [Fact]
         public void Validator_ShouldHaveErrorWhen_IdIsEmpty_Test()
         {
-            UpdateEmployeeCommand command = new UpdateEmployeeCommand { Id = "", Name = "Name", EmailAddress = "test@example.com", Phone = "1234567890", Gender = Gender.Male };
+            UpdateEmployeeCommand command = new UpdateEmployeeCommand { Id = "", Name = "Name", EmailAddress = "test@example.com", Phone = "89876543", Gender = Gender.Male };
 
             TestValidationResult<UpdateEmployeeCommand> result = validator.TestValidate(command);
 
@@ -28,7 +28,7 @@ namespace Tests.Service.Validators
         [Fact]
         public void Validator_ShouldNotHaveErrorWhen_IdIsValid_Test()
         {
-            UpdateEmployeeCommand command = new UpdateEmployeeCommand { Id = "employee1", Name = "Name", EmailAddress = "test@example.com", Phone = "1234567890", Gender = Gender.Male };
+            UpdateEmployeeCommand command = new UpdateEmployeeCommand { Id = "employee1", Name = "Name", EmailAddress = "test@example.com", Phone = "89876543", Gender = Gender.Male };
 
             TestValidationResult<UpdateEmployeeCommand> result = validator.TestValidate(command);
 
@@ -38,7 +38,7 @@ namespace Tests.Service.Validators
         [Fact]
         public void Validator_ShouldHaveErrorWhen_NameIsEmpty_Test()
         {
-            UpdateEmployeeCommand command = new UpdateEmployeeCommand { Id = "employee1", Name = "", EmailAddress = "test@example.com", Phone = "1234567890", Gender = Gender.Male };
+            UpdateEmployeeCommand command = new UpdateEmployeeCommand { Id = "employee1", Name = "", EmailAddress = "test@example.com", Phone = "89876543", Gender = Gender.Male };
 
             TestValidationResult<UpdateEmployeeCommand> result = validator.TestValidate(command);
 
@@ -50,7 +50,7 @@ namespace Tests.Service.Validators
         {
             string longName = new string('A', 101);
 
-            UpdateEmployeeCommand command = new UpdateEmployeeCommand { Id = "employee1", Name = longName, EmailAddress = "test@example.com", Phone = "1234567890", Gender = Gender.Male };
+            UpdateEmployeeCommand command = new UpdateEmployeeCommand { Id = "employee1", Name = longName, EmailAddress = "test@example.com", Phone = "89876543", Gender = Gender.Male };
 
             TestValidationResult<UpdateEmployeeCommand> result = validator.TestValidate(command);
 
@@ -60,7 +60,7 @@ namespace Tests.Service.Validators
         [Fact]
         public void Validator_ShouldNotHaveErrorWhen_NameIsValid_Test()
         {
-            UpdateEmployeeCommand command = new UpdateEmployeeCommand { Id = "employee1", Name = "Valid Name", EmailAddress = "test@example.com", Phone = "1234567890", Gender = Gender.Male };
+            UpdateEmployeeCommand command = new UpdateEmployeeCommand { Id = "employee1", Name = "Valid Name", EmailAddress = "test@example.com", Phone = "89876543", Gender = Gender.Male };
 
             TestValidationResult<UpdateEmployeeCommand> result = validator.TestValidate(command);
 
@@ -72,7 +72,7 @@ namespace Tests.Service.Validators
         {
             string nameAtMaxLength = new string('A', 100);
 
-            UpdateEmployeeCommand command = new UpdateEmployeeCommand { Id = "employee1", Name = nameAtMaxLength, EmailAddress = "test@example.com", Phone = "1234567890", Gender = Gender.Male };
+            UpdateEmployeeCommand command = new UpdateEmployeeCommand { Id = "employee1", Name = nameAtMaxLength, EmailAddress = "test@example.com", Phone = "89876543", Gender = Gender.Male };
 
             TestValidationResult<UpdateEmployeeCommand> result = validator.TestValidate(command);
 
@@ -82,7 +82,7 @@ namespace Tests.Service.Validators
         [Fact]
         public void Validator_ShouldHaveErrorWhen_EmailAddressIsEmpty_Test()
         {
-            UpdateEmployeeCommand command = new UpdateEmployeeCommand { Id = "employee1", Name = "Name", EmailAddress = "", Phone = "1234567890", Gender = Gender.Male };
+            UpdateEmployeeCommand command = new UpdateEmployeeCommand { Id = "employee1", Name = "Name", EmailAddress = "", Phone = "89876543", Gender = Gender.Male };
 
             TestValidationResult<UpdateEmployeeCommand> result = validator.TestValidate(command);
 
@@ -92,9 +92,9 @@ namespace Tests.Service.Validators
         [Fact]
         public void Validator_ShouldHaveErrorWhen_EmailAddressIsTooLong_Test()
         {
-            string longEmail = new string('a', 90) + "@example.com";
+            string longEmail = new string('a', 100) + "@example.com";
 
-            UpdateEmployeeCommand command = new UpdateEmployeeCommand { Id = "employee1", Name = "Name", EmailAddress = longEmail, Phone = "1234567890", Gender = Gender.Male };
+            UpdateEmployeeCommand command = new UpdateEmployeeCommand { Id = "employee1", Name = "Name", EmailAddress = longEmail, Phone = "89876543", Gender = Gender.Male };
 
             TestValidationResult<UpdateEmployeeCommand> result = validator.TestValidate(command);
 
@@ -104,7 +104,7 @@ namespace Tests.Service.Validators
         [Fact]
         public void Validator_ShouldHaveErrorWhen_EmailAddressIsInvalidFormat_Test()
         {
-            UpdateEmployeeCommand command = new UpdateEmployeeCommand { Id = "employee1", Name = "Name", EmailAddress = "invalid-email", Phone = "1234567890", Gender = Gender.Male };
+            UpdateEmployeeCommand command = new UpdateEmployeeCommand { Id = "employee1", Name = "Name", EmailAddress = "invalid-email", Phone = "89876543", Gender = Gender.Male };
 
             TestValidationResult<UpdateEmployeeCommand> result = validator.TestValidate(command);
 
@@ -114,7 +114,7 @@ namespace Tests.Service.Validators
         [Fact]
         public void Validator_ShouldNotHaveErrorWhen_EmailAddressIsValid_Test()
         {
-            UpdateEmployeeCommand command = new UpdateEmployeeCommand { Id = "employee1", Name = "Name", EmailAddress = "test@example.com", Phone = "1234567890", Gender = Gender.Male };
+            UpdateEmployeeCommand command = new UpdateEmployeeCommand { Id = "employee1", Name = "Name", EmailAddress = "test@example.com", Phone = "89876543", Gender = Gender.Male };
 
             TestValidationResult<UpdateEmployeeCommand> result = validator.TestValidate(command);
 
@@ -128,7 +128,7 @@ namespace Tests.Service.Validators
             string emailPrefix = new string('a', 100 - domain.Length);
             string emailAtMaxLength = emailPrefix + domain;
 
-            UpdateEmployeeCommand command = new UpdateEmployeeCommand { Id = "employee1", Name = "Name", EmailAddress = emailAtMaxLength, Phone = "1234567890", Gender = Gender.Male };
+            UpdateEmployeeCommand command = new UpdateEmployeeCommand { Id = "employee1", Name = "Name", EmailAddress = emailAtMaxLength, Phone = "89876543", Gender = Gender.Male };
 
             TestValidationResult<UpdateEmployeeCommand> result = validator.TestValidate(command);
 
@@ -160,7 +160,7 @@ namespace Tests.Service.Validators
         [Fact]
         public void Validator_ShouldNotHaveErrorWhen_PhoneIsValid_Test()
         {
-            UpdateEmployeeCommand command = new UpdateEmployeeCommand { Id = "employee1", Name = "Name", EmailAddress = "test@example.com", Phone = "1234567890", Gender = Gender.Male };
+            UpdateEmployeeCommand command = new UpdateEmployeeCommand { Id = "employee1", Name = "Name", EmailAddress = "test@example.com", Phone = "89876543", Gender = Gender.Male };
 
             TestValidationResult<UpdateEmployeeCommand> result = validator.TestValidate(command);
 
