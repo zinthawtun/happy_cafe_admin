@@ -21,6 +21,7 @@ namespace Api.Controllers
         }
 
         [HttpGet]
+        [Route("")]
         public async Task<ActionResult<IEnumerable<CafeResponseModel>>> GetCafes([FromQuery] string? location = null)
         {
             IEnumerable<CafeDto> cafeDtos;
@@ -56,11 +57,18 @@ namespace Api.Controllers
         }
 
         [HttpPost]
+        [Route("~/cafe")]
         public async Task<ActionResult<CafeResponseModel>> CreateCafe([FromBody] CreateCafeModel model)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
+            }
+
+            bool cafeExists = await cafeService.ExistsByNameAsync(model.Name);
+            if (cafeExists)
+            {
+                return BadRequest($"A cafe with the name '{model.Name}' already exists.");
             }
 
             CreateCafeCommand createCafeCommand = new CreateCafeCommand
@@ -90,6 +98,7 @@ namespace Api.Controllers
         }
 
         [HttpPut]
+        [Route("~/cafe")]
         public async Task<ActionResult<CafeResponseModel>> UpdateCafe([FromBody] UpdateCafeModel model)
         {
             if (!ModelState.IsValid)
@@ -133,6 +142,7 @@ namespace Api.Controllers
         }
 
         [HttpDelete]
+        [Route("~/cafe")]
         public async Task<ActionResult> DeleteCafe([FromBody] DeleteCafeModel model)
         {
             if (!ModelState.IsValid)

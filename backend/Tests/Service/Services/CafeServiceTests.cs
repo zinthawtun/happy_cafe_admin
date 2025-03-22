@@ -246,5 +246,35 @@ namespace Tests.Service.Services
 
             Assert.False(result);
         }
+
+        [Fact]
+        public async Task ExistsByNameAsync_ShouldReturnTrue_WhenCafeNameExists_Test()
+        {
+            string existingCafeName = "Existing Cafe";
+            
+            mediatorMock
+                .Setup(m => m.Send(It.Is<ExistsCafeByNameQuery>(q => q.Name == existingCafeName), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true);
+
+            bool result = await cafeService.ExistsByNameAsync(existingCafeName);
+
+            Assert.True(result);
+            mediatorMock.Verify(m => m.Send(It.Is<ExistsCafeByNameQuery>(q => q.Name == existingCafeName), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task ExistsByNameAsync_ShouldReturnFalse_WhenCafeNameDoesNotExist_Test()
+        {
+            string nonExistentCafeName = "Non-existent Cafe";
+            
+            mediatorMock
+                .Setup(m => m.Send(It.Is<ExistsCafeByNameQuery>(q => q.Name == nonExistentCafeName), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(false);
+
+            bool result = await cafeService.ExistsByNameAsync(nonExistentCafeName);
+
+            Assert.False(result);
+            mediatorMock.Verify(m => m.Send(It.Is<ExistsCafeByNameQuery>(q => q.Name == nonExistentCafeName), It.IsAny<CancellationToken>()), Times.Once);
+        }
     }
 } 

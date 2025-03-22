@@ -16,5 +16,7 @@ namespace Service.Interfaces
         Task<EmployeeDto?> UpdateAsync(UpdateEmployeeCommand command);
 
         Task<bool> DeleteAsync(string id);
+
+        Task<bool> ExistsWithEmailOrPhoneAsync(string emailAddress, string phone);
     }
 } 

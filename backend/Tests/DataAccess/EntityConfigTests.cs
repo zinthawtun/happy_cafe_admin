@@ -20,7 +20,7 @@ namespace Tests.DataAccess
 
             Assert.NotNull(entityType);
             
-            var primaryKey = entityType!.FindPrimaryKey();
+            IKey? primaryKey = entityType!.FindPrimaryKey();
             
             Assert.NotNull(primaryKey);
             Assert.Single(primaryKey.Properties);

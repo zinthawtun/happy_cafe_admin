@@ -2,9 +2,6 @@ using Business.Entities;
 using DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Resource.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Resource
 {
@@ -104,6 +101,11 @@ namespace Resource
         public async Task<bool> ExistsAsync(Guid id)
         {
             return await dbContext.Cafes.AnyAsync(c => c.Id == id);
+        }
+
+        public async Task<bool> ExistsByNameAsync(string name)
+        {
+            return await dbContext.Cafes.AnyAsync(c => c.Name.ToLower() == name.ToLower());
         }
     }
 } 

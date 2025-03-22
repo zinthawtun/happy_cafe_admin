@@ -26,6 +26,7 @@ namespace Api.Controllers
         }
 
         [HttpGet]
+        [Route("")]
         public async Task<ActionResult<IEnumerable<EmployeeResponseModel>>> GetEmployees([FromQuery] Guid? cafe = null)
         {
             IEnumerable<EmployeeDto> employeeDtos;
@@ -63,7 +64,7 @@ namespace Api.Controllers
                 Id = dto.Id,
                 Name = dto.Name,
                 EmailAddress = dto.EmailAddress,
-                Address = dto.Phone,
+                Phone = dto.Phone,
                 DaysWorked = dto.DaysWorked,
                 Cafe = dto.CafeName
             }).ToList();
@@ -72,11 +73,19 @@ namespace Api.Controllers
         }
 
         [HttpPost]
+        [Route("~/employee")]
         public async Task<ActionResult<EmployeeResponseModel>> CreateEmployee([FromBody] CreateEmployeeModel model)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
+            }
+
+            bool employeeExists = await employeeService.ExistsWithEmailOrPhoneAsync(model.EmailAddress, model.Phone);
+            
+            if (employeeExists)
+            {
+                return BadRequest("An employee with the same email address or phone number already exists.");
             }
 
             if (model.CafeId.HasValue)
@@ -92,8 +101,8 @@ namespace Api.Controllers
             {
                 Name = model.Name,
                 EmailAddress = model.EmailAddress,
-                Phone = model.Address,
-                Gender = Gender.Male
+                Phone = model.Phone,
+                Gender = model.Gender.Equals("Female", StringComparison.OrdinalIgnoreCase) ? Gender.Female : Gender.Male
             };
 
             EmployeeDto? employeeDto = await employeeService.CreateAsync(command);
@@ -129,7 +138,7 @@ namespace Api.Controllers
                 Id = employeeDto.Id,
                 Name = employeeDto.Name,
                 EmailAddress = employeeDto.EmailAddress,
-                Address = employeeDto.Phone,
+                Phone = employeeDto.Phone,
                 DaysWorked = employeeDto.DaysWorked,
                 Cafe = employeeDto.CafeName
             };
@@ -138,6 +147,7 @@ namespace Api.Controllers
         }
 
         [HttpPut]
+        [Route("~/employee")]
         public async Task<ActionResult<EmployeeResponseModel>> UpdateEmployee([FromBody] UpdateEmployeeModel model)
         {
             if (!ModelState.IsValid)
@@ -165,8 +175,8 @@ namespace Api.Controllers
                 Id = model.Id,
                 Name = model.Name,
                 EmailAddress = model.EmailAddress,
-                Phone = model.Address,
-                Gender = existingEmployee.Gender
+                Phone = model.Phone,
+                Gender = model.Gender.Equals("Female", StringComparison.OrdinalIgnoreCase) ? Gender.Female : Gender.Male
             };
 
             EmployeeDto? updatedEmployeeDto = await employeeService.UpdateAsync(command);
@@ -225,7 +235,7 @@ namespace Api.Controllers
                 Id = updatedEmployeeDto.Id,
                 Name = updatedEmployeeDto.Name,
                 EmailAddress = updatedEmployeeDto.EmailAddress,
-                Address = updatedEmployeeDto.Phone,
+                Phone = updatedEmployeeDto.Phone,
                 DaysWorked = updatedEmployeeDto.DaysWorked,
                 Cafe = updatedEmployeeDto.CafeName
             };
@@ -234,6 +244,7 @@ namespace Api.Controllers
         }
 
         [HttpDelete]
+        [Route("~/employee")]
         public async Task<ActionResult> DeleteEmployee([FromBody] DeleteEmployeeModel model)
         {
             if (!ModelState.IsValid)

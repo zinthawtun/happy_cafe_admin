@@ -8,16 +8,16 @@ namespace Api.Models
         public string Name { get; set; } = string.Empty;
 
         [Required]
-        public string Address { get; set; } = string.Empty;
-
-        [Required]
         [EmailAddress]
         public string EmailAddress { get; set; } = string.Empty;
 
-        public Guid? CafeId { get; set; }
+        [Required]
+        public string Phone { get; set; } = string.Empty;
 
         [Required]
-        public DateTime StartDate { get; set; } = DateTime.UtcNow;
+        public string Gender { get; set; } = string.Empty;
+
+        public Guid? CafeId { get; set; }
     }
 
     public class UpdateEmployeeModel
@@ -29,11 +29,14 @@ namespace Api.Models
         public string Name { get; set; } = string.Empty;
 
         [Required]
-        public string Address { get; set; } = string.Empty;
-
-        [Required]
         [EmailAddress]
         public string EmailAddress { get; set; } = string.Empty;
+
+        [Required]
+        public string Phone { get; set; } = string.Empty;
+
+        [Required]
+        public string Gender { get; set; } = string.Empty;
 
         public Guid? CafeId { get; set; }
     }
@@ -50,9 +53,9 @@ namespace Api.Models
 
         public string Name { get; set; } = string.Empty;
 
-        public string Address { get; set; } = string.Empty;
-
         public string EmailAddress { get; set; } = string.Empty;
+
+        public string Phone { get; set; } = string.Empty;
 
         public int DaysWorked { get; set; }
 

@@ -62,5 +62,18 @@ namespace Service.Services
 
             return await mediator.Send(command);
         }
+
+        public async Task<bool> ExistsWithEmailOrPhoneAsync(string emailAddress, string phone)
+        {
+            GetEmployeeByEmailOrPhoneQuery query = new GetEmployeeByEmailOrPhoneQuery 
+            { 
+                EmailAddress = emailAddress,
+                Phone = phone
+            };
+
+            EmployeeDto? result = await mediator.Send(query);
+
+            return result != null;
+        }
     }
 } 

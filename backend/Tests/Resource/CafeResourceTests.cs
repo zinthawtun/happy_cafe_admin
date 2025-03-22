@@ -236,5 +236,41 @@ namespace Tests.Resource
             
             Assert.Empty(noMatches);
         }
+
+        [Fact]
+        public async Task ExistsByNameAsync_ShouldReturnTrue_WhenCafeNameExists_Test()
+        {
+            string cafeName = "Unique Coffee Shop";
+            await resource.CreateAsync(cafeName, "Description", "logo.png", "Location");
+            
+            bool exists = await resource.ExistsByNameAsync(cafeName);
+            
+            Assert.True(exists);
+        }
+
+        [Fact]
+        public async Task ExistsByNameAsync_ShouldReturnFalse_WhenCafeNameDoesNotExist_Test()
+        {
+            string nonExistentCafeName = "Non-existent Cafe";
+            
+            bool exists = await resource.ExistsByNameAsync(nonExistentCafeName);
+            
+            Assert.False(exists);
+        }
+
+        [Fact]
+        public async Task ExistsByNameAsync_ShouldBeCaseInsensitive_Test()
+        {
+            string cafeName = "CamelCase Coffee";
+            await resource.CreateAsync(cafeName, "Description", "logo.png", "Location");
+            
+            bool existsLowerCase = await resource.ExistsByNameAsync("camelcase coffee");
+            bool existsUpperCase = await resource.ExistsByNameAsync("CAMELCASE COFFEE");
+            bool existsMixedCase = await resource.ExistsByNameAsync("CaMeLcAsE CoFfEe");
+            
+            Assert.True(existsLowerCase);
+            Assert.True(existsUpperCase);
+            Assert.True(existsMixedCase);
+        }
     }
 } 

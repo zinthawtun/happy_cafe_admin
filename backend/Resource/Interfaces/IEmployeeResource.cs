@@ -1,7 +1,4 @@
 using Business.Entities;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Resource.Interfaces
 {
@@ -20,6 +17,9 @@ namespace Resource.Interfaces
         Task<bool> DeleteAsync(string id);
         
         Task<int> GetCountAsync();
+
         Task<bool> ExistsAsync(string id);
+
+        Task<Employee?> FindByEmailOrPhoneAsync(string emailAddress, string phone);
     }
 } 

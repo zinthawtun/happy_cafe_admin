@@ -100,5 +100,14 @@ namespace Resource
         {
             return await dbContext.Employees.AnyAsync(e => e.Id == id);
         }
+
+        public async Task<Employee?> FindByEmailOrPhoneAsync(string emailAddress, string phone)
+        {
+            IQueryable<Employee> query = dbContext.Employees.AsQueryable();
+            
+            return await query.FirstOrDefaultAsync(e => 
+                e.EmailAddress.ToLower() == emailAddress.ToLower() || 
+                e.Phone == phone);
+        }
     }
 } 
