@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250322190123_SeedData")]
+    [Migration("20250322195628_SeedData")]
     partial class SeedData
     {
         /// <inheritdoc />
@@ -128,6 +128,8 @@ namespace DataAccess.Migrations
 
                     b.ToTable("Employees", t =>
                         {
+                            t.HasCheckConstraint("CK_Employee_EmailAddress_Format", "\"EmailAddress\" ~ '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$'");
+
                             t.HasCheckConstraint("CK_Employee_Phone", "\"Phone\" ~ '^[89]\\d{7}$'");
                         });
 

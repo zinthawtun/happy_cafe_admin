@@ -41,6 +41,7 @@ namespace DataAccess.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Employees", x => x.Id);
+                    table.CheckConstraint("CK_Employee_EmailAddress_Format", "\"EmailAddress\" ~ '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$'");
                     table.CheckConstraint("CK_Employee_Phone", "\"Phone\" ~ '^[89]\\d{7}$'");
                 });
 

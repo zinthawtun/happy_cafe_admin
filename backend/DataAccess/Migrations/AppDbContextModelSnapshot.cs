@@ -125,6 +125,8 @@ namespace DataAccess.Migrations
 
                     b.ToTable("Employees", t =>
                         {
+                            t.HasCheckConstraint("CK_Employee_EmailAddress_Format", "\"EmailAddress\" ~ '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$'");
+
                             t.HasCheckConstraint("CK_Employee_Phone", "\"Phone\" ~ '^[89]\\d{7}$'");
                         });
 
