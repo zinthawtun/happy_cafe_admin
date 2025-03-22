@@ -1,9 +1,11 @@
 using Api.Controllers;
 using Api.Models;
-using Business.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Service.Commands.Cafes;
 using Service.Interfaces;
+using Service.Queries.Cafes;
+using Service.Queries.EmployeeCafes;
 using Utilities;
 
 namespace Tests.Api.Controllers
@@ -24,30 +26,30 @@ namespace Tests.Api.Controllers
         [Fact]
         public async Task GetCafes_ShouldReturnAllCafes_WhenNoLocationProvided_Test()
         {
-            IEnumerable<Cafe> cafes = new List<Cafe>
+            IEnumerable<CafeDto> cafeDtos = new List<CafeDto>
             {
-                new Cafe(Guid.NewGuid(), "Cafe 1", "Description 1", "Location 1", "logo1.png"),
-                new Cafe(Guid.NewGuid(), "Cafe 2", "Description 2", "Location 2", "logo2.png")
+                new CafeDto { Id = Guid.NewGuid(), Name = "Cafe 1", Description = "Description 1", Location = "Location 1", Logo = "logo1.png" },
+                new CafeDto { Id = Guid.NewGuid(), Name = "Cafe 2", Description = "Description 2", Location = "Location 2", Logo = "logo2.png" }
             };
 
             cafeServiceMock
                 .Setup(s => s.GetAllAsync())
-                .ReturnsAsync(cafes);
-
-            foreach (Cafe cafe in cafes)
+                .ReturnsAsync(cafeDtos);
+                
+            foreach (CafeDto cafeDto in cafeDtos)
             {
-                List<EmployeeCafe> employeeCafes = new List<EmployeeCafe>
+                List<EmployeeCafeDto> employeeCafeDtos = new List<EmployeeCafeDto>
                 {
-                    new EmployeeCafe(Guid.NewGuid(), cafe.Id, UniqueIdGenerator.GenerateUniqueId(), DateTime.UtcNow),
-                    new EmployeeCafe(Guid.NewGuid(), cafe.Id, UniqueIdGenerator.GenerateUniqueId(), DateTime.UtcNow),
-                    new EmployeeCafe(Guid.NewGuid(), cafe.Id, UniqueIdGenerator.GenerateUniqueId(), DateTime.UtcNow),
-                    new EmployeeCafe(Guid.NewGuid(), cafe.Id, UniqueIdGenerator.GenerateUniqueId(), DateTime.UtcNow),
-                    new EmployeeCafe(Guid.NewGuid(), cafe.Id, UniqueIdGenerator.GenerateUniqueId(), DateTime.UtcNow)
+                    new EmployeeCafeDto { Id = Guid.NewGuid(), CafeId = cafeDto.Id, EmployeeId = UniqueIdGenerator.GenerateUniqueId(), AssignedDate = DateTime.UtcNow, IsActive = true },
+                    new EmployeeCafeDto { Id = Guid.NewGuid(), CafeId = cafeDto.Id, EmployeeId = UniqueIdGenerator.GenerateUniqueId(), AssignedDate = DateTime.UtcNow, IsActive = true },
+                    new EmployeeCafeDto { Id = Guid.NewGuid(), CafeId = cafeDto.Id, EmployeeId = UniqueIdGenerator.GenerateUniqueId(), AssignedDate = DateTime.UtcNow, IsActive = true },
+                    new EmployeeCafeDto { Id = Guid.NewGuid(), CafeId = cafeDto.Id, EmployeeId = UniqueIdGenerator.GenerateUniqueId(), AssignedDate = DateTime.UtcNow, IsActive = true },
+                    new EmployeeCafeDto { Id = Guid.NewGuid(), CafeId = cafeDto.Id, EmployeeId = UniqueIdGenerator.GenerateUniqueId(), AssignedDate = DateTime.UtcNow, IsActive = true }
                 };
-
+                
                 employeeCafeServiceMock
-                    .Setup(s => s.GetByCafeIdAsync(cafe.Id))
-                    .ReturnsAsync(employeeCafes);
+                    .Setup(s => s.GetByCafeIdAsync(cafeDto.Id))
+                    .ReturnsAsync(employeeCafeDtos);
             }
 
             ActionResult<IEnumerable<CafeResponseModel>> result = await cafesController.GetCafes();
@@ -65,30 +67,30 @@ namespace Tests.Api.Controllers
         public async Task GetCafes_ShouldReturnCafesByLocation_WhenLocationProvided_Test()
         {
             string location = "Ang Mo Kio";
-            IEnumerable<Cafe> cafes = new List<Cafe>
+            IEnumerable<CafeDto> cafeDtos = new List<CafeDto>
             {
-                new Cafe(Guid.NewGuid(), "Cafe 1", "Description 1", "logo1.png", location),
-                new Cafe(Guid.NewGuid(), "Cafe 2", "Description 2", "logo2.png", location)
+                new CafeDto { Id = Guid.NewGuid(), Name = "Cafe 1", Description = "Description 1", Location = location, Logo = "logo1.png" },
+                new CafeDto { Id = Guid.NewGuid(), Name = "Cafe 2", Description = "Description 2", Location = location, Logo = "logo2.png" }
             };
 
             cafeServiceMock
                 .Setup(s => s.GetByLocationAsync(location))
-                .ReturnsAsync(cafes);
-
-            foreach (Cafe cafe in cafes)
+                .ReturnsAsync(cafeDtos);
+                
+            foreach (CafeDto cafeDto in cafeDtos)
             {
-                List<EmployeeCafe> employeeCafes = new List<EmployeeCafe>
+                List<EmployeeCafeDto> employeeCafeDtos = new List<EmployeeCafeDto>
                 {
-                    new EmployeeCafe(Guid.NewGuid(), cafe.Id, UniqueIdGenerator.GenerateUniqueId(), DateTime.UtcNow),
-                    new EmployeeCafe(Guid.NewGuid(), cafe.Id, UniqueIdGenerator.GenerateUniqueId(), DateTime.UtcNow),
-                    new EmployeeCafe(Guid.NewGuid(), cafe.Id, UniqueIdGenerator.GenerateUniqueId(), DateTime.UtcNow),
-                    new EmployeeCafe(Guid.NewGuid(), cafe.Id, UniqueIdGenerator.GenerateUniqueId(), DateTime.UtcNow),
-                    new EmployeeCafe(Guid.NewGuid(), cafe.Id, UniqueIdGenerator.GenerateUniqueId(), DateTime.UtcNow)
+                    new EmployeeCafeDto { Id = Guid.NewGuid(), CafeId = cafeDto.Id, EmployeeId = UniqueIdGenerator.GenerateUniqueId(), AssignedDate = DateTime.UtcNow, IsActive = true },
+                    new EmployeeCafeDto { Id = Guid.NewGuid(), CafeId = cafeDto.Id, EmployeeId = UniqueIdGenerator.GenerateUniqueId(), AssignedDate = DateTime.UtcNow, IsActive = true },
+                    new EmployeeCafeDto { Id = Guid.NewGuid(), CafeId = cafeDto.Id, EmployeeId = UniqueIdGenerator.GenerateUniqueId(), AssignedDate = DateTime.UtcNow, IsActive = true },
+                    new EmployeeCafeDto { Id = Guid.NewGuid(), CafeId = cafeDto.Id, EmployeeId = UniqueIdGenerator.GenerateUniqueId(), AssignedDate = DateTime.UtcNow, IsActive = true },
+                    new EmployeeCafeDto { Id = Guid.NewGuid(), CafeId = cafeDto.Id, EmployeeId = UniqueIdGenerator.GenerateUniqueId(), AssignedDate = DateTime.UtcNow, IsActive = true }
                 };
-
+                
                 employeeCafeServiceMock
-                    .Setup(s => s.GetByCafeIdAsync(cafe.Id))
-                    .ReturnsAsync(employeeCafes);
+                    .Setup(s => s.GetByCafeIdAsync(cafeDto.Id))
+                    .ReturnsAsync(employeeCafeDtos);
             }
 
             ActionResult<IEnumerable<CafeResponseModel>> result = await cafesController.GetCafes(location);
@@ -98,18 +100,19 @@ namespace Tests.Api.Controllers
             
             Assert.Equal(2, returnedCafes.Count());
             Assert.All(returnedCafes, c => Assert.Equal(location, c.Location));
-            
+
             cafeServiceMock.Verify(s => s.GetByLocationAsync(location), Times.Once);
         }
 
         [Fact]
         public async Task GetCafes_ShouldReturnEmptyList_WhenNoMatchingLocation_Test()
         {
-            string location = "Unknown Location";
-            
+            string location = "Non-existent Location";
+            IEnumerable<CafeDto> cafeDtos = new List<CafeDto>();
+
             cafeServiceMock
                 .Setup(s => s.GetByLocationAsync(location))
-                .ReturnsAsync(new List<Cafe>());
+                .ReturnsAsync(cafeDtos);
 
             ActionResult<IEnumerable<CafeResponseModel>> result = await cafesController.GetCafes(location);
 
@@ -127,40 +130,40 @@ namespace Tests.Api.Controllers
             Guid cafe1Id = Guid.NewGuid();
             Guid cafe2Id = Guid.NewGuid();
             Guid cafe3Id = Guid.NewGuid();
-            
-            List<Cafe> cafes = new List<Cafe>
+
+            IEnumerable<CafeDto> cafeDtos = new List<CafeDto>
             {
-                new Cafe(cafe1Id, "Cafe 1", "Description 1", "Location 1", "logo1.png"),
-                new Cafe(cafe2Id, "Cafe 2", "Description 2", "Location 2", "logo2.png"),
-                new Cafe(cafe3Id, "Cafe 3", "Description 3", "Location 3", "logo3.png")
+                new CafeDto { Id = cafe1Id, Name = "Cafe 1", Description = "Description 1", Location = "Location 1", Logo = "logo1.png" },
+                new CafeDto { Id = cafe2Id, Name = "Cafe 2", Description = "Description 2", Location = "Location 2", Logo = "logo2.png" },
+                new CafeDto { Id = cafe3Id, Name = "Cafe 3", Description = "Description 3", Location = "Location 3", Logo = "logo3.png" }
             };
 
             cafeServiceMock
                 .Setup(s => s.GetAllAsync())
-                .ReturnsAsync(cafes);
+                .ReturnsAsync(cafeDtos);
 
-            List<EmployeeCafe> cafe1Employees = new List<EmployeeCafe>();
-            for (int i = 0; i < 5; i++)
+            List<EmployeeCafeDto> cafe1Employees = new List<EmployeeCafeDto>();
+            for (int i = 0; i < 1; i++)
             {
-                cafe1Employees.Add(new EmployeeCafe(Guid.NewGuid(), cafe1Id, UniqueIdGenerator.GenerateUniqueId(), DateTime.UtcNow));
+                cafe1Employees.Add(new EmployeeCafeDto { Id = Guid.NewGuid(), CafeId = cafe1Id, EmployeeId = UniqueIdGenerator.GenerateUniqueId(), AssignedDate = DateTime.UtcNow, IsActive = true });
             }
             employeeCafeServiceMock
                 .Setup(s => s.GetByCafeIdAsync(cafe1Id))
                 .ReturnsAsync(cafe1Employees);
-                
-            List<EmployeeCafe> cafe2Employees = new List<EmployeeCafe>();
-            for (int i = 0; i < 10; i++)
+
+            List<EmployeeCafeDto> cafe2Employees = new List<EmployeeCafeDto>();
+            for (int i = 0; i < 3; i++)
             {
-                cafe2Employees.Add(new EmployeeCafe(Guid.NewGuid(), cafe2Id, UniqueIdGenerator.GenerateUniqueId(), DateTime.UtcNow));
+                cafe2Employees.Add(new EmployeeCafeDto { Id = Guid.NewGuid(), CafeId = cafe2Id, EmployeeId = UniqueIdGenerator.GenerateUniqueId(), AssignedDate = DateTime.UtcNow, IsActive = true });
             }
             employeeCafeServiceMock
                 .Setup(s => s.GetByCafeIdAsync(cafe2Id))
                 .ReturnsAsync(cafe2Employees);
-                
-            List<EmployeeCafe> cafe3Employees = new List<EmployeeCafe>();
+
+            List<EmployeeCafeDto> cafe3Employees = new List<EmployeeCafeDto>();
             for (int i = 0; i < 2; i++)
             {
-                cafe3Employees.Add(new EmployeeCafe(Guid.NewGuid(), cafe3Id, UniqueIdGenerator.GenerateUniqueId(), DateTime.UtcNow));
+                cafe3Employees.Add(new EmployeeCafeDto { Id = Guid.NewGuid(), CafeId = cafe3Id, EmployeeId = UniqueIdGenerator.GenerateUniqueId(), AssignedDate = DateTime.UtcNow, IsActive = true });
             }
             employeeCafeServiceMock
                 .Setup(s => s.GetByCafeIdAsync(cafe3Id))
@@ -172,173 +175,214 @@ namespace Tests.Api.Controllers
             List<CafeResponseModel> returnedCafes = Assert.IsAssignableFrom<IEnumerable<CafeResponseModel>>(okResult.Value).ToList();
             
             Assert.Equal(3, returnedCafes.Count);
-            Assert.Equal(10, returnedCafes[0].Employees);
-            Assert.Equal(5, returnedCafes[1].Employees);
-            Assert.Equal(2, returnedCafes[2].Employees);
+            Assert.Equal(3, returnedCafes[0].Employees);
+            Assert.Equal(2, returnedCafes[1].Employees);
+            Assert.Equal(1, returnedCafes[2].Employees);
+            
+            cafeServiceMock.Verify(s => s.GetAllAsync(), Times.Once);
         }
 
         [Fact]
         public async Task CreateCafe_ShouldReturnCreatedCafe_WhenValidData_Test()
         {
             Guid cafeId = Guid.NewGuid();
-            CreateCafeModel createModel = new CreateCafeModel
+            string cafeName = "New Cafe";
+            string description = "New Description";
+            string logo = "new-logo.png";
+            string location = "New Location";
+
+            CreateCafeModel model = new CreateCafeModel
             {
-                Name = "New Cafe",
-                Description = "New Description",
-                Location = "New Location",
-                Logo = "new-logo.png"
+                Name = cafeName,
+                Description = description,
+                Logo = logo,
+                Location = location
             };
 
-            Cafe createdCafe = new Cafe(
-                cafeId,
-                createModel.Name,
-                createModel.Description,
-                createModel.Logo,
-                createModel.Location              
-            );
+            CafeDto cafeDto = new CafeDto
+            {
+                Id = cafeId,
+                Name = cafeName,
+                Description = description,
+                Logo = logo,
+                Location = location
+            };
+
+            CreateCafeCommand command = new CreateCafeCommand
+            {
+                Name = cafeName,
+                Description = description,
+                Logo = logo,
+                Location = location
+            };
 
             cafeServiceMock
-                .Setup(s => s.CreateAsync(It.IsAny<Cafe>()))
-                .ReturnsAsync(createdCafe);
+                .Setup(s => s.CreateAsync(It.Is<CreateCafeCommand>(c => 
+                    c.Name == cafeName && 
+                    c.Description == description && 
+                    c.Logo == logo && 
+                    c.Location == location)))
+                .ReturnsAsync(cafeDto);
 
             employeeCafeServiceMock
                 .Setup(s => s.GetByCafeIdAsync(cafeId))
-                .ReturnsAsync(new List<EmployeeCafe>());
+                .ReturnsAsync(new List<EmployeeCafeDto>());
 
-            ActionResult<CafeResponseModel> result = await cafesController.CreateCafe(createModel);
+            ActionResult<CafeResponseModel> result = await cafesController.CreateCafe(model);
 
-            CreatedAtActionResult createdAtResult = Assert.IsType<CreatedAtActionResult>(result.Result);
-            CafeResponseModel returnedCafe = Assert.IsType<CafeResponseModel>(createdAtResult.Value);
+            CreatedAtActionResult createdResult = Assert.IsType<CreatedAtActionResult>(result.Result);
+            CafeResponseModel returnedCafe = Assert.IsType<CafeResponseModel>(createdResult.Value);
             
             Assert.Equal(cafeId, returnedCafe.Id);
-            Assert.Equal(createModel.Name, returnedCafe.Name);
-            Assert.Equal(createModel.Description, returnedCafe.Description);
-            Assert.Equal(createModel.Location, returnedCafe.Location);
-            Assert.Equal(createModel.Logo, returnedCafe.Logo);
+            Assert.Equal(cafeName, returnedCafe.Name);
+            Assert.Equal(description, returnedCafe.Description);
+            Assert.Equal(logo, returnedCafe.Logo);
+            Assert.Equal(location, returnedCafe.Location);
             Assert.Equal(0, returnedCafe.Employees);
             
-            cafeServiceMock.Verify(s => s.CreateAsync(It.IsAny<Cafe>()), Times.Once);
+            cafeServiceMock.Verify(s => s.CreateAsync(It.IsAny<CreateCafeCommand>()), Times.Once);
         }
 
         [Fact]
         public async Task CreateCafe_ShouldReturnBadRequest_WhenModelStateIsInvalid_Test()
         {
-            CreateCafeModel createModel = new CreateCafeModel
+            CreateCafeModel model = new CreateCafeModel
             {
-                Description = "New Description",
-                Location = "New Location"
+                Name = "Test Cafe",
+                Description = "Test Description",
+                Logo = "test-logo.png",
+                Location = "Test Location"
             };
 
-            cafesController.ModelState.AddModelError("Name", "Name is required");
+            cafesController.ModelState.AddModelError("Name", "Required");
 
-            ActionResult<CafeResponseModel> result = await cafesController.CreateCafe(createModel);
+            ActionResult<CafeResponseModel> result = await cafesController.CreateCafe(model);
 
             Assert.IsType<BadRequestObjectResult>(result.Result);
             
-            cafeServiceMock.Verify(s => s.CreateAsync(It.IsAny<Cafe>()), Times.Never);
+            cafeServiceMock.Verify(s => s.CreateAsync(It.IsAny<CreateCafeCommand>()), Times.Never);
         }
 
         [Fact]
         public async Task UpdateCafe_ShouldReturnUpdatedCafe_WhenValidData_Test()
         {
             Guid cafeId = Guid.NewGuid();
-            UpdateCafeModel updateModel = new UpdateCafeModel
+            string cafeName = "Updated Cafe";
+            string description = "Updated Description";
+            string logo = "updated-logo.png";
+            string location = "Updated Location";
+
+            UpdateCafeModel model = new UpdateCafeModel
             {
                 Id = cafeId,
-                Name = "Updated Cafe",
-                Description = "Updated Description",
-                Location = "Updated Location",
-                Logo = "updated-logo.png"
+                Name = cafeName,
+                Description = description,
+                Logo = logo,
+                Location = location
             };
 
-            Cafe existingCafe = new Cafe(
-                cafeId,
-                "Original Cafe",
-                "Original Description",
-                "Original Location",
-                "original-logo.png"
-            );
+            CafeDto existingCafeDto = new CafeDto
+            {
+                Id = cafeId,
+                Name = "Old Cafe",
+                Description = "Old Description",
+                Logo = "old-logo.png",
+                Location = "Old Location"
+            };
 
-            Cafe updatedCafe = new Cafe(
-                cafeId,
-                updateModel.Name,
-                updateModel.Description,
-                updateModel.Logo,
-                updateModel.Location               
-            );
+            CafeDto updatedCafeDto = new CafeDto
+            {
+                Id = cafeId,
+                Name = cafeName,
+                Description = description,
+                Logo = logo,
+                Location = location
+            };
+
+            UpdateCafeCommand command = new UpdateCafeCommand
+            {
+                Id = cafeId,
+                Name = cafeName,
+                Description = description,
+                Logo = logo,
+                Location = location
+            };
 
             cafeServiceMock
                 .Setup(s => s.GetByIdAsync(cafeId))
-                .ReturnsAsync(existingCafe);
+                .ReturnsAsync(existingCafeDto);
 
             cafeServiceMock
-                .Setup(s => s.UpdateAsync(It.IsAny<Cafe>()))
-                .ReturnsAsync(updatedCafe);
+                .Setup(s => s.UpdateAsync(It.Is<UpdateCafeCommand>(c => 
+                    c.Id == cafeId && 
+                    c.Name == cafeName && 
+                    c.Description == description && 
+                    c.Logo == logo && 
+                    c.Location == location)))
+                .ReturnsAsync(updatedCafeDto);
 
-            List<EmployeeCafe> cafeEmployees = new List<EmployeeCafe>();
+            List<EmployeeCafeDto> employeeCafeDtos = new List<EmployeeCafeDto>();
             for (int i = 0; i < 3; i++)
             {
-                cafeEmployees.Add(new EmployeeCafe(Guid.NewGuid(), cafeId, UniqueIdGenerator.GenerateUniqueId(), DateTime.UtcNow));
+                employeeCafeDtos.Add(new EmployeeCafeDto { Id = Guid.NewGuid(), CafeId = cafeId, EmployeeId = UniqueIdGenerator.GenerateUniqueId(), AssignedDate = DateTime.UtcNow, IsActive = true });
             }
+
             employeeCafeServiceMock
                 .Setup(s => s.GetByCafeIdAsync(cafeId))
-                .ReturnsAsync(cafeEmployees);
+                .ReturnsAsync(employeeCafeDtos);
 
-            ActionResult<CafeResponseModel> result = await cafesController.UpdateCafe(updateModel);
+            ActionResult<CafeResponseModel> result = await cafesController.UpdateCafe(model);
 
             OkObjectResult okResult = Assert.IsType<OkObjectResult>(result.Result);
             CafeResponseModel returnedCafe = Assert.IsType<CafeResponseModel>(okResult.Value);
             
             Assert.Equal(cafeId, returnedCafe.Id);
-            Assert.Equal(updateModel.Name, returnedCafe.Name);
-            Assert.Equal(updateModel.Description, returnedCafe.Description);
-            Assert.Equal(updateModel.Location, returnedCafe.Location);
-            Assert.Equal(updateModel.Logo, returnedCafe.Logo);
+            Assert.Equal(cafeName, returnedCafe.Name);
+            Assert.Equal(description, returnedCafe.Description);
+            Assert.Equal(logo, returnedCafe.Logo);
+            Assert.Equal(location, returnedCafe.Location);
             Assert.Equal(3, returnedCafe.Employees);
             
             cafeServiceMock.Verify(s => s.GetByIdAsync(cafeId), Times.Once);
-            cafeServiceMock.Verify(s => s.UpdateAsync(It.IsAny<Cafe>()), Times.Once);
+            cafeServiceMock.Verify(s => s.UpdateAsync(It.IsAny<UpdateCafeCommand>()), Times.Once);
         }
 
         [Fact]
         public async Task UpdateCafe_ShouldReturnNotFound_WhenCafeDoesNotExist_Test()
         {
             Guid cafeId = Guid.NewGuid();
-            UpdateCafeModel updateModel = new UpdateCafeModel
+            UpdateCafeModel model = new UpdateCafeModel
             {
                 Id = cafeId,
                 Name = "Updated Cafe",
                 Description = "Updated Description",
-                Location = "Updated Location",
-                Logo = "updated-logo.png"
+                Logo = "updated-logo.png",
+                Location = "Updated Location"
             };
 
             cafeServiceMock
                 .Setup(s => s.GetByIdAsync(cafeId))
-                .ReturnsAsync((Cafe?)null);
+                .ReturnsAsync((CafeDto?)null);
 
-            ActionResult<CafeResponseModel> result = await cafesController.UpdateCafe(updateModel);
+            ActionResult<CafeResponseModel> result = await cafesController.UpdateCafe(model);
 
             Assert.IsType<NotFoundObjectResult>(result.Result);
             
             cafeServiceMock.Verify(s => s.GetByIdAsync(cafeId), Times.Once);
-            cafeServiceMock.Verify(s => s.UpdateAsync(It.IsAny<Cafe>()), Times.Never);
+            cafeServiceMock.Verify(s => s.UpdateAsync(It.IsAny<UpdateCafeCommand>()), Times.Never);
         }
 
         [Fact]
         public async Task DeleteCafe_ShouldReturnNoContent_WhenSuccessful_Test()
         {
             Guid cafeId = Guid.NewGuid();
-            DeleteCafeModel deleteModel = new DeleteCafeModel
-            {
-                Id = cafeId
-            };
+            DeleteCafeModel model = new DeleteCafeModel { Id = cafeId };
 
             cafeServiceMock
                 .Setup(s => s.DeleteAsync(cafeId))
                 .ReturnsAsync(true);
 
-            ActionResult result = await cafesController.DeleteCafe(deleteModel);
+            ActionResult result = await cafesController.DeleteCafe(model);
 
             Assert.IsType<NoContentResult>(result);
             
@@ -349,16 +393,13 @@ namespace Tests.Api.Controllers
         public async Task DeleteCafe_ShouldReturnNotFound_WhenCafeDoesNotExist_Test()
         {
             Guid cafeId = Guid.NewGuid();
-            DeleteCafeModel deleteModel = new DeleteCafeModel
-            {
-                Id = cafeId
-            };
+            DeleteCafeModel model = new DeleteCafeModel { Id = cafeId };
 
             cafeServiceMock
                 .Setup(s => s.DeleteAsync(cafeId))
                 .ReturnsAsync(false);
 
-            ActionResult result = await cafesController.DeleteCafe(deleteModel);
+            ActionResult result = await cafesController.DeleteCafe(model);
 
             Assert.IsType<NotFoundObjectResult>(result);
             
@@ -368,14 +409,10 @@ namespace Tests.Api.Controllers
         [Fact]
         public async Task DeleteCafe_ShouldReturnBadRequest_WhenModelStateIsInvalid_Test()
         {
-            DeleteCafeModel deleteModel = new DeleteCafeModel
-            {
-                Id = Guid.Empty
-            };
+            DeleteCafeModel model = new DeleteCafeModel { Id = Guid.NewGuid() };
+            cafesController.ModelState.AddModelError("Id", "Required");
 
-            cafesController.ModelState.AddModelError("Id", "Id is required");
-
-            ActionResult result = await cafesController.DeleteCafe(deleteModel);
+            ActionResult result = await cafesController.DeleteCafe(model);
 
             Assert.IsType<BadRequestObjectResult>(result);
             

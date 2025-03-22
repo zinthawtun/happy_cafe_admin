@@ -18,16 +18,16 @@ namespace Resource
         public async Task<Employee?> GetByIdAsync(string id)
         {
             return await dbContext.Employees
-                .Include(e => e.EmployeeCafes)
-                .ThenInclude(ec => ec.Cafe)
+                .Include(e => e.EmployeeCafes!)
+                .ThenInclude(ec => ec.Cafe!)
                 .FirstOrDefaultAsync(e => e.Id == id);
         }
 
         public async Task<IEnumerable<Employee>> GetAllAsync()
         {
             return await dbContext.Employees
-                .Include(e => e.EmployeeCafes)
-                .ThenInclude(ec => ec.Cafe)
+                .Include(e => e.EmployeeCafes!)
+                .ThenInclude(ec => ec.Cafe!)
                 .ToListAsync();
         }
 
@@ -35,7 +35,9 @@ namespace Resource
         {
             return await dbContext.EmployeeCafes
                 .Where(ec => ec.CafeId == cafeId && ec.IsActive)
-                .Include(ec => ec.Employee)
+                .Include(ec => ec.Employee!)
+                .ThenInclude(e => e.EmployeeCafes!)
+                .ThenInclude(ec => ec.Cafe!)
                 .Select(ec => ec.Employee!)
                 .Distinct()
                 .ToListAsync();

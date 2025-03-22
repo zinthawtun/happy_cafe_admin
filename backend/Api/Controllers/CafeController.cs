@@ -1,7 +1,9 @@
 using Api.Models;
-using Business.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Service.Commands.Cafes;
 using Service.Interfaces;
+using Service.Queries.Cafes;
+using Service.Queries.EmployeeCafes;
 
 namespace Api.Controllers
 {
@@ -21,23 +23,22 @@ namespace Api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CafeResponseModel>>> GetCafes([FromQuery] string? location = null)
         {
-            IEnumerable<Cafe> cafes;
+            IEnumerable<CafeDto> cafeDtos;
 
             if (string.IsNullOrWhiteSpace(location))
             {
-                cafes = await cafeService.GetAllAsync();
+                cafeDtos = await cafeService.GetAllAsync();
             }
             else
             {
-                cafes = await cafeService.GetByLocationAsync(location);
+                cafeDtos = await cafeService.GetByLocationAsync(location);
             }
 
             List<CafeResponseModel> response = new List<CafeResponseModel>();
 
-            foreach (Cafe cafe in cafes)
+            foreach (CafeDto cafe in cafeDtos)
             {
-                IEnumerable<EmployeeCafe> employeeCafes = await employeeCafeService.GetByCafeIdAsync(cafe.Id);
-
+                IEnumerable<EmployeeCafeDto> employeeCafes = await employeeCafeService.GetByCafeIdAsync(cafe.Id);
                 int employeeCount = employeeCafes.Count();
 
                 response.Add(new CafeResponseModel
@@ -62,17 +63,28 @@ namespace Api.Controllers
                 return BadRequest(ModelState);
             }
 
-            Cafe cafe = new Cafe(Guid.NewGuid(), model.Name, model.Description, model.Location, model.Logo);
+            CreateCafeCommand createCafeCommand = new CreateCafeCommand
+            {
+                Name = model.Name,
+                Description = model.Description,
+                Location = model.Location,
+                Logo = model.Logo
+            };
 
-            Cafe createdCafe = await cafeService.CreateAsync(cafe);
+            CafeDto? cafeDto = await cafeService.CreateAsync(createCafeCommand);
+
+            if (cafeDto == null)
+            {
+                return BadRequest("Failed to create cafe");
+            }
 
             return CreatedAtAction(nameof(GetCafes), new CafeResponseModel
             {
-                Id = createdCafe.Id,
-                Name = createdCafe.Name,
-                Description = createdCafe.Description,
-                Location = createdCafe.Location,
-                Logo = createdCafe.Logo,
+                Id = cafeDto.Id,
+                Name = cafeDto.Name,
+                Description = cafeDto.Description,
+                Location = cafeDto.Location,
+                Logo = cafeDto.Logo,
                 Employees = 0
             });
         }
@@ -85,31 +97,37 @@ namespace Api.Controllers
                 return BadRequest(ModelState);
             }
 
-            Cafe? existingCafe = await cafeService.GetByIdAsync(model.Id);
-            if (existingCafe == null)
+            CafeDto? existingCafeDto = await cafeService.GetByIdAsync(model.Id);
+            if (existingCafeDto == null)
             {
                 return NotFound($"Cafe with ID {model.Id} not found");
             }
 
-            existingCafe.Update(model.Name, model.Description, model.Logo, model.Location);
+            UpdateCafeCommand updateCafeCommand = new UpdateCafeCommand
+            {
+                Id = model.Id,
+                Name = model.Name,
+                Description = model.Description,
+                Location = model.Location,
+                Logo = model.Logo
+            };
 
-            Cafe? updatedCafe = await cafeService.UpdateAsync(existingCafe);
-            if (updatedCafe == null)
+            CafeDto? updatedCafeDto = await cafeService.UpdateAsync(updateCafeCommand);
+            if (updatedCafeDto == null)
             {
                 return NotFound($"Cafe with ID {model.Id} not found");
             }
 
-            IEnumerable<EmployeeCafe> employeeCafes = await employeeCafeService.GetByCafeIdAsync(updatedCafe.Id);
-
+            IEnumerable<EmployeeCafeDto> employeeCafes = await employeeCafeService.GetByCafeIdAsync(updatedCafeDto.Id);
             int employeeCount = employeeCafes.Count();
 
             return Ok(new CafeResponseModel
             {
-                Id = updatedCafe.Id,
-                Name = updatedCafe.Name,
-                Description = updatedCafe.Description,
-                Location = updatedCafe.Location,
-                Logo = updatedCafe.Logo,
+                Id = updatedCafeDto.Id,
+                Name = updatedCafeDto.Name,
+                Description = updatedCafeDto.Description,
+                Location = updatedCafeDto.Location,
+                Logo = updatedCafeDto.Logo,
                 Employees = employeeCount
             });
         }

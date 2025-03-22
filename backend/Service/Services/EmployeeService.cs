@@ -18,61 +18,42 @@ namespace Service.Services
             this.mapper = mapper;
         }
 
-        public async Task<Employee?> GetByIdAsync(string id)
+        public async Task<EmployeeDto?> GetByIdAsync(string id)
         {
             GetEmployeeByIdQuery query = new GetEmployeeByIdQuery { Id = id };
 
-            EmployeeDto? employeeDto = await mediator.Send(query);
-            
-            if (employeeDto == null)
-                return null;
-                
-            return mapper.Map<Employee>(employeeDto);
+            return await mediator.Send(query);
         }
 
-        public async Task<IEnumerable<Employee>> GetAllAsync()
+        public async Task<IEnumerable<EmployeeDto>> GetAllAsync()
         {
             GetAllEmployeesQuery query = new GetAllEmployeesQuery();
 
-            IEnumerable<EmployeeDto> employeeDtos = await mediator.Send(query);
-            
-            return mapper.Map<IEnumerable<Employee>>(employeeDtos);
+            return await mediator.Send(query);
         }
 
-        public async Task<IEnumerable<Employee>> GetByCafeIdAsync(Guid cafeId)
+        public async Task<IEnumerable<EmployeeDto>> GetByCafeIdAsync(Guid cafeId)
         {
             GetEmployeesByCafeIdQuery query = new GetEmployeesByCafeIdQuery { CafeId = cafeId };
 
-            IEnumerable<EmployeeDto> employeeDtos = await mediator.Send(query);
-            
-            return mapper.Map<IEnumerable<Employee>>(employeeDtos);
+            return await mediator.Send(query);
         }
 
-        public async Task<Employee> CreateAsync(Employee employee)
+        public async Task<EmployeeDto?> CreateAsync(CreateEmployeeCommand command)
         {
-            CreateEmployeeCommand command = new CreateEmployeeCommand
-            {
-                Name = employee.Name,
-                EmailAddress = employee.EmailAddress,
-                Phone = employee.Phone,
-                Gender = employee.Gender
-            };
-            
-            return await mediator.Send(command);
+            Employee employee = await mediator.Send(command);
+
+            return mapper.Map<EmployeeDto>(employee);
         }
 
-        public async Task<Employee?> UpdateAsync(Employee employee)
+        public async Task<EmployeeDto?> UpdateAsync(UpdateEmployeeCommand command)
         {
-            UpdateEmployeeCommand command = new UpdateEmployeeCommand
-            {
-                Id = employee.Id,
-                Name = employee.Name,
-                EmailAddress = employee.EmailAddress,
-                Phone = employee.Phone,
-                Gender = employee.Gender
-            };
-            
-            return await mediator.Send(command);
+            Employee? employee = await mediator.Send(command);
+
+            if (employee == null)
+                return null;
+
+            return mapper.Map<EmployeeDto>(employee);
         }
 
         public async Task<bool> DeleteAsync(string id)

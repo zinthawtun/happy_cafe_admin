@@ -6,6 +6,7 @@ using MediatR;
 using Microsoft.Extensions.Configuration;
 using Resource.Registry;
 using Service.Interfaces;
+using Service.Mappings;
 using Service.Services;
 using System.Reflection;
 
@@ -27,14 +28,18 @@ namespace Service.Registry
             builder.RegisterType<CafeService>()
                 .As<ICafeService>()
                 .InstancePerLifetimeScope();
-                
+
             builder.RegisterType<EmployeeService>()
                 .As<IEmployeeService>()
                 .InstancePerLifetimeScope();
-                
+
             builder.RegisterType<EmployeeCafeService>()
                 .As<IEmployeeCafeService>()
                 .InstancePerLifetimeScope();
+
+            builder.RegisterType<EmployeeCafeIdResolver>().AsSelf().InstancePerLifetimeScope();
+            builder.RegisterType<EmployeeCafeNameResolver>().AsSelf().InstancePerLifetimeScope();
+            builder.RegisterType<CalculateDaysWorkedResolver>().AsSelf().InstancePerLifetimeScope();
 
             builder.RegisterAssemblyTypes(typeof(IMediator).GetTypeInfo().Assembly)
                 .AsImplementedInterfaces();
@@ -65,7 +70,7 @@ namespace Service.Registry
 
             builder.Register(context => new MapperConfiguration(cfg =>
             {
-                foreach (var profile in context.Resolve<IEnumerable<Profile>>())
+                foreach (Profile profile in context.Resolve<IEnumerable<Profile>>())
                 {
                     cfg.AddProfile(profile);
                 }

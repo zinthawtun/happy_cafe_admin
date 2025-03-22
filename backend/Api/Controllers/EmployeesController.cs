@@ -1,11 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Api.Models;
 using Business.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Service.Commands.EmployeeCafes;
+using Service.Commands.Employees;
 using Service.Interfaces;
+using Service.Queries.Cafes;
+using Service.Queries.EmployeeCafes;
+using Service.Queries.Employees;
 
 namespace Api.Controllers
 {
@@ -27,30 +28,45 @@ namespace Api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<EmployeeResponseModel>>> GetEmployees([FromQuery] Guid? cafe = null)
         {
-            IEnumerable<Employee> employees;
-            List<EmployeeResponseModel> responseList = new List<EmployeeResponseModel>();
+            IEnumerable<EmployeeDto> employeeDtos;
 
             if (cafe.HasValue)
             {
-                employees = await employeeService.GetByCafeIdAsync(cafe.Value);
-                IEnumerable<EmployeeCafe> employeeCafes = await employeeCafeService.GetByCafeIdAsync(cafe.Value);
-
-                foreach (Employee employee in employees)
-                {
-                    EmployeeCafe? employeeCafe = employeeCafes.FirstOrDefault(ec => ec.EmployeeId == employee.Id && ec.IsActive);
-                    responseList.Add(CreateEmployeeResponse(employee, employeeCafe));
-                }
+                employeeDtos = await employeeService.GetByCafeIdAsync(cafe.Value);
             }
             else
             {
-                employees = await employeeService.GetAllAsync();
+                employeeDtos = await employeeService.GetAllAsync();
+            }
 
-                foreach (Employee employee in employees)
+            List<EmployeeDto> employeeDtosList = employeeDtos.ToList();
+
+            foreach (EmployeeDto employeeDto in employeeDtosList)
+            {
+                if (string.IsNullOrEmpty(employeeDto.CafeName) || !employeeDto.CafeId.HasValue)
                 {
-                    EmployeeCafe? employeeCafe = await employeeCafeService.GetByEmployeeIdAsync(employee.Id);
-                    responseList.Add(CreateEmployeeResponse(employee, employeeCafe));
+                    EmployeeCafeDto? employeeCafeDto = await employeeCafeService.GetByEmployeeIdAsync(employeeDto.Id);
+                    
+                    if (employeeCafeDto != null)
+                    {
+                        employeeDto.CafeId = employeeCafeDto.CafeId;
+                        employeeDto.CafeName = employeeCafeDto.CafeName;
+                        employeeDto.AssignedDate = employeeCafeDto.AssignedDate;
+                        employeeDto.DaysWorked = (int)Math.Ceiling((DateTime.UtcNow - employeeCafeDto.AssignedDate).TotalDays);
+                        employeeDto.IsAssignedToCafe = true;
+                    }
                 }
             }
+
+            List<EmployeeResponseModel> responseList = employeeDtosList.Select(dto => new EmployeeResponseModel
+            {
+                Id = dto.Id,
+                Name = dto.Name,
+                EmailAddress = dto.EmailAddress,
+                Address = dto.Phone,
+                DaysWorked = dto.DaysWorked,
+                Cafe = dto.CafeName
+            }).ToList();
 
             return Ok(responseList.OrderByDescending(e => e.DaysWorked));
         }
@@ -65,32 +81,60 @@ namespace Api.Controllers
 
             if (model.CafeId.HasValue)
             {
-                Cafe? cafe = await cafeService.GetByIdAsync(model.CafeId.Value);
-
+                CafeDto? cafe = await cafeService.GetByIdAsync(model.CafeId.Value);
                 if (cafe == null)
                 {
                     return BadRequest($"Cafe with ID {model.CafeId} does not exist");
                 }
             }
 
-            Employee employee = new Employee(
-                id: Guid.NewGuid().ToString(),
-                name: model.Name,
-                emailAddress: model.EmailAddress,
-                phone: model.Address,
-                gender: Gender.Male
-            );
+            CreateEmployeeCommand command = new CreateEmployeeCommand
+            {
+                Name = model.Name,
+                EmailAddress = model.EmailAddress,
+                Phone = model.Address,
+                Gender = Gender.Male
+            };
 
-            Employee? createdEmployee = await employeeService.CreateAsync(employee);
+            EmployeeDto? employeeDto = await employeeService.CreateAsync(command);
 
-            EmployeeCafe? assignedCafe = null;
+            if (employeeDto == null)
+            {
+                return BadRequest("Failed to create employee");
+            }
 
             if (model.CafeId.HasValue)
             {
-                assignedCafe = await employeeCafeService.AssignEmployeeToCafeAsync(model.CafeId.Value, createdEmployee.Id, DateTime.UtcNow);
+                AssignEmployeeToCafeCommand assignCommand = new AssignEmployeeToCafeCommand
+                {
+                    EmployeeId = employeeDto.Id,
+                    CafeId = model.CafeId.Value,
+                    AssignedDate = DateTime.UtcNow
+                };
+
+                EmployeeCafeDto? employeeCafeDto = await employeeCafeService.AssignEmployeeToCafeAsync(assignCommand);
+
+                if (employeeCafeDto != null)
+                {
+                    employeeDto.CafeId = employeeCafeDto.CafeId;
+                    employeeDto.CafeName = employeeCafeDto.CafeName;
+                    employeeDto.AssignedDate = employeeCafeDto.AssignedDate;
+                    employeeDto.DaysWorked = (int)Math.Ceiling((DateTime.UtcNow - employeeCafeDto.AssignedDate).TotalDays);
+                    employeeDto.IsAssignedToCafe = true;
+                }
             }
 
-            return CreatedAtAction(nameof(GetEmployees), CreateEmployeeResponse(createdEmployee, assignedCafe));
+            EmployeeResponseModel response = new EmployeeResponseModel
+            {
+                Id = employeeDto.Id,
+                Name = employeeDto.Name,
+                EmailAddress = employeeDto.EmailAddress,
+                Address = employeeDto.Phone,
+                DaysWorked = employeeDto.DaysWorked,
+                Cafe = employeeDto.CafeName
+            };
+
+            return CreatedAtAction(nameof(GetEmployees), response);
         }
 
         [HttpPut]
@@ -101,8 +145,7 @@ namespace Api.Controllers
                 return BadRequest(ModelState);
             }
 
-            Employee? existingEmployee = await employeeService.GetByIdAsync(model.Id);
-
+            EmployeeDto? existingEmployee = await employeeService.GetByIdAsync(model.Id);
             if (existingEmployee == null)
             {
                 return NotFound($"Employee with ID {model.Id} not found");
@@ -110,24 +153,30 @@ namespace Api.Controllers
 
             if (model.CafeId.HasValue)
             {
-                Cafe? cafe = await cafeService.GetByIdAsync(model.CafeId.Value);
-
+                CafeDto? cafe = await cafeService.GetByIdAsync(model.CafeId.Value);
                 if (cafe == null)
                 {
                     return BadRequest($"Cafe with ID {model.CafeId} does not exist");
                 }
             }
 
-            EmployeeCafe? currentAssignment = await employeeCafeService.GetByEmployeeIdAsync(model.Id);
+            UpdateEmployeeCommand command = new UpdateEmployeeCommand
+            {
+                Id = model.Id,
+                Name = model.Name,
+                EmailAddress = model.EmailAddress,
+                Phone = model.Address,
+                Gender = existingEmployee.Gender
+            };
 
-            existingEmployee.Update(
-                name: model.Name,
-                emailAddress: model.EmailAddress,
-                phone: model.Address,
-                gender: existingEmployee.Gender
-            );
+            EmployeeDto? updatedEmployeeDto = await employeeService.UpdateAsync(command);
 
-            Employee? updatedEmployee = await employeeService.UpdateAsync(existingEmployee);
+            if (updatedEmployeeDto == null)
+            {
+                return NotFound($"Employee with ID {model.Id} not found after update");
+            }
+
+            EmployeeCafeDto? currentAssignment = await employeeCafeService.GetByEmployeeIdAsync(model.Id);
 
             if (model.CafeId.HasValue)
             {
@@ -138,8 +187,14 @@ namespace Api.Controllers
                         await employeeCafeService.UnassignEmployeeFromCafeAsync(currentAssignment.Id);
                     }
 
-                    await employeeCafeService.AssignEmployeeToCafeAsync(model.CafeId.Value, model.Id, DateTime.UtcNow);
-                    currentAssignment = await employeeCafeService.GetByEmployeeIdAsync(model.Id);
+                    AssignEmployeeToCafeCommand assignCommand = new AssignEmployeeToCafeCommand
+                    {
+                        EmployeeId = model.Id,
+                        CafeId = model.CafeId.Value,
+                        AssignedDate = DateTime.UtcNow
+                    };
+
+                    currentAssignment = await employeeCafeService.AssignEmployeeToCafeAsync(assignCommand);
                 }
             }
             else if (currentAssignment != null && currentAssignment.IsActive)
@@ -148,12 +203,34 @@ namespace Api.Controllers
                 currentAssignment = null;
             }
 
-            if (updatedEmployee == null)
+            if (currentAssignment != null)
             {
-                return NotFound($"Employee with ID {model.Id} not found after update");
+                updatedEmployeeDto.CafeId = currentAssignment.CafeId;
+                updatedEmployeeDto.CafeName = currentAssignment.CafeName;
+                updatedEmployeeDto.AssignedDate = currentAssignment.AssignedDate;
+                updatedEmployeeDto.DaysWorked = (int)Math.Ceiling((DateTime.UtcNow - currentAssignment.AssignedDate).TotalDays);
+                updatedEmployeeDto.IsAssignedToCafe = currentAssignment.IsActive;
+            }
+            else
+            {
+                updatedEmployeeDto.CafeId = null;
+                updatedEmployeeDto.CafeName = string.Empty;
+                updatedEmployeeDto.AssignedDate = null;
+                updatedEmployeeDto.DaysWorked = 0;
+                updatedEmployeeDto.IsAssignedToCafe = false;
             }
 
-            return Ok(CreateEmployeeResponse(updatedEmployee, currentAssignment));
+            EmployeeResponseModel response = new EmployeeResponseModel
+            {
+                Id = updatedEmployeeDto.Id,
+                Name = updatedEmployeeDto.Name,
+                EmailAddress = updatedEmployeeDto.EmailAddress,
+                Address = updatedEmployeeDto.Phone,
+                DaysWorked = updatedEmployeeDto.DaysWorked,
+                Cafe = updatedEmployeeDto.CafeName
+            };
+
+            return Ok(response);
         }
 
         [HttpDelete]
@@ -164,7 +241,7 @@ namespace Api.Controllers
                 return BadRequest(ModelState);
             }
 
-            EmployeeCafe? currentAssignment = await employeeCafeService.GetByEmployeeIdAsync(model.Id);
+            EmployeeCafeDto? currentAssignment = await employeeCafeService.GetByEmployeeIdAsync(model.Id);
 
             if (currentAssignment != null && currentAssignment.IsActive)
             {
@@ -179,40 +256,6 @@ namespace Api.Controllers
             }
 
             return NoContent();
-        }
-        
-        private EmployeeResponseModel CreateEmployeeResponse(Employee employee, EmployeeCafe? employeeCafe)
-        {
-            int daysWorked = 0;
-            string cafeName = string.Empty;
-
-            if (employeeCafe != null && employeeCafe.IsActive)
-            {
-                daysWorked = (int)Math.Ceiling((DateTime.UtcNow - employeeCafe.AssignedDate).TotalDays);
-                
-                if (employeeCafe.Cafe != null)
-                {
-                    cafeName = employeeCafe.Cafe.Name;
-                }
-                else if (employeeCafe.CafeId != Guid.Empty)
-                {
-                    var cafe = cafeService.GetByIdAsync(employeeCafe.CafeId).GetAwaiter().GetResult();
-                    if (cafe != null)
-                    {
-                        cafeName = cafe.Name;
-                    }
-                }
-            }
-
-            return new EmployeeResponseModel
-            {
-                Id = employee.Id,
-                Name = employee.Name,
-                EmailAddress = employee.EmailAddress,
-                Address = employee.Phone,
-                DaysWorked = daysWorked,
-                Cafe = cafeName
-            };
         }
     }
 } 
