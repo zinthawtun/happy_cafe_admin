@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:17.4
+    container_name: happy_cafe_admin_postgres_prod
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - happy_cafe_admin_pgdata_prod:/var/lib/postgresql/data
+    networks:
+      - happy_cafe_network
+
+  backend:
+    build:
+      context: ..
+      dockerfile: setup_prod/Dockerfile
+    container_name: happy_cafe_admin_backend_prod
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}
+    ports:
+      - "8080:80"
+      - "8443:443"
+    networks:
+      - happy_cafe_network
+
+networks:
+  happy_cafe_network:
+    driver: bridge
+
+volumes:
+  happy_cafe_admin_pgdata_prod:
+    driver: local 

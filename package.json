@@ -1,0 +1,26 @@
+{
+  "name": "happy_cafe_admin",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "frontend": "cd frontend && npm run dev",
+    "backend": "cd backend\\API && dotnet watch run",
+    "dev": "concurrently \"npm run frontend\" \"npm run backend\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zinthawtun/happy_cafe_admin.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zinthawtun/happy_cafe_admin/issues"
+  },
+  "homepage": "https://github.com/zinthawtun/happy_cafe_admin#readme",
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
