@@ -16,7 +16,5 @@ namespace Service.Interfaces
         Task<CafeDto?> UpdateAsync(UpdateCafeCommand command);
 
         Task<bool> DeleteAsync(Guid id);
-
-        Task<bool> ExistsByNameAsync(string name);
     }
 } 
