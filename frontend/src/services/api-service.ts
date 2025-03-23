@@ -35,11 +35,45 @@ export const getFileUploadUrl = (): string => {
   return getApiUrl('api/file/upload-logo');
 };
 
-export const getCafes = async (location?: string): Promise<Cafe[]> => {
-  const url = location ? `/cafes?location=${location}` : '/cafes';
+export const getCafes = async (params?: { location?: string, page?: number, limit?: number }): Promise<{ data: Cafe[], total: number }> => {
+  const queryParams = new URLSearchParams();
+  
+  if (params?.location) {
+    queryParams.append('location', params.location);
+  }
+  
+  if (params?.page !== undefined) {
+    queryParams.append('page', params.page.toString());
+  }
+  
+  if (params?.limit !== undefined) {
+    queryParams.append('limit', params.limit.toString());
+  }
+  
+  const url = `/cafes${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+  console.log('Fetching cafes with URL:', url, 'and parameters:', params);
+  
   const response = await api.get(url);
+  console.log('Cafe API response:', response.data);
 
-  return response.data;
+  // If the backend doesn't support pagination properly, we need to implement client-side pagination
+  const allData = response.data.data || response.data;
+  const total = response.data.total || allData.length;
+  
+  let paginatedData = allData;
+  
+  // Apply client-side pagination if the backend isn't doing it
+  if (Array.isArray(allData) && params?.page !== undefined && params?.limit) {
+    const startIndex = params.page * params.limit;
+    const endIndex = startIndex + params.limit;
+    paginatedData = allData.slice(startIndex, endIndex);
+    console.log(`Applied client-side pagination: showing items ${startIndex}-${endIndex} of ${allData.length}`);
+  }
+
+  return {
+    data: paginatedData,
+    total: total
+  };
 };
 
 export const getCafeById = async (id: string): Promise<Cafe> => {
@@ -74,19 +108,62 @@ export const deleteCafe = async (id: string): Promise<void> => {
   await api.delete('/cafe', { data: { id } });
 };
 
-export const getEmployees = async (cafe?: string): Promise<Employee[]> => {
-  const url = cafe ? `/employees?cafe=${cafe}` : '/employees';
+export const getEmployees = async (params?: { cafe?: string, page?: number, limit?: number }): Promise<{ data: Employee[], total: number }> => {
+  const queryParams = new URLSearchParams();
+  
+  if (params?.cafe) {
+    queryParams.append('cafe', params.cafe);
+  }
+  
+  if (params?.page !== undefined) {
+    queryParams.append('page', params.page.toString());
+  }
+  
+  if (params?.limit !== undefined) {
+    queryParams.append('limit', params.limit.toString());
+  }
+  
+  const url = `/employees${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+  console.log('Fetching employees with URL:', url, 'and parameters:', params);
+  
   const response = await api.get(url);
+  console.log('Employees API response:', response.data);
 
-  return response.data.map((employee: BackendEmployeeResponse) => ({
-    id: employee.id,
-    name: employee.name,
-    email: employee.emailAddress,
-    phoneNumber: employee.phone,
-    days_worked: employee.daysWorked,
-    cafe: employee.cafe,
-    gender: (employee.gender?.toLowerCase() || 'male') as 'male' | 'female',
-  }));
+  const allData = response.data.data || response.data;
+  const total = response.data.total || allData.length;
+  
+  let paginatedData = allData;
+  
+  // Apply client-side pagination if the backend isn't doing it
+  if (Array.isArray(allData) && params?.page !== undefined && params?.limit) {
+    const startIndex = params.page * params.limit;
+    const endIndex = startIndex + params.limit;
+    paginatedData = allData.map((employee: BackendEmployeeResponse) => ({
+      id: employee.id,
+      name: employee.name,
+      email: employee.emailAddress,
+      phoneNumber: employee.phone,
+      days_worked: employee.daysWorked,
+      cafe: employee.cafe,
+      gender: (employee.gender?.toLowerCase() || 'male') as 'male' | 'female',
+    })).slice(startIndex, endIndex);
+    console.log(`Applied client-side pagination: showing items ${startIndex}-${endIndex} of ${allData.length}`);
+  } else {
+    paginatedData = paginatedData.map((employee: BackendEmployeeResponse) => ({
+      id: employee.id,
+      name: employee.name,
+      email: employee.emailAddress,
+      phoneNumber: employee.phone,
+      days_worked: employee.daysWorked,
+      cafe: employee.cafe,
+      gender: (employee.gender?.toLowerCase() || 'male') as 'male' | 'female',
+    }));
+  }
+
+  return {
+    data: paginatedData,
+    total: total
+  };
 };
 
 export const getEmployeeById = async (id: string): Promise<Employee> => {

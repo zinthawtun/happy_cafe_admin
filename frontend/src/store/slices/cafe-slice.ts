@@ -9,14 +9,19 @@ const initialState: CafeState = {
   selectedCafe: null,
   loading: false,
   error: null,
+  pagination: {
+    page: 0,
+    limit: 10,
+    total: 0
+  }
 };
 
 
 export const fetchCafes = createAsyncThunk(
   'cafes/fetchCafes',
-  async (location: string | undefined, { rejectWithValue }) => {
+  async (params: { location?: string, page?: number, limit?: number } | undefined, { rejectWithValue }) => {
     try {
-      return await api.getCafes(location);
+      return await api.getCafes(params);
     } catch {
       return rejectWithValue('Failed to fetch cafes');
     }
@@ -78,6 +83,12 @@ const cafeSlice = createSlice({
     clearSelectedCafe: (state) => {
       state.selectedCafe = null;
     },
+    setPage: (state, action: PayloadAction<number>) => {
+      state.pagination.page = action.payload;
+    },
+    setLimit: (state, action: PayloadAction<number>) => {
+      state.pagination.limit = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -87,7 +98,8 @@ const cafeSlice = createSlice({
       })
       .addCase(fetchCafes.fulfilled, (state, action) => {
         state.loading = false;
-        state.list = action.payload;
+        state.list = action.payload.data;
+        state.pagination.total = action.payload.total;
       })
       .addCase(fetchCafes.rejected, (state, action) => {
         state.loading = false;
@@ -154,5 +166,5 @@ const cafeSlice = createSlice({
   },
 });
 
-export const { setCafes, clearSelectedCafe } = cafeSlice.actions;
+export const { setCafes, clearSelectedCafe, setPage, setLimit } = cafeSlice.actions;
 export default cafeSlice.reducer; 

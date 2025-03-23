@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Box,
@@ -11,6 +11,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TablePagination,
   IconButton,
   Grid,
   Chip,
@@ -21,7 +22,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import { RootState, useAppDispatch, useAppSelector } from '@store/index';
-import { fetchEmployees } from '@/store/slices/employee-slice';
+import { fetchEmployees, setPage, setLimit } from '@/store/slices/employee-slice';
 import { showConfirmDialog } from '@/store/slices/ui-slice';
 
 import { DialogType } from '@/types';
@@ -32,11 +33,19 @@ const Employees = () => {
   const [searchParams] = useSearchParams();
   const cafeId = searchParams.get('cafe');
   
-  const { list: employees, loading } = useAppSelector((state: RootState) => state.employees);
+  const { list: employees, loading, pagination } = useAppSelector((state: RootState) => state.employees);
+
+  const fetchEmployeesData = useCallback(() => {
+    dispatch(fetchEmployees({
+      cafe: cafeId || undefined,
+      page: pagination.page,
+      limit: pagination.limit
+    }));
+  }, [dispatch, cafeId, pagination.page, pagination.limit]);
 
   useEffect(() => {
-    dispatch(fetchEmployees(cafeId || undefined));
-  }, [dispatch, cafeId]);
+    fetchEmployeesData();
+  }, [fetchEmployeesData]);
 
   const handleAddEmployee = () => {
     navigate('/employees/new');
@@ -56,6 +65,15 @@ const Employees = () => {
         entityName: name,
       })
     );
+  };
+
+  const handleChangePage = (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+    dispatch(setPage(newPage));
+  };
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch(setLimit(parseInt(event.target.value, 10)));
+    dispatch(setPage(0));
   };
 
   return (
@@ -99,7 +117,7 @@ const Employees = () => {
             boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
           }}
         >
-          <TableContainer sx={{ maxHeight: 'calc(100vh - 250px)' }}>
+          <TableContainer sx={{ maxHeight: 'calc(100vh - 300px)' }}>
             <Table stickyHeader sx={{ minWidth: '100%' }}>
               <TableHead>
                 <TableRow>
@@ -148,6 +166,20 @@ const Employees = () => {
               </TableBody>
             </Table>
           </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={pagination.total}
+            rowsPerPage={pagination.limit}
+            page={pagination.page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            labelDisplayedRows={({ from, to, count }) => (
+              <Typography variant="body2" component="span">
+                {from}-{to} of {count} (Page {pagination.page + 1})
+              </Typography>
+            )}
+          />
         </Paper>
       ) : (
         <Paper

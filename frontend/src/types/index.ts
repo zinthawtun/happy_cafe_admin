@@ -122,11 +122,18 @@ export interface LogoCache {
   [key: string]: string;
 }
 
+export interface Pagination {
+  page: number;
+  limit: number;
+  total: number;
+}
+
 export interface CafeState {
   list: Cafe[];
   selectedCafe: Cafe | null;
   loading: boolean;
   error: string | null;
+  pagination: Pagination;
 }
 
 export interface EmployeeState {
@@ -134,6 +141,7 @@ export interface EmployeeState {
   selectedEmployee: Employee | null;
   loading: boolean;
   error: string | null;
+  pagination: Pagination;
 }
 
 export enum DialogType {

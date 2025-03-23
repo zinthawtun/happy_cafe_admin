@@ -13,6 +13,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TablePagination,
   IconButton,
   Grid,
   Avatar,
@@ -24,7 +25,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import PeopleIcon from '@mui/icons-material/People';
 
 import { RootState, useAppDispatch, useAppSelector } from '@store/index';
-import { fetchCafes } from '@/store/slices/cafe-slice';
+import { fetchCafes, setPage, setLimit } from '@/store/slices/cafe-slice';
 import { showConfirmDialog} from '@/store/slices/ui-slice';
 import { getLogoUrl as getApiLogoUrl } from '@services/api-service';
 
@@ -33,7 +34,7 @@ import { DialogType, LogoCache } from '@/types';
 const CafeOverViewPage = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { list: cafes, loading } = useAppSelector((state: RootState) => state.cafes);
+  const { list: cafes, loading, pagination } = useAppSelector((state: RootState) => state.cafes);
   const [locationFilter, setLocationFilter] = useState('');
   const [logoCache, setLogoCache] = useState<LogoCache>({});
 
@@ -77,9 +78,17 @@ const CafeOverViewPage = () => {
     return logoCache[logo] || undefined;
   };
 
+  const fetchCafesData = useCallback(() => {
+    dispatch(fetchCafes({
+      location: locationFilter.trim() || undefined, 
+      page: pagination.page,
+      limit: pagination.limit
+    }));
+  }, [dispatch, locationFilter, pagination.page, pagination.limit]);
+
   useEffect(() => {
-    dispatch(fetchCafes(undefined));
-  }, [dispatch]);
+    fetchCafesData();
+  }, [fetchCafesData]);
 
   useEffect(() => {
     if (cafes && cafes.length > 0) {
@@ -92,9 +101,13 @@ const CafeOverViewPage = () => {
   };
 
   const handleFilterSubmit = () => {
-    dispatch(fetchCafes(locationFilter.trim() || undefined)).then(() => {
-        
+    dispatch(fetchCafes({
+      location: locationFilter.trim() || undefined,
+      page: 0,
+      limit: pagination.limit
+    })).then(() => {
       setLogoCache({});
+      dispatch(setPage(0));
     });
   };
 
@@ -120,6 +133,15 @@ const CafeOverViewPage = () => {
         entityName: name,
       })
     );
+  };
+
+  const handleChangePage = (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+    dispatch(setPage(newPage));
+  };
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch(setLimit(parseInt(event.target.value, 10)));
+    dispatch(setPage(0));
   };
 
   return (
@@ -177,7 +199,7 @@ const CafeOverViewPage = () => {
             boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
           }}
         >
-          <TableContainer sx={{ maxHeight: 'calc(100vh - 250px)' }}>
+          <TableContainer sx={{ maxHeight: 'calc(100vh - 300px)' }}>
             <Table stickyHeader sx={{ minWidth: '100%' }}>
               <TableHead>
                 <TableRow>
@@ -236,6 +258,20 @@ const CafeOverViewPage = () => {
               </TableBody>
             </Table>
           </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={pagination.total}
+            rowsPerPage={pagination.limit}
+            page={pagination.page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            labelDisplayedRows={({ from, to, count }) => (
+              <Typography variant="body2" component="span">
+                {from}-{to} of {count} (Page {pagination.page + 1})
+              </Typography>
+            )}
+          />
         </Paper>
       ) : (
         <Paper

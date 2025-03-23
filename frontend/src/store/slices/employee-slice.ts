@@ -9,13 +9,18 @@ const initialState: EmployeeState = {
   selectedEmployee: null,
   loading: false,
   error: null,
+  pagination: {
+    page: 0,
+    limit: 10,
+    total: 0
+  }
 };
 
 export const fetchEmployees = createAsyncThunk(
   'employees/fetchEmployees',
-  async (cafe: string | undefined, { rejectWithValue }) => {
+  async (params: { cafe?: string, page?: number, limit?: number } | undefined, { rejectWithValue }) => {
     try {
-      return await api.getEmployees(cafe);
+      return await api.getEmployees(params);
     } catch {
       return rejectWithValue('Failed to fetch employees');
     }
@@ -79,6 +84,12 @@ const employeeSlice = createSlice({
     clearSelectedEmployee: (state) => {
       state.selectedEmployee = null;
     },
+    setPage: (state, action: PayloadAction<number>) => {
+      state.pagination.page = action.payload;
+    },
+    setLimit: (state, action: PayloadAction<number>) => {
+      state.pagination.limit = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -88,7 +99,8 @@ const employeeSlice = createSlice({
       })
       .addCase(fetchEmployees.fulfilled, (state, action) => {
         state.loading = false;
-        state.list = action.payload;
+        state.list = action.payload.data;
+        state.pagination.total = action.payload.total;
       })
       .addCase(fetchEmployees.rejected, (state, action) => {
         state.loading = false;
@@ -151,5 +163,5 @@ const employeeSlice = createSlice({
   },
 });
 
-export const { setEmployees, clearSelectedEmployee } = employeeSlice.actions;
+export const { setEmployees, clearSelectedEmployee, setPage, setLimit } = employeeSlice.actions;
 export default employeeSlice.reducer; 
