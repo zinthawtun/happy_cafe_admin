@@ -502,7 +502,7 @@ namespace Tests.Api.Controllers
                 .ReturnsAsync(newCafeDto);
 
            
-            var employeeCafeServiceSequence = employeeCafeServiceMock
+            employeeCafeServiceMock
                 .SetupSequence(s => s.GetByEmployeeIdAsync(employeeId))
                 .ReturnsAsync(oldEmployeeCafeDto)   
                 .ReturnsAsync(newEmployeeCafeDto); 

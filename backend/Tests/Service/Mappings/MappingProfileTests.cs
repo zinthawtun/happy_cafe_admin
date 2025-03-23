@@ -112,7 +112,7 @@ namespace Tests.Service.Mappings
         public void Map_Employee_To_EmployeeDto_Test()
         {
             Employee employee = new Employee(
-                "EMP123",
+                UniqueIdGenerator.GenerateUniqueId(),
                 "John Doe",
                 "john.doe@example.com",
                 "89123456",
@@ -140,7 +140,7 @@ namespace Tests.Service.Mappings
             );
 
             Employee employee = new Employee(
-                "EMP123",
+                UniqueIdGenerator.GenerateUniqueId(),
                 "John Doe",
                 "john.doe@example.com",
                 "89123456",
@@ -178,7 +178,7 @@ namespace Tests.Service.Mappings
             EmployeeCafe employeeCafe = new EmployeeCafe(
                 id: System.Guid.NewGuid(),
                 cafeId: System.Guid.NewGuid(),
-                employeeId: "EMP123",
+                employeeId: UniqueIdGenerator.GenerateUniqueId(),
                 assignedDate: System.DateTime.Now.Date
             );
 
@@ -201,7 +201,7 @@ namespace Tests.Service.Mappings
             {
                 Id = System.Guid.NewGuid(),
                 CafeId = System.Guid.NewGuid(),
-                EmployeeId = "EMP123",
+                EmployeeId = UniqueIdGenerator.GenerateUniqueId(),
                 AssignedDate = System.DateTime.Now.Date,
                 IsActive = true,
                 CafeName = "Test Cafe",
@@ -225,7 +225,7 @@ namespace Tests.Service.Mappings
         {
             AssignEmployeeToCafeCommand command = new AssignEmployeeToCafeCommand
             {
-                EmployeeId = "EMP123",
+                EmployeeId = UniqueIdGenerator.GenerateUniqueId(),
                 CafeId = System.Guid.NewGuid(),
                 AssignedDate = System.DateTime.Now.Date
             };
@@ -241,7 +241,7 @@ namespace Tests.Service.Mappings
         [Fact]
         public void Map_UpdateEmployeeCommand_To_Employee_Test()
         {
-            string employeeId = "EMP123";
+            string employeeId = UniqueIdGenerator.GenerateUniqueId();
             UpdateEmployeeCommand command = new UpdateEmployeeCommand
             {
                 Id = employeeId,
@@ -265,7 +265,7 @@ namespace Tests.Service.Mappings
         {
             Guid assignmentId = System.Guid.NewGuid();
             Guid cafeId = System.Guid.NewGuid();
-            string employeeId = "EMP123";
+            string employeeId = UniqueIdGenerator.GenerateUniqueId();
             DateTime assignedDate = System.DateTime.Now.Date;
             
             UpdateEmployeeCafeAssignmentCommand command = new UpdateEmployeeCafeAssignmentCommand
@@ -289,7 +289,7 @@ namespace Tests.Service.Mappings
         public void Map_Employee_To_EmployeeDto_WithNullEmployeeCafes_Test()
         {
             Employee employee = new Employee(
-                "EMP123",
+                UniqueIdGenerator.GenerateUniqueId(),
                 "John Doe",
                 "john.doe@example.com",
                 "89123456",
@@ -309,7 +309,7 @@ namespace Tests.Service.Mappings
         public void Map_Employee_To_EmployeeDto_WithEmptyEmployeeCafes_Test()
         {
             Employee employee = new Employee(
-                "EMP123",
+                UniqueIdGenerator.GenerateUniqueId(),
                 "Jane Smith",
                 "jane.smith@example.com",
                 "98765432",
@@ -332,7 +332,7 @@ namespace Tests.Service.Mappings
         public void Map_Employee_To_EmployeeDto_WithActiveCafeAssignment_Test()
         {
             Guid cafeId = Guid.NewGuid();
-            string employeeId = "EMP123";
+            string employeeId = UniqueIdGenerator.GenerateUniqueId();
             DateTime assignedDate = DateTime.UtcNow.AddDays(-10);
             
             Cafe cafe = new Cafe(
@@ -344,7 +344,7 @@ namespace Tests.Service.Mappings
             );
             
             Employee employee = new Employee(
-                "EMP123",
+                UniqueIdGenerator.GenerateUniqueId(),
                 "Bob Johnson",
                 "bob.johnson@example.com",
                 "89123456",
@@ -380,11 +380,11 @@ namespace Tests.Service.Mappings
         public void Map_Employee_To_EmployeeDto_WithActiveAssignmentButNullCafe_Test()
         {
             Guid cafeId = Guid.NewGuid();
-            string employeeId = "EMP123";
+            string employeeId = UniqueIdGenerator.GenerateUniqueId();
             DateTime assignedDate = DateTime.UtcNow.AddDays(-5);
             
             Employee employee = new Employee(
-                "EMP123",
+                UniqueIdGenerator.GenerateUniqueId(),
                 "Alice Williams",
                 "alice.williams@example.com",
                 "89123456",
@@ -417,7 +417,7 @@ namespace Tests.Service.Mappings
         public void Map_Employee_To_EmployeeDto_WithOnlyInactiveCafeAssignments_Test()
         {
             Guid cafeId = Guid.NewGuid();
-            string employeeId = "EMP123";
+            string employeeId = UniqueIdGenerator.GenerateUniqueId();
             DateTime assignedDate = DateTime.UtcNow.AddDays(-30);
             
             Cafe cafe = new Cafe(
@@ -429,7 +429,7 @@ namespace Tests.Service.Mappings
             );
             
             Employee employee = new Employee(
-                "EMP123",
+                UniqueIdGenerator.GenerateUniqueId(),
                 "Charlie Brown",
                 "charlie.brown@example.com",
                 "89123456",
@@ -466,7 +466,7 @@ namespace Tests.Service.Mappings
         {
             Guid activeCafeId = Guid.NewGuid();
             Guid inactiveCafeId = Guid.NewGuid();
-            string employeeId = "EMP123";
+            string employeeId = UniqueIdGenerator.GenerateUniqueId();
             DateTime activeAssignedDate = DateTime.UtcNow.AddDays(-3);
             DateTime inactiveAssignedDate = DateTime.UtcNow.AddDays(-15);
             
@@ -487,7 +487,7 @@ namespace Tests.Service.Mappings
             );
             
             Employee employee = new Employee(
-                "EMP123",
+                UniqueIdGenerator.GenerateUniqueId(),
                 "Multiple Assignment Employee",
                 "multiple.assignments@example.com",
                 "89123456",

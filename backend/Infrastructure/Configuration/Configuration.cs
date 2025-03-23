@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Utilities;
+using Infrastructure.FileManagement;
 
 namespace Infrastructure.Configuration
 {
@@ -48,6 +49,51 @@ namespace Infrastructure.Configuration
 
             return configuration.GetConnectionString("DefaultConnection")
                 ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+        }
+
+        public static FileConfiguration GetFileStorageConfiguration(IConfiguration configuration)
+        {
+            string? environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+
+            if (environment?.Equals("Development", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                string envPath = FindEnvFilePath();
+                if (!File.Exists(envPath))
+                {
+                    throw new FileNotFoundException($".env file not found at: {envPath}");
+                }
+
+                DotNetEnv.Env.Load(envPath);
+
+                string rootPath = Environment.GetEnvironmentVariable("FILE_STORAGE_ROOT_PATH") ?? Directory.GetCurrentDirectory();
+                string storePath = Environment.GetEnvironmentVariable("FILE_STORAGE_PATH") ?? "FileStore";
+                string logosPath = Environment.GetEnvironmentVariable("FILE_STORAGE_LOGOS_PATH") ?? "FileStore/logos";
+                
+                long maxFileSize = 2 * 1024 * 1024;
+                if (long.TryParse(Environment.GetEnvironmentVariable("FILE_STORAGE_MAX_SIZE"), out long parsedSize))
+                {
+                    maxFileSize = parsedSize;
+                }
+
+                string fileStorePath = storePath.StartsWith(rootPath) ? storePath : Path.Combine(rootPath, storePath);
+                string fullLogosPath = logosPath.StartsWith(rootPath) ? logosPath : Path.Combine(rootPath, logosPath);
+
+                return new FileConfiguration
+                {
+                    RootPath = rootPath,
+                    FileStorePath = fileStorePath,
+                    LogosPath = fullLogosPath,
+                    MaxFileSize = maxFileSize
+                };
+            }
+
+            return new FileConfiguration
+            {
+                RootPath = configuration["FileStorage:RootPath"] ?? Directory.GetCurrentDirectory(),
+                FileStorePath = configuration["FileStorage:StorePath"] ?? Path.Combine(configuration["FileStorage:RootPath"] ?? Directory.GetCurrentDirectory(), "FileStore"),
+                LogosPath = configuration["FileStorage:LogosPath"] ?? Path.Combine(configuration["FileStorage:RootPath"] ?? Directory.GetCurrentDirectory(), "FileStore/logos"),
+                MaxFileSize = configuration.GetValue<long>("FileStorage:MaxFileSize", 2 * 1024 * 1024)
+            };
         }
     }
 }

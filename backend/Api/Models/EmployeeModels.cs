@@ -11,6 +11,7 @@ namespace Api.Models
         [Required]
         [StringLength(150)]
         [EmailAddress]
+        [RegularExpression(@"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$", ErrorMessage = "Invalid email address format")]
         public string EmailAddress { get; set; } = string.Empty;
 
         [Required]

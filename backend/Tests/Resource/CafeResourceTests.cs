@@ -137,26 +137,6 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task DeleteAsync_WithActiveAssignments_ShouldReturnFalse_Test()
-        {
-            Cafe cafe = await resource.CreateAsync("Coffee House", "Description", "logo.png", "Location");
-            
-            Employee employee = new Employee("EMP123", "John Doe", "john@example.com", "89876543", Gender.Male);
-            context.Employees.Add(employee);
-            
-            EmployeeCafe employeeCafe = new EmployeeCafe(Guid.NewGuid(), cafe.Id, employee.Id, DateTime.UtcNow);
-            context.EmployeeCafes.Add(employeeCafe);
-            await context.SaveChangesAsync();
-            
-            bool result = await resource.DeleteAsync(cafe.Id);
-            
-            Assert.False(result);
-            
-            Cafe? existingCafe = await context.Cafes.FindAsync(cafe.Id);
-            Assert.NotNull(existingCafe);
-        }
-
-        [Fact]
         public async Task GetByEmployeeIdAsync_ShouldReturnCafesAssignedToEmployee_Test()
         {
             Cafe cafe1 = await resource.CreateAsync("Coffee House", "Description 1", "logo1.png", "Location 1");

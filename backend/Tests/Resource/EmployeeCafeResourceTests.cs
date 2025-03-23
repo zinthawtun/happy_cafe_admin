@@ -196,7 +196,7 @@ namespace Tests.Resource
             EmployeeCafe? updated = await resource.UpdateAsync(
                 Guid.NewGuid(),
                 Guid.NewGuid(),
-                "EMP123",
+                UniqueIdGenerator.GenerateUniqueId(),
                 true,
                 DateTime.UtcNow);
             
@@ -318,7 +318,7 @@ namespace Tests.Resource
         [Fact]
         public async Task IsEmployeeAssignedToCafeAsync_WithNoAssignment_ShouldReturnFalse_Test()
         {
-            bool isAssigned = await resource.IsEmployeeAssignedToCafeAsync("EMP123", Guid.NewGuid());
+            bool isAssigned = await resource.IsEmployeeAssignedToCafeAsync(UniqueIdGenerator.GenerateUniqueId(), Guid.NewGuid());
             
             Assert.False(isAssigned);
         }

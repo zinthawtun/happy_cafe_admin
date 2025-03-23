@@ -1,5 +1,6 @@
 using Api.Controllers;
 using Api.Models;
+using Infrastructure.FileManagement;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Service.Commands.Cafes;
@@ -7,6 +8,7 @@ using Service.Interfaces;
 using Service.Queries.Cafes;
 using Service.Queries.EmployeeCafes;
 using Utilities;
+using Tests;
 
 namespace Tests.Api.Controllers
 {
@@ -14,13 +16,18 @@ namespace Tests.Api.Controllers
     {
         private readonly Mock<ICafeService> cafeServiceMock;
         private readonly Mock<IEmployeeCafeService> employeeCafeServiceMock;
+        private readonly Mock<IFileService> fileServiceMock;
         private readonly CafesController cafesController;
 
         public CafeControllerTests()
         {
             cafeServiceMock = new Mock<ICafeService>();
             employeeCafeServiceMock = new Mock<IEmployeeCafeService>();
-            cafesController = new CafesController(cafeServiceMock.Object, employeeCafeServiceMock.Object);
+            fileServiceMock = new Mock<IFileService>();
+            cafesController = new CafesController(
+                cafeServiceMock.Object, 
+                employeeCafeServiceMock.Object, 
+                fileServiceMock.Object);
         }
 
         [Fact]
@@ -409,47 +416,95 @@ namespace Tests.Api.Controllers
         public async Task DeleteCafe_ShouldReturnNoContent_WhenSuccessful_Test()
         {
             Guid cafeId = Guid.NewGuid();
-            DeleteCafeModel model = new DeleteCafeModel { Id = cafeId };
-
-            cafeServiceMock
-                .Setup(s => s.DeleteAsync(cafeId))
-                .ReturnsAsync(true);
+            string logoFileName = "test-logo.png";
+            
+            CafeDto cafeDto = ScenarioHelper.CreateTestCafeDto(cafeId, logo: logoFileName);
+            DeleteCafeModel model = ScenarioHelper.CreateDeleteCafeModel(cafeId);
+            
+            ScenarioHelper.SetupCafeServiceForDelete(cafeServiceMock, cafeId, cafeDto);
+            ScenarioHelper.SetupFileServiceForLogoDelete(fileServiceMock, logoFileName, true);
 
             ActionResult result = await cafesController.DeleteCafe(model);
 
             Assert.IsType<NoContentResult>(result);
             
+            cafeServiceMock.Verify(s => s.GetByIdAsync(cafeId), Times.Once);
             cafeServiceMock.Verify(s => s.DeleteAsync(cafeId), Times.Once);
+            fileServiceMock.Verify(s => s.DeleteLogo(logoFileName), Times.Once);
+        }
+
+        [Fact]
+        public async Task DeleteCafe_ShouldReturnNoContent_WithoutDeletingLogo_WhenCafeHasNoLogo_Test()
+        {
+            Guid cafeId = Guid.NewGuid();
+            
+            CafeDto cafeDto = ScenarioHelper.CreateTestCafeDto(cafeId, logo: null);
+            DeleteCafeModel model = ScenarioHelper.CreateDeleteCafeModel(cafeId);
+            
+            ScenarioHelper.SetupCafeServiceForDelete(cafeServiceMock, cafeId, cafeDto);
+
+            ActionResult result = await cafesController.DeleteCafe(model);
+
+            Assert.IsType<NoContentResult>(result);
+            
+            cafeServiceMock.Verify(s => s.GetByIdAsync(cafeId), Times.Once);
+            cafeServiceMock.Verify(s => s.DeleteAsync(cafeId), Times.Once);
+            fileServiceMock.Verify(s => s.DeleteLogo(It.IsAny<string>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task DeleteCafe_ShouldReturnNoContent_EvenWhenLogoDeleteFails_Test()
+        {
+            Guid cafeId = Guid.NewGuid();
+            string logoFileName = "test-logo.png";
+            
+            CafeDto cafeDto = ScenarioHelper.CreateTestCafeDto(cafeId, logo: logoFileName);
+            DeleteCafeModel model = ScenarioHelper.CreateDeleteCafeModel(cafeId);
+            
+            ScenarioHelper.SetupCafeServiceForDelete(cafeServiceMock, cafeId, cafeDto);
+            ScenarioHelper.SetupFileServiceForLogoDelete(fileServiceMock, logoFileName, false);
+
+            ActionResult result = await cafesController.DeleteCafe(model);
+
+            Assert.IsType<NoContentResult>(result);
+            
+            cafeServiceMock.Verify(s => s.GetByIdAsync(cafeId), Times.Once);
+            cafeServiceMock.Verify(s => s.DeleteAsync(cafeId), Times.Once);
+            fileServiceMock.Verify(s => s.DeleteLogo(logoFileName), Times.Once);
         }
 
         [Fact]
         public async Task DeleteCafe_ShouldReturnNotFound_WhenCafeDoesNotExist_Test()
         {
             Guid cafeId = Guid.NewGuid();
-            DeleteCafeModel model = new DeleteCafeModel { Id = cafeId };
-
+            DeleteCafeModel model = ScenarioHelper.CreateDeleteCafeModel(cafeId);
+            
             cafeServiceMock
-                .Setup(s => s.DeleteAsync(cafeId))
-                .ReturnsAsync(false);
+                .Setup(s => s.GetByIdAsync(cafeId))
+                .ReturnsAsync((CafeDto)null);
 
             ActionResult result = await cafesController.DeleteCafe(model);
 
             Assert.IsType<NotFoundObjectResult>(result);
             
-            cafeServiceMock.Verify(s => s.DeleteAsync(cafeId), Times.Once);
+            cafeServiceMock.Verify(s => s.GetByIdAsync(cafeId), Times.Once);
+            cafeServiceMock.Verify(s => s.DeleteAsync(cafeId), Times.Never);
+            fileServiceMock.Verify(s => s.DeleteLogo(It.IsAny<string>()), Times.Never);
         }
 
         [Fact]
         public async Task DeleteCafe_ShouldReturnBadRequest_WhenModelStateIsInvalid_Test()
         {
-            DeleteCafeModel model = new DeleteCafeModel { Id = Guid.NewGuid() };
+            DeleteCafeModel model = ScenarioHelper.CreateDeleteCafeModel(Guid.NewGuid());
             cafesController.ModelState.AddModelError("Id", "Required");
 
             ActionResult result = await cafesController.DeleteCafe(model);
 
             Assert.IsType<BadRequestObjectResult>(result);
             
+            cafeServiceMock.Verify(s => s.GetByIdAsync(It.IsAny<Guid>()), Times.Never);
             cafeServiceMock.Verify(s => s.DeleteAsync(It.IsAny<Guid>()), Times.Never);
+            fileServiceMock.Verify(s => s.DeleteLogo(It.IsAny<string>()), Times.Never);
         }
 
         [Fact]
