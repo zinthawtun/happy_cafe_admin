@@ -146,6 +146,43 @@ namespace Api.Controllers
             return CreatedAtAction(nameof(GetEmployees), response);
         }
 
+        [HttpGet]
+        [Route("employee")]
+        public async Task<ActionResult<EmployeeDetailResponseModel>> GetEmployeeById([FromQuery] string id)
+        {
+            EmployeeDto? employeeDto = await employeeService.GetByIdAsync(id);
+            
+            if (employeeDto == null)
+            {
+                return NotFound($"Employee with ID {id} not found");
+            }
+
+            EmployeeCafeDto? employeeCafeDto = await employeeCafeService.GetByEmployeeIdAsync(id);
+            
+            if (employeeCafeDto != null)
+            {
+                employeeDto.CafeId = employeeCafeDto.CafeId;
+                employeeDto.CafeName = employeeCafeDto.CafeName;
+                employeeDto.AssignedDate = employeeCafeDto.AssignedDate;
+                employeeDto.DaysWorked = (int)Math.Ceiling((DateTime.UtcNow - employeeCafeDto.AssignedDate).TotalDays);
+                employeeDto.IsAssignedToCafe = true;
+            }
+
+            EmployeeDetailResponseModel response = new EmployeeDetailResponseModel
+            {
+                Id = employeeDto.Id,
+                Name = employeeDto.Name,
+                EmailAddress = employeeDto.EmailAddress,
+                Phone = employeeDto.Phone,
+                Gender = employeeDto.Gender.ToString(),
+                CafeId = employeeDto.CafeId,
+                CafeName = employeeDto.CafeName,
+                StartDate = employeeDto.AssignedDate
+            };
+
+            return Ok(response);
+        }
+
         [HttpPut]
         [Route("~/employee")]
         public async Task<ActionResult<EmployeeResponseModel>> UpdateEmployee([FromBody] UpdateEmployeeModel model)

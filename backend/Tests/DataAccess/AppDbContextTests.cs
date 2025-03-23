@@ -36,7 +36,8 @@ namespace Tests.DataAccess
         [Fact]
         public void CanAddAndRetrieveEmployee_Test()
         {
-            Employee employee = ScenarioHelper.CreateEmployee("John Doe", "john.doe@example.com", "+1234567890", Gender.Male);
+            string uniqueEmail = $"john.doe.unique@example.com";
+            Employee employee = ScenarioHelper.CreateEmployee("John Doe", uniqueEmail, "87654321", Gender.Male);
 
             appDbContext.Employees.Add(employee);
             appDbContext.SaveChanges();
@@ -46,8 +47,8 @@ namespace Tests.DataAccess
             Employee? retrievedEmployee = appDbContext.Employees.Find(employee.Id);
             Assert.NotNull(retrievedEmployee);
             Assert.Equal("John Doe", retrievedEmployee!.Name);
-            Assert.Equal("john.doe@example.com", retrievedEmployee.EmailAddress);
-            Assert.Equal("+1234567890", retrievedEmployee.Phone);
+            Assert.Equal(uniqueEmail, retrievedEmployee.EmailAddress);
+            Assert.Equal("87654321", retrievedEmployee.Phone);
             Assert.Equal(Gender.Male, retrievedEmployee.Gender);
         }
 
@@ -55,7 +56,9 @@ namespace Tests.DataAccess
         public void CanCreateEmployeeCafeRelationship_Test()
         {
             Cafe cafe = ScenarioHelper.CreateCafe("Relationship Test Cafe", "Testing relationships", "logo.png", "Test Location");
-            Employee employee = ScenarioHelper.CreateEmployee("Jane Smith", "jane.smith@example.com", "+0987654321", Gender.Female);
+            
+            string uniqueEmail1 = $"relationship.test.{Guid.NewGuid()}@example.com";
+            Employee employee = ScenarioHelper.CreateEmployee("Jane Smith", uniqueEmail1, "98765432", Gender.Female);
 
             appDbContext.Cafes.Add(cafe);
             appDbContext.Employees.Add(employee);
@@ -143,7 +146,8 @@ namespace Tests.DataAccess
         [Fact]
         public void UpdateEmployee_Test()
         {
-            Employee employee = ScenarioHelper.CreateEmployee("John Doe", "john.doe@happycafe.com", "+1234567890", Gender.Male);
+            string uniqueEmail = $"update.test.{Guid.NewGuid()}@happycafe.com";
+            Employee employee = ScenarioHelper.CreateEmployee("John Doe", uniqueEmail, "81234567", Gender.Male);
 
             appDbContext.Employees.Add(employee);
             appDbContext.SaveChanges();
@@ -155,10 +159,11 @@ namespace Tests.DataAccess
             Assert.NotNull(retrievedEmployee);
             Assert.Equal("John Doe", retrievedEmployee!.Name);
 
+            string updatedUniqueEmail = $"jane.smith.{Guid.NewGuid()}@happycafe.com";
             retrievedEmployee.Update(
                 "Jane Smith",
-                "jane.smith@happycafe.com",
-                "+098765432",
+                updatedUniqueEmail,
+                "99876543",
                 Gender.Female
             );
 
@@ -170,15 +175,16 @@ namespace Tests.DataAccess
             Employee? updatedEmployee = appDbContext.Employees.Find(employee.Id);
             Assert.NotNull(updatedEmployee);
             Assert.Equal("Jane Smith", updatedEmployee!.Name);
-            Assert.Equal("jane.smith@happycafe.com", updatedEmployee.EmailAddress);
-            Assert.Equal("+098765432", updatedEmployee.Phone);
+            Assert.Equal(updatedUniqueEmail, updatedEmployee.EmailAddress);
+            Assert.Equal("99876543", updatedEmployee.Phone);
             Assert.Equal(Gender.Female, updatedEmployee.Gender);               
         }
 
         [Fact]
         public void DeleteEmployee_Test()
         {
-            Employee employee = ScenarioHelper.CreateEmployee("John Doe", "john.doe@happycafe.com", "+1234567890", Gender.Male);
+            string uniqueEmail = $"delete.test.{Guid.NewGuid()}@happycafe.com";
+            Employee employee = ScenarioHelper.CreateEmployee("John Doe", uniqueEmail, "88889999", Gender.Male);
 
             appDbContext.Employees.Add(employee);
             appDbContext.SaveChanges();
@@ -202,8 +208,12 @@ namespace Tests.DataAccess
         public void DeleteCafeShouldCascadeDeleteEmployeeCafeRelationships_Test()
         {
             Cafe cafe = ScenarioHelper.CreateCafe("Cascade Test Cafe", "Testing cascade delete", "logo.png", "Test Location");
-            Employee employee1 = ScenarioHelper.CreateEmployee("Jane Smith", "jane.smith@example.com", "+0987654321", Gender.Female);
-            Employee employee2 = ScenarioHelper.CreateEmployee("John Doe", "john.doe@example.com", "+1234567890", Gender.Male);
+            
+            string uniqueEmail1 = $"cascade.jane.{Guid.NewGuid()}@example.com";
+            string uniqueEmail2 = $"cascade.john.{Guid.NewGuid()}@example.com";
+            
+            Employee employee1 = ScenarioHelper.CreateEmployee("Jane Smith", uniqueEmail1, "98765432", Gender.Female);
+            Employee employee2 = ScenarioHelper.CreateEmployee("John Doe", uniqueEmail2, "87654321", Gender.Male);
 
             appDbContext.Cafes.Add(cafe);
             appDbContext.Employees.Add(employee1);
@@ -236,7 +246,9 @@ namespace Tests.DataAccess
         public void DeleteEmployeeShouldCascadeDeleteEmployeeCafeRelationships_Test()
         {
             Cafe cafe = ScenarioHelper.CreateCafe("Cascade Test Cafe", "Testing cascade delete", "logo.png", "Test Location");
-            Employee employee = ScenarioHelper.CreateEmployee("Jane Smith", "jane.smith@happycafe.com", "+098765432", Gender.Female);
+            
+            string uniqueEmail = $"cascade.test.{Guid.NewGuid()}@happycafe.com";
+            Employee employee = ScenarioHelper.CreateEmployee("Jane Smith", uniqueEmail, "81122334", Gender.Female);
 
             appDbContext.Cafes.Add(cafe);
 

@@ -137,26 +137,6 @@ namespace Tests.Resource
         }
 
         [Fact]
-        public async Task DeleteAsync_WithActiveAssignments_ShouldReturnFalse_Test()
-        {
-            Cafe cafe = await resource.CreateAsync("Coffee House", "Description", "logo.png", "Location");
-            
-            Employee employee = new Employee("EMP123", "John Doe", "john@example.com", "1234567890", Gender.Male);
-            context.Employees.Add(employee);
-            
-            EmployeeCafe employeeCafe = new EmployeeCafe(Guid.NewGuid(), cafe.Id, employee.Id, DateTime.UtcNow);
-            context.EmployeeCafes.Add(employeeCafe);
-            await context.SaveChangesAsync();
-            
-            bool result = await resource.DeleteAsync(cafe.Id);
-            
-            Assert.False(result);
-            
-            Cafe? existingCafe = await context.Cafes.FindAsync(cafe.Id);
-            Assert.NotNull(existingCafe);
-        }
-
-        [Fact]
         public async Task GetByEmployeeIdAsync_ShouldReturnCafesAssignedToEmployee_Test()
         {
             Cafe cafe1 = await resource.CreateAsync("Coffee House", "Description 1", "logo1.png", "Location 1");
@@ -164,7 +144,7 @@ namespace Tests.Resource
             Cafe cafe3 = await resource.CreateAsync("Juice Bar", "Description 3", "logo3.png", "Location 3");
             
             string eeID = UniqueIdGenerator.GenerateUniqueId();
-            Employee employee = new Employee(eeID, "John Doe", "john@example.com", "1234567890", Gender.Male);
+            Employee employee = new Employee(eeID, "John Doe", "john@example.com", "89876543", Gender.Male);
             context.Employees.Add(employee);
             
             context.EmployeeCafes.Add(new EmployeeCafe(Guid.NewGuid(), cafe1.Id, employee.Id, DateTime.UtcNow));

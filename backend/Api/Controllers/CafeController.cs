@@ -4,6 +4,7 @@ using Service.Commands.Cafes;
 using Service.Interfaces;
 using Service.Queries.Cafes;
 using Service.Queries.EmployeeCafes;
+using Infrastructure.FileManagement;
 
 namespace Api.Controllers
 {
@@ -13,11 +14,16 @@ namespace Api.Controllers
     {
         private readonly ICafeService cafeService;
         private readonly IEmployeeCafeService employeeCafeService;
+        private readonly IFileService fileService;
 
-        public CafesController(ICafeService cafeService, IEmployeeCafeService employeeCafeService)
+        public CafesController(
+            ICafeService cafeService, 
+            IEmployeeCafeService employeeCafeService,
+            IFileService fileService)
         {
             this.cafeService = cafeService;
             this.employeeCafeService = employeeCafeService;
+            this.fileService = fileService;
         }
 
         [HttpGet]
@@ -58,7 +64,7 @@ namespace Api.Controllers
 
         [HttpPost]
         [Route("~/cafe")]
-        public async Task<ActionResult<CafeResponseModel>> CreateCafe([FromBody] CreateCafeModel model)
+        public async Task<ActionResult<CafeResponseModel>> CreateCafe([FromForm] CreateCafeModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -97,9 +103,37 @@ namespace Api.Controllers
             });
         }
 
+        [HttpGet]
+        [Route("cafe")]
+        public async Task<ActionResult<CafeDetailResponseModel>> GetCafeById([FromQuery] Guid id)
+        {
+            CafeDto? cafeDto = await cafeService.GetByIdAsync(id);
+            
+            if (cafeDto == null)
+            {
+                return NotFound($"Cafe with ID {id} not found");
+            }
+
+            IEnumerable<EmployeeCafeDto> employeeCafes = await employeeCafeService.GetByCafeIdAsync(id);
+            int employeeCount = employeeCafes.Count();
+
+            CafeDetailResponseModel response = new CafeDetailResponseModel
+            {
+                Id = cafeDto.Id,
+                Name = cafeDto.Name,
+                Description = cafeDto.Description,
+                Location = cafeDto.Location,
+                Logo = cafeDto.Logo,
+                Employees = employeeCount
+            };
+
+            return Ok(response);
+        }
+
         [HttpPut]
         [Route("~/cafe")]
-        public async Task<ActionResult<CafeResponseModel>> UpdateCafe([FromBody] UpdateCafeModel model)
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<CafeResponseModel>> UpdateCafe([FromForm] UpdateCafeModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -150,11 +184,25 @@ namespace Api.Controllers
                 return BadRequest(ModelState);
             }
 
+            CafeDto? cafeDto = await cafeService.GetByIdAsync(model.Id);
+            
+            if (cafeDto == null)
+            {
+                return NotFound($"Cafe with ID {model.Id} not found");
+            }
+
+            string? logoFileName = cafeDto.Logo;
+
             bool result = await cafeService.DeleteAsync(model.Id);
 
             if (!result)
             {
-                return NotFound($"Cafe with ID {model.Id} not found");
+                return StatusCode(500, "An error occurred while attempting to delete the cafe");
+            }
+
+            if (!string.IsNullOrWhiteSpace(logoFileName))
+            {
+                fileService.DeleteLogo(logoFileName);
             }
 
             return NoContent();

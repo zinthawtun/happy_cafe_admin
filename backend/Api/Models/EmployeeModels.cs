@@ -5,13 +5,17 @@ namespace Api.Models
     public class CreateEmployeeModel
     {
         [Required]
+        [StringLength(100)]
         public string Name { get; set; } = string.Empty;
 
         [Required]
+        [StringLength(150)]
         [EmailAddress]
+        [RegularExpression(@"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$", ErrorMessage = "Invalid email address format")]
         public string EmailAddress { get; set; } = string.Empty;
 
         [Required]
+        [RegularExpression(@"^[89]\d{7}$", ErrorMessage = "Phone number must start with 8 or 9 and have exactly 8 digits")]
         public string Phone { get; set; } = string.Empty;
 
         [Required]
@@ -26,13 +30,17 @@ namespace Api.Models
         public string Id { get; set; } = string.Empty;
 
         [Required]
+        [StringLength(100)]
         public string Name { get; set; } = string.Empty;
 
         [Required]
+        [StringLength(150)]
         [EmailAddress]
         public string EmailAddress { get; set; } = string.Empty;
 
         [Required]
+        [StringLength(8)]
+        [RegularExpression(@"^[89]\d{7}$", ErrorMessage = "Phone number must start with 8 or 9 and have exactly 8 digits")]
         public string Phone { get; set; } = string.Empty;
 
         [Required]

@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250320155420_SeedData")]
+    [Migration("20250322195628_SeedData")]
     partial class SeedData
     {
         /// <inheritdoc />
@@ -58,6 +58,10 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("Id")
                         .IsUnique();
+
+                    b.HasIndex("Location");
+
+                    b.HasIndex("Name");
 
                     b.ToTable("Cafes");
 
@@ -108,16 +112,26 @@ namespace DataAccess.Migrations
 
                     b.Property<string>("Phone")
                         .IsRequired()
-                        .HasMaxLength(15)
-                        .HasColumnType("character varying(15)")
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)")
                         .HasColumnName("Phone");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("EmailAddress")
+                        .IsUnique();
+
                     b.HasIndex("Id")
                         .IsUnique();
 
-                    b.ToTable("Employees");
+                    b.HasIndex("Phone");
+
+                    b.ToTable("Employees", t =>
+                        {
+                            t.HasCheckConstraint("CK_Employee_EmailAddress_Format", "\"EmailAddress\" ~ '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$'");
+
+                            t.HasCheckConstraint("CK_Employee_Phone", "\"Phone\" ~ '^[89]\\d{7}$'");
+                        });
 
                     b.HasAnnotation("ConstructorBinding", new[] { "id", "name", "emailAddress", "phone", "gender" });
 
@@ -128,7 +142,7 @@ namespace DataAccess.Migrations
                             EmailAddress = "john.doe@example.com",
                             Gender = "Male",
                             Name = "John Doe",
-                            Phone = "1234567890"
+                            Phone = "89123456"
                         },
                         new
                         {
@@ -136,7 +150,7 @@ namespace DataAccess.Migrations
                             EmailAddress = "jane.smith@example.com",
                             Gender = "Female",
                             Name = "Jane Smith",
-                            Phone = "0987654321"
+                            Phone = "98123456"
                         });
                 });
 
@@ -168,8 +182,7 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("CafeId");
 
-                    b.HasIndex("EmployeeId")
-                        .IsUnique();
+                    b.HasIndex("EmployeeId");
 
                     b.ToTable("EmployeeCafes");
 

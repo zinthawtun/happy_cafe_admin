@@ -81,15 +81,10 @@ namespace Resource
             if (cafe == null)
                 return false;
 
-            
-            bool hasActiveEmployees = await dbContext.EmployeeCafes
-                .AnyAsync(ec => ec.CafeId == id && ec.IsActive);
-                
-            if (hasActiveEmployees)
-                return false;
-
             dbContext.Cafes.Remove(cafe);
+
             await dbContext.SaveChangesAsync();
+            
             return true;
         }
 

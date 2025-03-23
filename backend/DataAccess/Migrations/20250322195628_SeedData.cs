@@ -35,12 +35,14 @@ namespace DataAccess.Migrations
                     Id = table.Column<string>(type: "text", nullable: false),
                     Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     EmailAddress = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
-                    Phone = table.Column<string>(type: "character varying(15)", maxLength: 15, nullable: false),
+                    Phone = table.Column<string>(type: "character varying(8)", maxLength: 8, nullable: false),
                     Gender = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Employees", x => x.Id);
+                    table.CheckConstraint("CK_Employee_EmailAddress_Format", "\"EmailAddress\" ~ '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$'");
+                    table.CheckConstraint("CK_Employee_Phone", "\"Phone\" ~ '^[89]\\d{7}$'");
                 });
 
             migrationBuilder.CreateTable(
@@ -84,8 +86,8 @@ namespace DataAccess.Migrations
                 columns: new[] { "Id", "EmailAddress", "Gender", "Name", "Phone" },
                 values: new object[,]
                 {
-                    { "UIPN5FP4O", "john.doe@example.com", "Male", "John Doe", "1234567890" },
-                    { "UIY7AU2LA", "jane.smith@example.com", "Female", "Jane Smith", "0987654321" }
+                    { "UIPN5FP4O", "john.doe@example.com", "Male", "John Doe", "89123456" },
+                    { "UIY7AU2LA", "jane.smith@example.com", "Female", "Jane Smith", "98123456" }
                 });
 
             migrationBuilder.InsertData(
@@ -104,6 +106,16 @@ namespace DataAccess.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Cafes_Location",
+                table: "Cafes",
+                column: "Location");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Cafes_Name",
+                table: "Cafes",
+                column: "Name");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_EmployeeCafes_CafeId",
                 table: "EmployeeCafes",
                 column: "CafeId");
@@ -111,7 +123,12 @@ namespace DataAccess.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_EmployeeCafes_EmployeeId",
                 table: "EmployeeCafes",
-                column: "EmployeeId",
+                column: "EmployeeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Employees_EmailAddress",
+                table: "Employees",
+                column: "EmailAddress",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -119,6 +136,11 @@ namespace DataAccess.Migrations
                 table: "Employees",
                 column: "Id",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Employees_Phone",
+                table: "Employees",
+                column: "Phone");
         }
 
         /// <inheritdoc />

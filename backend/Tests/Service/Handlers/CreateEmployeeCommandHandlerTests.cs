@@ -28,7 +28,7 @@ namespace Tests.Service.Handlers
             {
                 Name = "Test Employee",
                 EmailAddress = "test@example.com",
-                Phone = "1234567890",
+                Phone = "89123456",
                 Gender = Gender.Male
             };
 

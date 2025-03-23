@@ -11,6 +11,10 @@ namespace DataAccess.Configuration
             builder.HasKey(c => c.Id);
 
             builder.HasIndex(c => c.Id).IsUnique();
+            
+            builder.HasIndex(c => c.Location);
+            
+            builder.HasIndex(c => c.Name);
 
             builder.Property(c => c.Id)
                 .IsRequired()
