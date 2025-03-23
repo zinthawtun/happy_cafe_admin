@@ -81,11 +81,18 @@ namespace Api.Controllers
                 return BadRequest(ModelState);
             }
 
-            bool employeeExists = await employeeService.ExistsWithEmailOrPhoneAsync(model.EmailAddress, model.Phone);
+            bool emailExists = await employeeService.ExistsWithEmailOrPhoneAsync(model.EmailAddress, string.Empty);
             
-            if (employeeExists)
+            if (emailExists)
             {
-                return BadRequest("An employee with the same email address or phone number already exists.");
+                return BadRequest("The email address is already in use by another employee.");
+            }
+
+            bool phoneExists = await employeeService.ExistsWithEmailOrPhoneAsync(string.Empty, model.Phone);
+
+            if (phoneExists)
+            {
+                return BadRequest("The phone number is already in use by another employee.");
             }
 
             if (model.CafeId.HasValue)
@@ -198,6 +205,24 @@ namespace Api.Controllers
                 return NotFound($"Employee with ID {model.Id} not found");
             }
 
+            if (existingEmployee.EmailAddress.ToLower() != model.EmailAddress.ToLower())
+            {
+                bool emailExists = await employeeService.ExistsWithEmailOrPhoneAsync(model.EmailAddress, string.Empty);
+                if (emailExists)
+                {
+                    return BadRequest("The email address is already in use by another employee.");
+                }
+            }
+
+            if (existingEmployee.Phone != model.Phone)
+            {
+                bool phoneExists = await employeeService.ExistsWithEmailOrPhoneAsync(string.Empty, model.Phone);
+                if (phoneExists)
+                {
+                    return BadRequest("The phone number is already in use by another employee.");
+                }
+            }
+            
             if (model.CafeId.HasValue)
             {
                 CafeDto? cafe = await cafeService.GetByIdAsync(model.CafeId.Value);
