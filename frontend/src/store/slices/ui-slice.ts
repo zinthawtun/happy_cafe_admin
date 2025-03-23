@@ -1,17 +1,17 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import { UIState, DialogType } from '@types';
+import { UIState, DialogType } from "@types";
 
 const initialState: UIState = {
   notifications: {
     open: false,
-    message: '',
-    type: 'info',
+    message: "",
+    type: "info",
   },
   confirmDialog: {
     open: false,
-    title: '',
-    message: '',
+    title: "",
+    message: "",
     dialogType: null,
     entityId: null,
     entityName: null,
@@ -20,14 +20,14 @@ const initialState: UIState = {
 };
 
 const uiSlice = createSlice({
-  name: 'ui',
+  name: "ui",
   initialState,
   reducers: {
     showNotification: (
       state,
       action: PayloadAction<{
         message: string;
-        type: 'success' | 'error' | 'info' | 'warning';
+        type: "success" | "error" | "info" | "warning";
       }>
     ) => {
       state.notifications = {
@@ -78,4 +78,4 @@ export const {
   setFormDirty,
 } = uiSlice.actions;
 
-export default uiSlice.reducer; 
+export default uiSlice.reducer;

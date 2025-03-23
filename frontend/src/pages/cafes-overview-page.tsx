@@ -1,5 +1,5 @@
-import { useEffect, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -18,58 +18,67 @@ import {
   Grid,
   Avatar,
   CircularProgress,
-} from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import PeopleIcon from '@mui/icons-material/People';
+} from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import PeopleIcon from "@mui/icons-material/People";
 
-import { RootState, useAppDispatch, useAppSelector } from '@store/index';
-import { fetchCafes, setPage, setLimit } from '@/store/slices/cafe-slice';
-import { showConfirmDialog} from '@/store/slices/ui-slice';
-import { getLogoUrl as getApiLogoUrl } from '@services/api-service';
+import { RootState, useAppDispatch, useAppSelector } from "@store/index";
+import { fetchCafes, setPage, setLimit } from "@/store/slices/cafe-slice";
+import { showConfirmDialog } from "@/store/slices/ui-slice";
+import { getLogoUrl as getApiLogoUrl } from "@services/api-service";
 
-import { DialogType, LogoCache } from '@/types';
+import { DialogType, LogoCache } from "@/types";
 
 const CafeOverViewPage = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { list: cafes, loading, pagination } = useAppSelector((state: RootState) => state.cafes);
-  const [locationFilter, setLocationFilter] = useState('');
+  const {
+    list: cafes,
+    loading,
+    pagination,
+  } = useAppSelector((state: RootState) => state.cafes);
+  const [locationFilter, setLocationFilter] = useState("");
   const [logoCache, setLogoCache] = useState<LogoCache>({});
 
   const preloadLogos = useCallback(async () => {
     if (!cafes || cafes.length === 0) return;
 
     const newCache: LogoCache = {};
-    
+
     const logoFilenames = cafes
-      .filter(cafe => cafe.logo)
-      .map(cafe => cafe.logo as string);
-    
+      .filter((cafe) => cafe.logo)
+      .map((cafe) => cafe.logo as string);
+
     try {
       await Promise.all(
         logoFilenames.map(async (filename) => {
           try {
             const url = getApiLogoUrl(filename);
-            
+
             const response = await fetch(url);
             if (response.ok) {
               const blob = await response.blob();
               const dataUrl = URL.createObjectURL(blob);
               newCache[filename] = dataUrl;
             } else {
-              console.error('Failed to load logo:', filename, 'Status:', response.status);
+              console.error(
+                "Failed to load logo:",
+                filename,
+                "Status:",
+                response.status
+              );
             }
           } catch (error) {
             console.error(`Error loading logo ${filename}:`, error);
           }
         })
       );
-      
+
       setLogoCache(newCache);
     } catch (error) {
-      console.error('Error preloading logos:', error);
+      console.error("Error preloading logos:", error);
     }
   }, [cafes]);
 
@@ -79,11 +88,13 @@ const CafeOverViewPage = () => {
   };
 
   const fetchCafesData = useCallback(() => {
-    dispatch(fetchCafes({
-      location: locationFilter.trim() || undefined, 
-      page: pagination.page,
-      limit: pagination.limit
-    }));
+    dispatch(
+      fetchCafes({
+        location: locationFilter.trim() || undefined,
+        page: pagination.page,
+        limit: pagination.limit,
+      })
+    );
   }, [dispatch, locationFilter, pagination.page, pagination.limit]);
 
   useEffect(() => {
@@ -96,23 +107,27 @@ const CafeOverViewPage = () => {
     }
   }, [cafes, preloadLogos]);
 
-  const handleLocationFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLocationFilterChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setLocationFilter(event.target.value);
   };
 
   const handleFilterSubmit = () => {
-    dispatch(fetchCafes({
-      location: locationFilter.trim() || undefined,
-      page: 0,
-      limit: pagination.limit
-    })).then(() => {
+    dispatch(
+      fetchCafes({
+        location: locationFilter.trim() || undefined,
+        page: 0,
+        limit: pagination.limit,
+      })
+    ).then(() => {
       setLogoCache({});
       dispatch(setPage(0));
     });
   };
 
   const handleAddCafe = () => {
-    navigate('/cafes/new');
+    navigate("/cafes/new");
   };
 
   const handleEditCafe = (id: string) => {
@@ -126,7 +141,7 @@ const CafeOverViewPage = () => {
   const handleDeleteCafe = (id: string, name: string) => {
     dispatch(
       showConfirmDialog({
-        title: 'Delete Cafe',
+        title: "Delete Cafe",
         message: `Are you sure you want to delete "${name}"? This action cannot be undone.`,
         dialogType: DialogType.DELETE_CAFE,
         entityId: id,
@@ -135,18 +150,29 @@ const CafeOverViewPage = () => {
     );
   };
 
-  const handleChangePage = (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+  const handleChangePage = (
+    _event: React.MouseEvent<HTMLButtonElement> | null,
+    newPage: number
+  ) => {
     dispatch(setPage(newPage));
   };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     dispatch(setLimit(parseInt(event.target.value, 10)));
     dispatch(setPage(0));
   };
 
   return (
     <Box>
-      <Grid container justifyContent="space-between" alignItems="center" spacing={2} sx={{ mb: 3 }}>
+      <Grid
+        container
+        justifyContent="space-between"
+        alignItems="center"
+        spacing={2}
+        sx={{ mb: 3 }}
+      >
         <Grid item>
           <Typography variant="h4" component="h1" gutterBottom>
             Cafes
@@ -177,7 +203,7 @@ const CafeOverViewPage = () => {
               ),
             }}
             onKeyPress={(e) => {
-              if (e.key === 'Enter') {
+              if (e.key === "Enter") {
                 handleFilterSubmit();
               }
             }}
@@ -190,41 +216,71 @@ const CafeOverViewPage = () => {
           <CircularProgress />
         </Box>
       ) : cafes && cafes.length > 0 ? (
-        <Paper 
-          elevation={0} 
-          sx={{ 
-            width: '100%', 
+        <Paper
+          elevation={0}
+          sx={{
+            width: "100%",
             borderRadius: 2,
-            overflow: 'hidden',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
+            overflow: "hidden",
+            boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
           }}
         >
-          <TableContainer sx={{ maxHeight: 'calc(100vh - 300px)' }}>
-            <Table stickyHeader sx={{ minWidth: '100%' }}>
+          <TableContainer sx={{ maxHeight: "calc(100vh - 300px)" }}>
+            <Table stickyHeader sx={{ minWidth: "100%" }}>
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 'bold', bgcolor: 'background.paper' }}>Logo</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', bgcolor: 'background.paper' }}>Name</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', bgcolor: 'background.paper' }}>Description</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', bgcolor: 'background.paper' }}>Location</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', bgcolor: 'background.paper' }}>Employees</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', bgcolor: 'background.paper' }} align="right">Actions</TableCell>
+                  <TableCell
+                    sx={{ fontWeight: "bold", bgcolor: "background.paper" }}
+                  >
+                    Logo
+                  </TableCell>
+                  <TableCell
+                    sx={{ fontWeight: "bold", bgcolor: "background.paper" }}
+                  >
+                    Name
+                  </TableCell>
+                  <TableCell
+                    sx={{ fontWeight: "bold", bgcolor: "background.paper" }}
+                  >
+                    Description
+                  </TableCell>
+                  <TableCell
+                    sx={{ fontWeight: "bold", bgcolor: "background.paper" }}
+                  >
+                    Location
+                  </TableCell>
+                  <TableCell
+                    sx={{ fontWeight: "bold", bgcolor: "background.paper" }}
+                  >
+                    Employees
+                  </TableCell>
+                  <TableCell
+                    sx={{ fontWeight: "bold", bgcolor: "background.paper" }}
+                    align="right"
+                  >
+                    Actions
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {cafes.map((cafe) => (
                   <TableRow key={cafe.id} hover>
                     <TableCell>
-                    {cafe.logo ? (
-                      <Avatar
-                        src={getLogoUrl(cafe.logo)}
-                        alt={cafe.name}
-                        variant="rounded"
-                        sx={{ width: 40, height: 40 }}
-                      />
-                    ) : (
-                      <Avatar sx={{ width: 40, height: 40 }} variant="rounded">{cafe.name[0]}</Avatar>
-                    )}
+                      {cafe.logo ? (
+                        <Avatar
+                          src={getLogoUrl(cafe.logo)}
+                          alt={cafe.name}
+                          variant="rounded"
+                          sx={{ width: 40, height: 40 }}
+                        />
+                      ) : (
+                        <Avatar
+                          sx={{ width: 40, height: 40 }}
+                          variant="rounded"
+                        >
+                          {cafe.name[0]}
+                        </Avatar>
+                      )}
                     </TableCell>
                     <TableCell>{cafe.name}</TableCell>
                     <TableCell>{cafe.description}</TableCell>
@@ -277,10 +333,10 @@ const CafeOverViewPage = () => {
         <Paper
           sx={{
             p: 4,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            textAlign: 'center',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            textAlign: "center",
             borderRadius: 2,
           }}
         >
@@ -289,8 +345,8 @@ const CafeOverViewPage = () => {
           </Typography>
           <Typography variant="body1" color="textSecondary" paragraph>
             {locationFilter
-              ? 'No cafes found with the specified location filter.'
-              : 'There are no cafes in the system yet. Add your first cafe!'}
+              ? "No cafes found with the specified location filter."
+              : "There are no cafes in the system yet. Add your first cafe!"}
           </Typography>
           <Button
             variant="contained"
@@ -306,4 +362,4 @@ const CafeOverViewPage = () => {
   );
 };
 
-export default CafeOverViewPage; 
+export default CafeOverViewPage;

@@ -1,27 +1,26 @@
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useState } from "react";
 
-import { Button, Typography, Box, FormHelperText } from '@mui/material';
-import UploadFileIcon from '@mui/icons-material/UploadFile';
+import { Button, Typography, Box, FormHelperText } from "@mui/material";
+import UploadFileIcon from "@mui/icons-material/UploadFile";
 
-import { FormFileUploadProps } from '@/types';
+import { FormFileUploadProps } from "@/types";
 
 const FormFileUpload = ({
   name,
   label,
   accept,
-  maxSize = 2 * 1024 * 1024, 
+  maxSize = 2 * 1024 * 1024,
   onChange,
   error = false,
-  helperText = '',
+  helperText = "",
   previewUrl,
 }: FormFileUploadProps) => {
   const [preview, setPreview] = useState<string | undefined>(previewUrl);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
-    
-    if (file) {
 
+    if (file) {
       if (file.size > maxSize) {
         onChange(null);
         return;
@@ -46,7 +45,7 @@ const FormFileUpload = ({
       </Typography>
       <input
         accept={accept}
-        style={{ display: 'none' }}
+        style={{ display: "none" }}
         id={name}
         type="file"
         onChange={handleFileChange}
@@ -56,20 +55,20 @@ const FormFileUpload = ({
           variant="contained"
           component="span"
           startIcon={<UploadFileIcon />}
-          color={error ? 'error' : 'primary'}
+          color={error ? "error" : "primary"}
         >
           Upload
         </Button>
       </label>
       {error && <FormHelperText error>{helperText}</FormHelperText>}
-      
+
       {preview && (
-        <Box sx={{ mt: 2, maxWidth: '200px' }}>
-          <img src={preview} alt="Preview" style={{ maxWidth: '100%' }} />
+        <Box sx={{ mt: 2, maxWidth: "200px" }}>
+          <img src={preview} alt="Preview" style={{ maxWidth: "100%" }} />
         </Box>
       )}
     </Box>
   );
 };
 
-export default FormFileUpload; 
+export default FormFileUpload;

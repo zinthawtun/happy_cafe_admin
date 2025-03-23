@@ -1,8 +1,8 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 
-import { Employee, EmployeeFormData, EmployeeState } from '@types';
+import { Employee, EmployeeFormData, EmployeeState } from "@types";
 
-import * as api from '@services/api-service';
+import * as api from "@services/api-service";
 
 const initialState: EmployeeState = {
   list: [],
@@ -12,70 +12,78 @@ const initialState: EmployeeState = {
   pagination: {
     page: 0,
     limit: 10,
-    total: 0
-  }
+    total: 0,
+  },
 };
 
 export const fetchEmployees = createAsyncThunk(
-  'employees/fetchEmployees',
-  async (params: { cafe?: string, page?: number, limit?: number } | undefined, { rejectWithValue }) => {
+  "employees/fetchEmployees",
+  async (
+    params: { cafe?: string; page?: number; limit?: number } | undefined,
+    { rejectWithValue }
+  ) => {
     try {
       return await api.getEmployees(params);
     } catch {
-      return rejectWithValue('Failed to fetch employees');
+      return rejectWithValue("Failed to fetch employees");
     }
   }
 );
 
 export const fetchEmployeeById = createAsyncThunk(
-  'employees/fetchEmployeeById',
+  "employees/fetchEmployeeById",
   async (id: string, { rejectWithValue }) => {
     try {
       return await api.getEmployeeById(id);
     } catch {
-      return rejectWithValue('Failed to fetch employee details');
+      return rejectWithValue("Failed to fetch employee details");
     }
   }
 );
 
 export const createEmployee = createAsyncThunk(
-  'employees/createEmployee',
+  "employees/createEmployee",
   async (employeeData: EmployeeFormData, { rejectWithValue }) => {
     try {
       return await api.createEmployee(employeeData);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to create employee';
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to create employee";
       return rejectWithValue(errorMessage);
     }
   }
 );
 
 export const updateEmployee = createAsyncThunk(
-  'employees/updateEmployee',
-  async ({ id, data }: { id: string; data: EmployeeFormData }, { rejectWithValue }) => {
+  "employees/updateEmployee",
+  async (
+    { id, data }: { id: string; data: EmployeeFormData },
+    { rejectWithValue }
+  ) => {
     try {
       return await api.updateEmployee(id, data);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to update employee';
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to update employee";
       return rejectWithValue(errorMessage);
     }
   }
 );
 
 export const deleteEmployee = createAsyncThunk(
-  'employees/deleteEmployee',
+  "employees/deleteEmployee",
   async (id: string, { rejectWithValue }) => {
     try {
       await api.deleteEmployee(id);
       return id;
     } catch {
-      return rejectWithValue('Failed to delete employee');
+      return rejectWithValue("Failed to delete employee");
     }
   }
 );
 
 const employeeSlice = createSlice({
-  name: 'employees',
+  name: "employees",
   initialState,
   reducers: {
     setEmployees: (state, action: PayloadAction<Employee[]>) => {
@@ -151,8 +159,13 @@ const employeeSlice = createSlice({
       })
       .addCase(deleteEmployee.fulfilled, (state, action) => {
         state.loading = false;
-        state.list = state.list.filter((employee) => employee.id !== action.payload);
-        if (state.selectedEmployee && state.selectedEmployee.id === action.payload) {
+        state.list = state.list.filter(
+          (employee) => employee.id !== action.payload
+        );
+        if (
+          state.selectedEmployee &&
+          state.selectedEmployee.id === action.payload
+        ) {
           state.selectedEmployee = null;
         }
       })
@@ -163,5 +176,6 @@ const employeeSlice = createSlice({
   },
 });
 
-export const { setEmployees, clearSelectedEmployee, setPage, setLimit } = employeeSlice.actions;
-export default employeeSlice.reducer; 
+export const { setEmployees, clearSelectedEmployee, setPage, setLimit } =
+  employeeSlice.actions;
+export default employeeSlice.reducer;

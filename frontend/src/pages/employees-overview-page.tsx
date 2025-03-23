@@ -1,5 +1,5 @@
-import { useEffect, useCallback } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useEffect, useCallback } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -16,31 +16,41 @@ import {
   Grid,
   Chip,
   CircularProgress,
-} from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+} from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
-import { RootState, useAppDispatch, useAppSelector } from '@store/index';
-import { fetchEmployees, setPage, setLimit } from '@/store/slices/employee-slice';
-import { showConfirmDialog } from '@/store/slices/ui-slice';
+import { RootState, useAppDispatch, useAppSelector } from "@store/index";
+import {
+  fetchEmployees,
+  setPage,
+  setLimit,
+} from "@/store/slices/employee-slice";
+import { showConfirmDialog } from "@/store/slices/ui-slice";
 
-import { DialogType } from '@/types';
+import { DialogType } from "@/types";
 
 const Employees = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [searchParams] = useSearchParams();
-  const cafeId = searchParams.get('cafe');
-  
-  const { list: employees, loading, pagination } = useAppSelector((state: RootState) => state.employees);
+  const cafeId = searchParams.get("cafe");
+
+  const {
+    list: employees,
+    loading,
+    pagination,
+  } = useAppSelector((state: RootState) => state.employees);
 
   const fetchEmployeesData = useCallback(() => {
-    dispatch(fetchEmployees({
-      cafe: cafeId || undefined,
-      page: pagination.page,
-      limit: pagination.limit
-    }));
+    dispatch(
+      fetchEmployees({
+        cafe: cafeId || undefined,
+        page: pagination.page,
+        limit: pagination.limit,
+      })
+    );
   }, [dispatch, cafeId, pagination.page, pagination.limit]);
 
   useEffect(() => {
@@ -48,7 +58,7 @@ const Employees = () => {
   }, [fetchEmployeesData]);
 
   const handleAddEmployee = () => {
-    navigate('/employees/new');
+    navigate("/employees/new");
   };
 
   const handleEditEmployee = (id: string) => {
@@ -58,7 +68,7 @@ const Employees = () => {
   const handleDeleteEmployee = (id: string, name: string) => {
     dispatch(
       showConfirmDialog({
-        title: 'Delete Employee',
+        title: "Delete Employee",
         message: `Are you sure you want to delete "${name}"? This action cannot be undone.`,
         dialogType: DialogType.DELETE_EMPLOYEE,
         entityId: id,
@@ -67,24 +77,35 @@ const Employees = () => {
     );
   };
 
-  const handleChangePage = (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+  const handleChangePage = (
+    _event: React.MouseEvent<HTMLButtonElement> | null,
+    newPage: number
+  ) => {
     dispatch(setPage(newPage));
   };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     dispatch(setLimit(parseInt(event.target.value, 10)));
     dispatch(setPage(0));
   };
 
   return (
     <Box>
-      <Grid container justifyContent="space-between" alignItems="center" spacing={2} sx={{ mb: 3 }}>
+      <Grid
+        container
+        justifyContent="space-between"
+        alignItems="center"
+        spacing={2}
+        sx={{ mb: 3 }}
+      >
         <Grid item>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
             {cafeId && (
               <IconButton
                 color="primary"
-                onClick={() => navigate('/cafes')}
+                onClick={() => navigate("/cafes")}
                 sx={{ mr: 1 }}
                 aria-label="back to cafes"
               >
@@ -92,12 +113,16 @@ const Employees = () => {
               </IconButton>
             )}
             <Typography variant="h4" component="h1" gutterBottom>
-              {cafeId ? 'Cafe Employees' : 'All Employees'}
+              {cafeId ? "Cafe Employees" : "All Employees"}
             </Typography>
           </Box>
         </Grid>
         <Grid item>
-          <Button variant="contained" color="primary" onClick={handleAddEmployee}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleAddEmployee}
+          >
             Add New Employee
           </Button>
         </Grid>
@@ -108,26 +133,55 @@ const Employees = () => {
           <CircularProgress />
         </Box>
       ) : employees && employees.length > 0 ? (
-        <Paper 
-          elevation={0} 
-          sx={{ 
-            width: '100%', 
+        <Paper
+          elevation={0}
+          sx={{
+            width: "100%",
             borderRadius: 2,
-            overflow: 'hidden',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
+            overflow: "hidden",
+            boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
           }}
         >
-          <TableContainer sx={{ maxHeight: 'calc(100vh - 300px)' }}>
-            <Table stickyHeader sx={{ minWidth: '100%' }}>
+          <TableContainer sx={{ maxHeight: "calc(100vh - 300px)" }}>
+            <Table stickyHeader sx={{ minWidth: "100%" }}>
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 'bold', bgcolor: 'background.paper' }}>ID</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', bgcolor: 'background.paper' }}>Name</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', bgcolor: 'background.paper' }}>Email</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', bgcolor: 'background.paper' }}>Phone</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', bgcolor: 'background.paper' }}>Days Worked</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', bgcolor: 'background.paper' }}>Café</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', bgcolor: 'background.paper' }} align="right">Actions</TableCell>
+                  <TableCell
+                    sx={{ fontWeight: "bold", bgcolor: "background.paper" }}
+                  >
+                    ID
+                  </TableCell>
+                  <TableCell
+                    sx={{ fontWeight: "bold", bgcolor: "background.paper" }}
+                  >
+                    Name
+                  </TableCell>
+                  <TableCell
+                    sx={{ fontWeight: "bold", bgcolor: "background.paper" }}
+                  >
+                    Email
+                  </TableCell>
+                  <TableCell
+                    sx={{ fontWeight: "bold", bgcolor: "background.paper" }}
+                  >
+                    Phone
+                  </TableCell>
+                  <TableCell
+                    sx={{ fontWeight: "bold", bgcolor: "background.paper" }}
+                  >
+                    Days Worked
+                  </TableCell>
+                  <TableCell
+                    sx={{ fontWeight: "bold", bgcolor: "background.paper" }}
+                  >
+                    Café
+                  </TableCell>
+                  <TableCell
+                    sx={{ fontWeight: "bold", bgcolor: "background.paper" }}
+                    align="right"
+                  >
+                    Actions
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -142,7 +196,11 @@ const Employees = () => {
                       {employee.cafe ? (
                         employee.cafe
                       ) : (
-                        <Chip label="Not Assigned" size="small" color="warning" />
+                        <Chip
+                          label="Not Assigned"
+                          size="small"
+                          color="warning"
+                        />
                       )}
                     </TableCell>
                     <TableCell align="right">
@@ -155,7 +213,9 @@ const Employees = () => {
                       </IconButton>
                       <IconButton
                         color="error"
-                        onClick={() => handleDeleteEmployee(employee.id, employee.name)}
+                        onClick={() =>
+                          handleDeleteEmployee(employee.id, employee.name)
+                        }
                         title="Delete Employee"
                       >
                         <DeleteIcon />
@@ -185,10 +245,10 @@ const Employees = () => {
         <Paper
           sx={{
             p: 4,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            textAlign: 'center',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            textAlign: "center",
             borderRadius: 2,
           }}
         >
@@ -197,8 +257,8 @@ const Employees = () => {
           </Typography>
           <Typography variant="body1" color="textSecondary" paragraph>
             {cafeId
-              ? 'No employees assigned to this cafe yet.'
-              : 'There are no employees in the system yet. Add your first employee!'}
+              ? "No employees assigned to this cafe yet."
+              : "There are no employees in the system yet. Add your first employee!"}
           </Typography>
           <Button
             variant="contained"
@@ -214,4 +274,4 @@ const Employees = () => {
   );
 };
 
-export default Employees; 
+export default Employees;

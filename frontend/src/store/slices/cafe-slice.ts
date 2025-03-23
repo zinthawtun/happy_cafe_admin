@@ -1,8 +1,8 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 
-import { Cafe, CafeState } from '@types';
+import { Cafe, CafeState } from "@types";
 
-import * as api from '@services/api-service';
+import * as api from "@services/api-service";
 
 const initialState: CafeState = {
   list: [],
@@ -12,69 +12,71 @@ const initialState: CafeState = {
   pagination: {
     page: 0,
     limit: 10,
-    total: 0
-  }
+    total: 0,
+  },
 };
 
-
 export const fetchCafes = createAsyncThunk(
-  'cafes/fetchCafes',
-  async (params: { location?: string, page?: number, limit?: number } | undefined, { rejectWithValue }) => {
+  "cafes/fetchCafes",
+  async (
+    params: { location?: string; page?: number; limit?: number } | undefined,
+    { rejectWithValue }
+  ) => {
     try {
       return await api.getCafes(params);
     } catch {
-      return rejectWithValue('Failed to fetch cafes');
+      return rejectWithValue("Failed to fetch cafes");
     }
   }
 );
 
 export const fetchCafeById = createAsyncThunk(
-  'cafes/fetchCafeById',
+  "cafes/fetchCafeById",
   async (id: string, { rejectWithValue }) => {
     try {
       return await api.getCafeById(id);
     } catch {
-      return rejectWithValue('Failed to fetch cafe details');
+      return rejectWithValue("Failed to fetch cafe details");
     }
   }
 );
 
 export const createCafe = createAsyncThunk(
-  'cafes/createCafe',
+  "cafes/createCafe",
   async (cafeData: FormData, { rejectWithValue }) => {
     try {
       return await api.createCafe(cafeData);
     } catch {
-      return rejectWithValue('Failed to create cafe');
+      return rejectWithValue("Failed to create cafe");
     }
   }
 );
 
 export const updateCafe = createAsyncThunk(
-  'cafes/updateCafe',
+  "cafes/updateCafe",
   async ({ formData }: { formData: FormData }, { rejectWithValue }) => {
     try {
       return await api.updateCafe(formData);
     } catch {
-      return rejectWithValue('Failed to update cafe');
+      return rejectWithValue("Failed to update cafe");
     }
   }
 );
 
 export const deleteCafe = createAsyncThunk(
-  'cafes/deleteCafe',
+  "cafes/deleteCafe",
   async (id: string, { rejectWithValue }) => {
     try {
       await api.deleteCafe(id);
       return id;
     } catch {
-      return rejectWithValue('Failed to delete cafe');
+      return rejectWithValue("Failed to delete cafe");
     }
   }
 );
 
 const cafeSlice = createSlice({
-  name: 'cafes',
+  name: "cafes",
   initialState,
   reducers: {
     setCafes: (state, action: PayloadAction<Cafe[]>) => {
@@ -166,5 +168,6 @@ const cafeSlice = createSlice({
   },
 });
 
-export const { setCafes, clearSelectedCafe, setPage, setLimit } = cafeSlice.actions;
-export default cafeSlice.reducer; 
+export const { setCafes, clearSelectedCafe, setPage, setLimit } =
+  cafeSlice.actions;
+export default cafeSlice.reducer;

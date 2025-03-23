@@ -1,5 +1,5 @@
-import { TextField } from '@mui/material';
-import { FormTextFieldProps } from '@types';
+import { TextField } from "@mui/material";
+import { FormTextFieldProps } from "@types";
 
 const FormTextField = ({
   name,
@@ -8,7 +8,7 @@ const FormTextField = ({
   onChange,
   onBlur,
   error = false,
-  helperText = '',
+  helperText = "",
   maxLength,
   minLength,
   ...props
@@ -33,4 +33,4 @@ const FormTextField = ({
   );
 };
 
-export default FormTextField; 
+export default FormTextField;

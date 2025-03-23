@@ -1,4 +1,4 @@
-import { TextFieldProps } from '@mui/material';
+import { TextFieldProps } from "@mui/material";
 
 export interface Cafe {
   id: string;
@@ -22,7 +22,7 @@ export interface Employee {
   name: string;
   email: string;
   phoneNumber: string;
-  gender: 'male' | 'female';
+  gender: "male" | "female";
   days_worked: number;
   cafe: string;
   address?: string;
@@ -33,7 +33,7 @@ export interface EmployeeFormData {
   name: string;
   email: string;
   phoneNumber: string;
-  gender: 'male' | 'female';
+  gender: "male" | "female";
   cafeId: string;
 }
 
@@ -49,7 +49,7 @@ export interface FormFileUploadProps {
   name: string;
   label: string;
   accept: string;
-  maxSize?: number; 
+  maxSize?: number;
   onChange: (file: File | null) => void;
   error?: boolean;
   helperText?: string;
@@ -84,7 +84,7 @@ export interface ApiResponse<T> {
   message?: string;
 }
 
-export interface FormTextFieldProps extends Omit<TextFieldProps, 'onChange'> {
+export interface FormTextFieldProps extends Omit<TextFieldProps, "onChange"> {
   name: string;
   label: string;
   value: string;
@@ -94,7 +94,7 @@ export interface FormTextFieldProps extends Omit<TextFieldProps, 'onChange'> {
   helperText?: string;
   maxLength?: number;
   minLength?: number;
-} 
+}
 
 export interface NavItem {
   text: string;
@@ -145,15 +145,15 @@ export interface EmployeeState {
 }
 
 export enum DialogType {
-  DELETE_CAFE = 'DELETE_CAFE',
-  DELETE_EMPLOYEE = 'DELETE_EMPLOYEE',
+  DELETE_CAFE = "DELETE_CAFE",
+  DELETE_EMPLOYEE = "DELETE_EMPLOYEE",
 }
 
 export interface UIState {
   notifications: {
     open: boolean;
     message: string;
-    type: 'success' | 'error' | 'info' | 'warning';
+    type: "success" | "error" | "info" | "warning";
   };
   confirmDialog: {
     open: boolean;
