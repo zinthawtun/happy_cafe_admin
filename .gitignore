@@ -56,7 +56,8 @@ nunit-*.xml
 
 # Environment variables
 .env
-dev-setup/.env
+dev_setup/.env
+prod_setup/.env
 
 # Docker volumes
 pgdata/
