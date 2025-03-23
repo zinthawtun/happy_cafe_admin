@@ -38,8 +38,9 @@ export const createEmployee = createAsyncThunk(
   async (employeeData: EmployeeFormData, { rejectWithValue }) => {
     try {
       return await api.createEmployee(employeeData);
-    } catch {
-      return rejectWithValue('Failed to create employee');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create employee';
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -49,8 +50,9 @@ export const updateEmployee = createAsyncThunk(
   async ({ id, data }: { id: string; data: EmployeeFormData }, { rejectWithValue }) => {
     try {
       return await api.updateEmployee(id, data);
-    } catch {
-      return rejectWithValue('Failed to update employee');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update employee';
+      return rejectWithValue(errorMessage);
     }
   }
 );

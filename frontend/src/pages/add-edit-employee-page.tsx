@@ -16,6 +16,7 @@ import {
   FormHelperText,
   MenuItem,
   CircularProgress,
+  Alert,
 } from '@mui/material';
 
 import { RootState, useAppDispatch, useAppSelector } from '@store/index';
@@ -48,6 +49,7 @@ const AddEditEmployeePage = () => {
   });
   const [errors, setErrors] = useState<EmployeeFormErrors>({});
   const [formReady, setFormReady] = useState<boolean>(!isEditing);
+  const [serverError, setServerError] = useState<string | null>(null);
 
   useEffect(() => {
     dispatch(fetchCafes(undefined));
@@ -107,6 +109,10 @@ const AddEditEmployeePage = () => {
       setErrors({ ...errors, [name]: undefined });
     }
     
+    if (serverError) {
+      setServerError(null);
+    }
+    
     dispatch(setFormDirty(true));
   };
 
@@ -149,24 +155,42 @@ const AddEditEmployeePage = () => {
       return;
     }
     
+    setServerError(null);
+    
     try {
       if (isEditing && id) {
         await dispatch(updateEmployee({ id, data: formData })).unwrap();
         dispatch(showNotification({ message: 'Employee updated successfully', type: 'success' }));
+        dispatch(setFormDirty(false));
+        navigate('/employees');
       } else {
         await dispatch(createEmployee(formData)).unwrap();
         dispatch(showNotification({ message: 'Employee created successfully', type: 'success' }));
+        dispatch(setFormDirty(false));
+        navigate('/employees');
       }
+    } catch (error) {
+      const errorMessage = typeof error === 'string' ? error : 'Failed to process employee data';
       
-      dispatch(setFormDirty(false));
-      navigate('/employees');
-    } catch {
-      dispatch(
-        showNotification({
-          message: `Failed to ${isEditing ? 'update' : 'create'} employee. Please try again.`,
-          type: 'error',
-        })
-      );
+      if (errorMessage.includes('email address or phone number already exists')) {
+        setServerError(errorMessage);
+        
+        const newErrors = { ...errors };
+        if (errorMessage.includes('email')) {
+          newErrors.email = 'Email address already exists';
+        }
+        if (errorMessage.includes('phone')) {
+          newErrors.phoneNumber = 'Phone number already exists';
+        }
+        setErrors(newErrors);
+      } else {
+        dispatch(
+          showNotification({
+            message: errorMessage,
+            type: 'error',
+          })
+        );
+      }
     }
   };
 
@@ -197,6 +221,12 @@ const AddEditEmployeePage = () => {
       
       <Card component={Paper} elevation={2}>
         <CardContent>
+          {serverError && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {serverError}
+            </Alert>
+          )}
+          
           <Box component="form" onSubmit={handleSubmit} noValidate>
             <Grid container spacing={2}>
               <Grid item xs={12} md={6}>

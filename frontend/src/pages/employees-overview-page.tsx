@@ -14,6 +14,7 @@ import {
   IconButton,
   Grid,
   Chip,
+  CircularProgress,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -85,36 +86,40 @@ const Employees = () => {
       </Grid>
 
       {loading ? (
-        <Typography>Loading employees...</Typography>
-      ) : (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>ID</TableCell>
-                <TableCell>Name</TableCell>
-                <TableCell>Email</TableCell>
-                <TableCell>Phone</TableCell>
-                <TableCell align="center">Days Worked</TableCell>
-                <TableCell>Café</TableCell>
-                <TableCell align="center">Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {employees.length === 0 ? (
+        <Box display="flex" justifyContent="center" my={4}>
+          <CircularProgress />
+        </Box>
+      ) : employees && employees.length > 0 ? (
+        <Paper 
+          elevation={0} 
+          sx={{ 
+            width: '100%', 
+            borderRadius: 2,
+            overflow: 'hidden',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
+          }}
+        >
+          <TableContainer sx={{ maxHeight: 'calc(100vh - 250px)' }}>
+            <Table stickyHeader sx={{ minWidth: '100%' }}>
+              <TableHead>
                 <TableRow>
-                  <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
-                    <Typography variant="subtitle1">No employees found.</Typography>
-                  </TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', bgcolor: 'background.paper' }}>ID</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', bgcolor: 'background.paper' }}>Name</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', bgcolor: 'background.paper' }}>Email</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', bgcolor: 'background.paper' }}>Phone</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', bgcolor: 'background.paper' }}>Days Worked</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', bgcolor: 'background.paper' }}>Café</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', bgcolor: 'background.paper' }} align="right">Actions</TableCell>
                 </TableRow>
-              ) : (
-                employees.map((employee) => (
+              </TableHead>
+              <TableBody>
+                {employees.map((employee) => (
                   <TableRow key={employee.id} hover>
                     <TableCell>{employee.id}</TableCell>
                     <TableCell>{employee.name}</TableCell>
                     <TableCell>{employee.email}</TableCell>
                     <TableCell>{employee.phoneNumber}</TableCell>
-                    <TableCell align="center">{employee.days_worked}</TableCell>
+                    <TableCell>{employee.days_worked}</TableCell>
                     <TableCell>
                       {employee.cafe ? (
                         employee.cafe
@@ -122,28 +127,56 @@ const Employees = () => {
                         <Chip label="Not Assigned" size="small" color="warning" />
                       )}
                     </TableCell>
-                    <TableCell align="center">
+                    <TableCell align="right">
                       <IconButton
                         color="primary"
                         onClick={() => handleEditEmployee(employee.id)}
-                        aria-label="edit"
+                        title="Edit Employee"
                       >
                         <EditIcon />
                       </IconButton>
                       <IconButton
                         color="error"
                         onClick={() => handleDeleteEmployee(employee.id, employee.name)}
-                        aria-label="delete"
+                        title="Delete Employee"
                       >
                         <DeleteIcon />
                       </IconButton>
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
+      ) : (
+        <Paper
+          sx={{
+            p: 4,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+            borderRadius: 2,
+          }}
+        >
+          <Typography variant="h6" gutterBottom>
+            No employees found
+          </Typography>
+          <Typography variant="body1" color="textSecondary" paragraph>
+            {cafeId
+              ? 'No employees assigned to this cafe yet.'
+              : 'There are no employees in the system yet. Add your first employee!'}
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleAddEmployee}
+            sx={{ mt: 2 }}
+          >
+            Add New Employee
+          </Button>
+        </Paper>
       )}
     </Box>
   );

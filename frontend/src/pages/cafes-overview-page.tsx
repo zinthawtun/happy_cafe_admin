@@ -21,6 +21,7 @@ import {
 import SearchIcon from '@mui/icons-material/Search';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import PeopleIcon from '@mui/icons-material/People';
 
 import { RootState, useAppDispatch, useAppSelector } from '@store/index';
 import { fetchCafes } from '@/store/slices/cafe-slice';
@@ -35,12 +36,10 @@ const CafeOverViewPage = () => {
   const { list: cafes, loading } = useAppSelector((state: RootState) => state.cafes);
   const [locationFilter, setLocationFilter] = useState('');
   const [logoCache, setLogoCache] = useState<LogoCache>({});
-  const [loadingLogos, setLoadingLogos] = useState(false);
 
   const preloadLogos = useCallback(async () => {
     if (!cafes || cafes.length === 0) return;
 
-    setLoadingLogos(true);
     const newCache: LogoCache = {};
     
     const logoFilenames = cafes
@@ -70,8 +69,6 @@ const CafeOverViewPage = () => {
       setLogoCache(newCache);
     } catch (error) {
       console.error('Error preloading logos:', error);
-    } finally {
-      setLoadingLogos(false);
     }
   }, [cafes]);
 
@@ -167,75 +164,107 @@ const CafeOverViewPage = () => {
       </Grid>
 
       {loading ? (
-        <Typography>Loading cafes...</Typography>
-      ) : (
-        <TableContainer component={Paper}>
-          {loadingLogos && (
-            <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
-              <CircularProgress size={24} sx={{ mr: 1 }} />
-              <Typography>Loading logos...</Typography>
-            </Box>
-          )}
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Logo</TableCell>
-                <TableCell>Name</TableCell>
-                <TableCell>Description</TableCell>
-                <TableCell align="center">Employees</TableCell>
-                <TableCell>Location</TableCell>
-                <TableCell align="center">Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {cafes.length === 0 ? (
+        <Box display="flex" justifyContent="center" my={4}>
+          <CircularProgress />
+        </Box>
+      ) : cafes && cafes.length > 0 ? (
+        <Paper 
+          elevation={0} 
+          sx={{ 
+            width: '100%', 
+            borderRadius: 2,
+            overflow: 'hidden',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
+          }}
+        >
+          <TableContainer sx={{ maxHeight: 'calc(100vh - 250px)' }}>
+            <Table stickyHeader sx={{ minWidth: '100%' }}>
+              <TableHead>
                 <TableRow>
-                  <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
-                    <Typography variant="subtitle1">No cafes found.</Typography>
-                  </TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', bgcolor: 'background.paper' }}>Logo</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', bgcolor: 'background.paper' }}>Name</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', bgcolor: 'background.paper' }}>Description</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', bgcolor: 'background.paper' }}>Location</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', bgcolor: 'background.paper' }}>Employees</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', bgcolor: 'background.paper' }} align="right">Actions</TableCell>
                 </TableRow>
-              ) : (
-                cafes.map((cafe) => (
+              </TableHead>
+              <TableBody>
+                {cafes.map((cafe) => (
                   <TableRow key={cafe.id} hover>
                     <TableCell>
-                      {cafe.logo ? (
-                        <Avatar
-                          src={getLogoUrl(cafe.logo)}
-                          alt={cafe.name}
-                          sx={{ width: 40, height: 40 }}
-                        />
-                      ) : (
-                        <Avatar sx={{ width: 40, height: 40 }}>{cafe.name[0]}</Avatar>
-                      )}
+                    {cafe.logo ? (
+                      <Avatar
+                        src={getLogoUrl(cafe.logo)}
+                        alt={cafe.name}
+                        variant="rounded"
+                        sx={{ width: 40, height: 40 }}
+                      />
+                    ) : (
+                      <Avatar sx={{ width: 40, height: 40 }} variant="rounded">{cafe.name[0]}</Avatar>
+                    )}
                     </TableCell>
                     <TableCell>{cafe.name}</TableCell>
                     <TableCell>{cafe.description}</TableCell>
-                    <TableCell align="center">
-                      <Button onClick={() => handleViewEmployees(cafe.id)}>{cafe.employees}</Button>
-                    </TableCell>
                     <TableCell>{cafe.location}</TableCell>
-                    <TableCell align="center">
+                    <TableCell>{cafe.employees || 0}</TableCell>
+                    <TableCell align="right">
+                      <IconButton
+                        color="primary"
+                        onClick={() => handleViewEmployees(cafe.id)}
+                        title="View Employees"
+                      >
+                        <PeopleIcon />
+                      </IconButton>
                       <IconButton
                         color="primary"
                         onClick={() => handleEditCafe(cafe.id)}
-                        aria-label="edit"
+                        title="Edit Cafe"
                       >
                         <EditIcon />
                       </IconButton>
                       <IconButton
                         color="error"
                         onClick={() => handleDeleteCafe(cafe.id, cafe.name)}
-                        aria-label="delete"
+                        title="Delete Cafe"
                       >
                         <DeleteIcon />
                       </IconButton>
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
+      ) : (
+        <Paper
+          sx={{
+            p: 4,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+            borderRadius: 2,
+          }}
+        >
+          <Typography variant="h6" gutterBottom>
+            No cafes found
+          </Typography>
+          <Typography variant="body1" color="textSecondary" paragraph>
+            {locationFilter
+              ? 'No cafes found with the specified location filter.'
+              : 'There are no cafes in the system yet. Add your first cafe!'}
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleAddCafe}
+            sx={{ mt: 2 }}
+          >
+            Add New Café
+          </Button>
+        </Paper>
       )}
     </Box>
   );

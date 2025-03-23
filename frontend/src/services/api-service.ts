@@ -138,8 +138,15 @@ export const createEmployee = async (employeeData: EmployeeFormData): Promise<Em
     backendData.cafeId = employeeData.cafeId;
   }
   
-  const response = await api.post('/employee', backendData);
-  return response.data;
+  try {
+    const response = await api.post('/employee', backendData);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(error.response.data || 'Failed to create employee');
+    }
+    throw error;
+  }
 };
 
 export const updateEmployee = async (id: string, employeeData: EmployeeFormData): Promise<Employee> => {
@@ -175,8 +182,15 @@ export const updateEmployee = async (id: string, employeeData: EmployeeFormData)
     backendData.cafeId = employeeData.cafeId;
   }
   
-  const response = await api.put(`/employee`, backendData);
-  return response.data;
+  try {
+    const response = await api.put(`/employee`, backendData);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(error.response.data || 'Failed to update employee');
+    }
+    throw error;
+  }
 };
 
 export const deleteEmployee = async (id: string): Promise<void> => {

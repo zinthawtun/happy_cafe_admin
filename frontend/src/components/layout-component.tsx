@@ -13,17 +13,19 @@ import {
   ListItemText,
   Toolbar,
   Typography,
-  Container,
   useTheme,
+  Avatar,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 import PeopleIcon from '@mui/icons-material/People';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 
+import SmileFace from '@/assets/smile-face.png';
+
 import { NavItem } from '@types';
 
-const drawerWidth = 240;
+const drawerWidth = 210;
 
 const navItems: NavItem[] = [
   { text: 'Dashboard', path: '/', icon: <DashboardIcon /> },
@@ -41,43 +43,81 @@ export default function Layout() {
   };
 
   const drawer = (
-    <Box>
-      <Toolbar>
-        <Typography variant="h6" noWrap component="div">
+    <Box sx={{ 
+      height: '100%', 
+      display: 'flex', 
+      flexDirection: 'column',
+      bgcolor: theme.palette.primary.main,
+      color: theme.palette.primary.contrastText
+    }}>
+      <Box sx={{ 
+        p: 4, 
+        display: 'flex', 
+        flexDirection: 'column', 
+        alignItems: 'center',
+        borderBottom: `1px solid ${theme.palette.primary.light}`
+      }}>
+        <Box sx={{ position: 'relative', mb: 1 }}>
+          <Avatar 
+            src={SmileFace} 
+            alt="Profile" 
+            sx={{ 
+              width: 80, 
+              height: 80,
+              border: `2px solid ${theme.palette.primary.contrastText}` 
+            }}
+          />
+        </Box>
+        <Typography variant="h6" sx={{ fontWeight: 'bold', mt: 1 }}>
           Happy Cafe Admin
         </Typography>
-      </Toolbar>
-      <List>
-        {navItems.map((item) => (
-          <ListItem key={item.text} disablePadding>
-            <ListItemButton
-              component={Link}
-              to={item.path}
-              selected={location.pathname === item.path || (item.path === '/cafes' && location.pathname.includes('/cafes/'))}
-              sx={{
-                '&.Mui-selected': {
-                  backgroundColor: theme.palette.primary.light,
-                  color: theme.palette.primary.contrastText,
-                  '&:hover': {
-                    backgroundColor: theme.palette.primary.main,
-                  },
-                  '& .MuiListItemIcon-root': {
-                    color: theme.palette.primary.contrastText,
-                  },
-                },
-              }}
-            >
-              <ListItemIcon
+      </Box>
+      
+      <List sx={{ flexGrow: 1, p: 2 }}>
+        {navItems.map((item) => {
+          const isSelected = location.pathname === item.path || 
+            (item.path === '/cafes' && location.pathname.includes('/cafes/')) ||
+            (item.path === '/employees' && location.pathname.includes('/employees/'));
+            
+          return (
+            <ListItem key={item.text} disablePadding sx={{ mb: 1 }}>
+              <ListItemButton
+                component={Link}
+                to={item.path}
+                selected={isSelected}
                 sx={{
-                  color: location.pathname === item.path ? theme.palette.primary.contrastText : undefined,
+                  borderRadius: 2,
+                  py: 1.5,
+                  color: theme.palette.primary.contrastText,
+                  '&.Mui-selected': {
+                    backgroundColor: theme.palette.primary.dark,
+                    '&:hover': {
+                      backgroundColor: theme.palette.primary.dark,
+                    },
+                  },
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  }
                 }}
               >
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText primary={item.text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
+                <ListItemIcon
+                  sx={{
+                    color: theme.palette.primary.contrastText,
+                    minWidth: 40,
+                  }}
+                >
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText 
+                  primary={item.text} 
+                  primaryTypographyProps={{ 
+                    fontWeight: isSelected ? 'bold' : 'normal'
+                  }} 
+                />
+              </ListItemButton>
+            </ListItem>
+          );
+        })}
       </List>
     </Box>
   );
@@ -90,6 +130,11 @@ export default function Layout() {
         sx={{
           width: { md: `calc(100% - ${drawerWidth}px)` },
           ml: { md: `${drawerWidth}px` },
+          boxShadow: 'none',
+          bgcolor: 'background.default',
+          color: 'text.primary',
+          borderBottom: '1px solid',
+          borderColor: 'divider',
         }}
       >
         <Toolbar>
@@ -102,7 +147,7 @@ export default function Layout() {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
+          <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 'bold' }}>
             Happy Cafe Admin
           </Typography>
         </Toolbar>
@@ -131,7 +176,11 @@ export default function Layout() {
           variant="permanent"
           sx={{
             display: { xs: 'none', md: 'block' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+            '& .MuiDrawer-paper': { 
+              boxSizing: 'border-box', 
+              width: drawerWidth,
+              border: 'none',
+            },
           }}
           open
         >
@@ -145,11 +194,17 @@ export default function Layout() {
           p: 3,
           width: { md: `calc(100% - ${drawerWidth}px)` },
           marginTop: '64px',
+          bgcolor: 'background.default',
+          minHeight: '100vh',
         }}
       >
-        <Container maxWidth="lg">
+        <Box sx={{ 
+          width: '100%', 
+          maxWidth: '100%',
+          marginX: 'auto',
+        }}>
           <Outlet />
-        </Container>
+        </Box>
       </Box>
     </Box>
   );
