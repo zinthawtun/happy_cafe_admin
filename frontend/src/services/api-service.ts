@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError, AxiosRequestConfig } from "axios";
 
 import {
   Cafe,
@@ -8,14 +8,64 @@ import {
   BackendEmployeeDetailResponse,
 } from "@/types";
 
-const API_BASE_URL = import.meta.env.BACKEND_API_URL || "http://localhost:5222";
+const API_BASE_URL = import.meta.env.VITE_BACKEND_API_URL || "http://localhost:5222";
+let API_KEY = import.meta.env.VITE_API_KEY || "dev_api_key_12345";
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000;
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
+    "X-API-KEY": API_KEY,
   },
 });
+
+const updateApiKey = (newKey: string) => {
+  if (newKey && newKey !== API_KEY) {
+    API_KEY = newKey;
+    api.defaults.headers["X-API-KEY"] = API_KEY;
+    console.log("API key has been updated");
+  }
+};
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error: AxiosError) => {
+    const config = error.config as AxiosRequestConfig & { _retry?: number };
+    
+    if (error.response?.status === 401 && (!config._retry || config._retry < MAX_RETRIES)) {
+      config._retry = (config._retry || 0) + 1;
+      
+      console.log(`API authentication failed, retrying (${config._retry}/${MAX_RETRIES})...`);
+      
+      await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * (config._retry || 1)));
+      
+      try {
+        const refreshResponse = await axios.post(`${API_BASE_URL}/api/dev/key/refresh-api-key`);
+        if (refreshResponse.data?.success) {
+          console.log("API key refreshed successfully");
+          
+          try {
+            const debugResponse = await axios.get(`${API_BASE_URL}/api/dev/key/debug`);
+            console.log("API key debug info:", debugResponse.data);
+            
+            const latestKey = import.meta.env.VITE_API_KEY || API_KEY;
+            updateApiKey(latestKey);
+          } catch (debugError) {
+            console.warn("Could not get key debug info:", debugError);
+          }
+        }
+      } catch (refreshError) {
+        console.warn("Could not refresh API key:", refreshError);
+      }
+      
+      return api(config);
+    }
+    
+    return Promise.reject(error);
+  }
+);
 
 export const getApiUrl = (path: string): string => {
   try {

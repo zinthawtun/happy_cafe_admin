@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Infrastructure.Database;
 using Infrastructure.FileManagement;
+using Infrastructure.Authentication;
 
 namespace Infrastructure.Extensions
 {
@@ -13,6 +14,13 @@ namespace Infrastructure.Extensions
             
             services.AddScoped<IFileService, FileService>();
 
+            return services;
+        }
+
+        public static IServiceCollection AddApiKeyAuthentication(this IServiceCollection services)
+        {
+            services.AddSingleton<IApiKeyService, ApiKeyService>();
+            
             return services;
         }
     }

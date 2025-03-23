@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import {
   AppBar,
@@ -20,6 +20,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import StorefrontIcon from "@mui/icons-material/Storefront";
 import PeopleIcon from "@mui/icons-material/People";
 import DashboardIcon from "@mui/icons-material/Dashboard";
+import SettingsIcon from "@mui/icons-material/Settings";
 
 import SmileFace from "@/assets/smile-face.png";
 
@@ -27,7 +28,7 @@ import { NavItem } from "@types";
 
 const drawerWidth = 210;
 
-const navItems: NavItem[] = [
+const baseNavItems: NavItem[] = [
   { text: "Dashboard", path: "/", icon: <DashboardIcon /> },
   { text: "Cafes", path: "/cafes", icon: <StorefrontIcon /> },
   { text: "Employees", path: "/employees", icon: <PeopleIcon /> },
@@ -37,6 +38,22 @@ export default function Layout() {
   const theme = useTheme();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Add dev settings link only in development mode
+  const navItems = useMemo(() => {
+    const items = [...baseNavItems];
+    
+    // Add development settings in development mode
+    if (import.meta.env.MODE === 'development') {
+      items.push({
+        text: "Dev Settings",
+        path: "/dev-settings",
+        icon: <SettingsIcon />,
+      });
+    }
+    
+    return items;
+  }, []);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);

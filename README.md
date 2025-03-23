@@ -11,9 +11,10 @@ A full-stack application for managing cafe administration.
 
 ### Prerequisites
 
-- Node.js (latest LTS version)
-- .NET 9.0 SDK
+- Node.js v22.14.0
+- .NET 9.0.201 SDK
 - npm
+- Docker 
 
 ### Running the Application
 

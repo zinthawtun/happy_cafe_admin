@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Infrastructure.FileManagement;
+using Microsoft.Extensions.Configuration;
 using Utilities;
-using Infrastructure.FileManagement;
 
 namespace Infrastructure.Configuration
 {
@@ -9,7 +9,9 @@ namespace Infrastructure.Configuration
         public static string FindEnvFilePath(string fileName = ".env")
         {
             string currentDir = AppDomain.CurrentDomain.BaseDirectory;
-            string setupFilePath = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development" ? Constants.SETUP_DEV_FILE_PATH : Constants.SETUP_PROD_FILE_PATH;
+            string setupFilePath = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development" 
+                ? Constants.SETUP_DEV_FILE_PATH 
+                : Constants.SETUP_PROD_FILE_PATH;
 
             while (!Directory.Exists(Path.Combine(currentDir, "setup_dev")) && Directory.GetParent(currentDir) != null)
             {
@@ -94,6 +96,47 @@ namespace Infrastructure.Configuration
                 LogosPath = configuration["FileStorage:LogosPath"] ?? Path.Combine(configuration["FileStorage:RootPath"] ?? Directory.GetCurrentDirectory(), "FileStore/logos"),
                 MaxFileSize = configuration.GetValue<long>("FileStorage:MaxFileSize", 2 * 1024 * 1024)
             };
+        }
+
+        public static void AddApiKeyConfiguration(IConfigurationBuilder configBuilder)
+        {
+            string? apiKey = Environment.GetEnvironmentVariable("Authentication__ApiKey");
+            if (!string.IsNullOrEmpty(apiKey))
+            {
+                configBuilder.AddInMemoryCollection(new Dictionary<string, string>
+                {
+                    { "Authentication:ApiKey", apiKey }
+                });
+                return;
+            }
+
+            try
+            {
+                string envPath = FindEnvFilePath();
+                if (File.Exists(envPath))
+                {
+                    DotNetEnv.Env.Load(envPath);
+                }
+
+                string localEnvPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".env");
+                if (File.Exists(localEnvPath))
+                {
+                    DotNetEnv.Env.Load(localEnvPath);
+                }
+
+                apiKey = Environment.GetEnvironmentVariable("Authentication__ApiKey");
+                if (!string.IsNullOrEmpty(apiKey))
+                {
+                    configBuilder.AddInMemoryCollection(new Dictionary<string, string>
+                    {
+                        { "Authentication:ApiKey", apiKey }
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading API key from environment: {ex.Message}");
+            }
         }
     }
 }

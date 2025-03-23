@@ -10,6 +10,7 @@ const CafesPage = lazy(() => import('@pages/cafes-overview-page'));
 const EmployeesPage = lazy(() => import('@pages/employees-overview-page'));
 const AddEditCafePage = lazy(() => import('@/pages/add-edit-cafe-page'));
 const AddEditEmployeePage = lazy(() => import('@/pages/add-edit-employee-page'));
+const DevSettingsPage = lazy(() => import('@/pages/DevSettings'));
 const NotFoundPage = lazy(() => import('@pages/not-found-page'));
 
 const Notification = lazy(() => import('@/components/notification-component'));
@@ -34,6 +35,9 @@ function App() {
                 <Route path="employees" element={<EmployeesPage />} />
                 <Route path="employees/new" element={<AddEditEmployeePage />} />
                 <Route path="employees/edit/:id" element={<AddEditEmployeePage />} />
+                <Route path="dev-settings" element={
+                  import.meta.env.MODE === 'development' ? <DevSettingsPage /> : <Navigate to="/" replace />
+                } />
                 <Route path="*" element={<NotFoundPage />} />
               </Route>
             </Routes>
