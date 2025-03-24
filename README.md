@@ -43,6 +43,7 @@ docker-compose up -d
 
 4. Run the following to add migrations and seed the data from <Root>\backend\DataAccess
 ```bash
+dotnet tool install --global dotnet-ef #if you haven't installed ef
 dotnet ef migrations add SeedData
 dotnet ef database update
 ```
