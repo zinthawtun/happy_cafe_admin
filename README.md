@@ -41,7 +41,7 @@ FILE_STORAGE_MAX_SIZE=2097152
 docker-compose up -d
 ```
 
-4. Run the following to add migrations and seed the data.
+4. Run the following to add migrations and seed the data from <Root>\backend\DataAccess
 ```bash
 dotnet ef migrations add SeedData
 dotnet ef database update
