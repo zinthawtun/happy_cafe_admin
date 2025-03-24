@@ -1,4 +1,4 @@
-# Happy Cafe Admin
+# Happy Cafe Admin (Experimental)
 
 A full-stack application for managing cafe administration.
 This branch has a testing feature of mapping API keys.
