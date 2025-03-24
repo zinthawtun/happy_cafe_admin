@@ -1,6 +1,7 @@
 # Happy Cafe Admin
 
 A full-stack application for managing cafe administration.
+This branch has a testing feature of mapping API keys.
 
 ## Project Structure
 
@@ -21,6 +22,7 @@ A full-stack application for managing cafe administration.
 #### Make sure docker is running before we do the following steps:
 
 1. Go to \setup_dev from the project <root> directory
+
 2. Create .env files with the following format.
 ```bash 
 # Database Configuration
@@ -40,18 +42,19 @@ FILE_STORAGE_MAX_SIZE=2097152
 Authentication__ApiKey=
 ```
 3. Go to \backend\frontend Folder.
+
 4. Create .env file with following format.
 ```bash
 VITE_BACKEND_API_URL=http://localhost:5222
 VITE_MODE=development
 VITE_API_KEY=
 ```
-3. Run the docker-compose to create DB in Postgres. 
+5. Run the docker-compose to create DB in Postgres. 
 ```bash
 docker-compose up -d
 ```
 
-4. Run the following to add migrations and seed the data from <Root>\backend\DataAccess
+6. Run the following to add migrations and seed the data from <Root>\backend\DataAccess
 ```bash
 dotnet tool install --global dotnet-ef #if you haven't installed ef
 dotnet ef migrations add SeedData
