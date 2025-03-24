@@ -8,7 +8,7 @@ import { store } from '../../store';
 
 vi.mock('../../assets/smile-face.svg', () => 'mocked-smile-face-path');
 
-describe('Layout', () => {
+describe('Layout_Test', () => {
   it.skip('renders the header and sidebar correctly', () => {
     render(
       <BrowserRouter>

@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import FormTextField from '../form-text-field-component';
 
-describe('FormTextField', () => {
+describe('FormTextField_Test', () => {
   it('renders with label and value correctly', () => {
     render(
       <FormTextField 

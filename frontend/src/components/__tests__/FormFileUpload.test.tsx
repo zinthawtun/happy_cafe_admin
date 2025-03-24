@@ -20,7 +20,7 @@ beforeAll(() => {
   window.FileReader = MockFileReader;
 });
 
-describe('FormFileUpload', () => {
+describe('FormFileUpload_Test', () => {
   it('renders with label correctly', () => {
     render(
       <FormFileUpload 

@@ -66,7 +66,7 @@ vi.mock('../../redux/slices/employeeSlice', () => ({
   deleteEmployee: (id: string) => ({ type: 'employee/deleteEmployee', payload: id }),
 }));
 
-describe('ConfirmDialog', () => {
+describe('ConfirmDialog_Test', () => {
   const createTestStore = (initialState = {}) => {
     return configureStore({
       reducer: {

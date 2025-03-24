@@ -15,7 +15,7 @@ vi.mock('@/store/slices/ui-slice', async () => {
   };
 });
 
-describe('Notification', () => {
+describe('Notification_Test', () => {
   const createTestStore = (initialState: { 
     open?: boolean; 
     message?: string; 
