@@ -37,7 +37,6 @@ namespace Tests
                 location);
         }
 
-        // Added methods from CafeControllerTests.cs
         public static CafeDto CreateTestCafeDto(Guid id, string name = "Test Cafe", string description = "A test cafe", 
             string location = "Test Location", string logo = "test-logo.png")
         {

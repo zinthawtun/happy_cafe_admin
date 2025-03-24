@@ -49,15 +49,20 @@ dotnet ef database update
 
 ### Running the Application
 
-#### Option 1: Run Both Frontend and Backend Simultaneously
-
-From the root directory, run:
+Before you run. Go to project <Root> directory, and run 
 
 ```bash
-npm run dev
+npm i
 ```
 
-This will start both the frontend and backend applications in parallel using concurrently.
+This will install required node_modules to run both backend and frontend simultaneously.
+
+
+#### Option 1: Run Both Frontend and Backend concurrently after installing node_modules in the front-end project.
+
+```bash
+npm run start
+```
 
 #### Option 2: Run Frontend and Backend Separately
 
@@ -71,14 +76,6 @@ To run only the backend:
 
 ```bash
 npm run backend
-```
-
-To start application installing node_modules
-
-#### Option 3: Run Both Frontend and Backend Simultaneously after installing node_modules
-
-```bash
-npm run start
 ```
 
 ## Additional Information
