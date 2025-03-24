@@ -6,7 +6,7 @@
   "scripts": {
     "start": "cd frontend && npm install && cd .. && npm run dev",
     "frontend": "cd frontend && npm run dev",
-    "backend": "cd backend\\API && dotnet watch run",
+    "backend": "cd backend/API && dotnet watch run",
     "dev": "concurrently \"npm run frontend\" \"npm run backend\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
