@@ -21,7 +21,7 @@ A full-stack application for managing cafe administration.
 #### Make sure docker is running before we do the following steps:
 
 1. Go to \setup_dev from the project <root> directory
-2. Create .env files with the following format. 
+2. Create .env files with the following format.
 ```bash 
 # Database Configuration
 DB_HOST=localhost
@@ -35,6 +35,16 @@ FILE_STORAGE_ROOT_PATH=
 FILE_STORAGE_PATH=FileStore
 FILE_STORAGE_LOGOS_PATH=FileStore/logos
 FILE_STORAGE_MAX_SIZE=2097152
+
+#APIKey
+Authentication__ApiKey=
+```
+3. Go to \backend\frontend Folder.
+4. Create .env file with following format.
+```bash
+VITE_BACKEND_API_URL=http://localhost:5222
+VITE_MODE=development
+VITE_API_KEY=
 ```
 3. Run the docker-compose to create DB in Postgres. 
 ```bash
@@ -83,3 +93,7 @@ npm run backend
 
 - Frontend runs on: http://localhost:5173
 - Backend API runs on:  http://localhost:5222
+
+### Note: This is experimental branch. 
+
+API key will be dynamically geenerated for both front-end and backend when we click a button to genereate the API key from Dev Setting in the UI. 
