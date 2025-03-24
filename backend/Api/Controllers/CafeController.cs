@@ -71,12 +71,6 @@ namespace Api.Controllers
                 return BadRequest(ModelState);
             }
 
-            bool cafeExists = await cafeService.ExistsByNameAsync(model.Name);
-            if (cafeExists)
-            {
-                return BadRequest($"A cafe with the name '{model.Name}' already exists.");
-            }
-
             CreateCafeCommand createCafeCommand = new CreateCafeCommand
             {
                 Name = model.Name,

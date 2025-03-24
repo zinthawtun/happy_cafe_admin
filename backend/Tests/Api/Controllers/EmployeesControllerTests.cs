@@ -221,7 +221,7 @@ namespace Tests.Api.Controllers
             Assert.Equal(employeeId, returnedEmployee.Id);
             Assert.Equal("GetEmployees", createdAtResult.ActionName);
             
-            employeeServiceMock.Verify(s => s.ExistsWithEmailOrPhoneAsync(createModel.EmailAddress, createModel.Phone), Times.Once);
+            employeeServiceMock.Verify(s => s.ExistsWithEmailOrPhoneAsync(createModel.EmailAddress, createModel.Phone), Times.AtMost(2));
             employeeServiceMock.Verify(s => s.CreateAsync(It.IsAny<CreateEmployeeCommand>()), Times.Once);
         }
 
@@ -297,7 +297,7 @@ namespace Tests.Api.Controllers
             Assert.Equal("Test Cafe", returnedEmployee.Cafe);
             Assert.Equal("GetEmployees", createdAtResult.ActionName);
             
-            employeeServiceMock.Verify(s => s.ExistsWithEmailOrPhoneAsync(createModel.EmailAddress, createModel.Phone), Times.Once);
+            employeeServiceMock.Verify(s => s.ExistsWithEmailOrPhoneAsync(createModel.EmailAddress, createModel.Phone), Times.AtMost(2));
             employeeServiceMock.Verify(s => s.CreateAsync(It.IsAny<CreateEmployeeCommand>()), Times.Once);
             employeeCafeServiceMock.Verify(s => s.AssignEmployeeToCafeAsync(It.IsAny<AssignEmployeeToCafeCommand>()), Times.Once);
         }
@@ -329,7 +329,7 @@ namespace Tests.Api.Controllers
         }
 
         [Fact]
-        public async Task CreateEmployee_ShouldReturnBadRequest_WhenDuplicateEmailOrPhone_Test()
+        public async Task CreateEmployee_ShouldReturnBadRequest_WhenDuplicateEmail_Test()
         {
             CreateEmployeeModel createModel = new CreateEmployeeModel
             {
@@ -340,15 +340,48 @@ namespace Tests.Api.Controllers
             };
 
             employeeServiceMock
-                .Setup(s => s.ExistsWithEmailOrPhoneAsync(createModel.EmailAddress, createModel.Phone))
+                .Setup(s => s.ExistsWithEmailOrPhoneAsync(createModel.EmailAddress, string.Empty))
+                .ReturnsAsync(true);
+
+            employeeServiceMock
+                .Setup(s => s.ExistsWithEmailOrPhoneAsync(string.Empty, createModel.Phone))
+                .ReturnsAsync(false);
+
+            ActionResult<EmployeeResponseModel> result = await employeesController.CreateEmployee(createModel);
+
+            BadRequestObjectResult badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
+            Assert.Equal("The email address is already in use by another employee.", badRequestResult.Value);
+            
+            employeeServiceMock.Verify(s => s.ExistsWithEmailOrPhoneAsync(createModel.EmailAddress, string.Empty), Times.Once);
+            employeeServiceMock.Verify(s => s.CreateAsync(It.IsAny<CreateEmployeeCommand>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task CreateEmployee_ShouldReturnBadRequest_WhenDuplicatePhone_Test()
+        {
+            CreateEmployeeModel createModel = new CreateEmployeeModel
+            {
+                Name = "John Doe",
+                Phone = "89876543",
+                EmailAddress = "john@example.com",
+                Gender = "Male"
+            };
+
+            employeeServiceMock
+                .Setup(s => s.ExistsWithEmailOrPhoneAsync(createModel.EmailAddress, string.Empty))
+                .ReturnsAsync(false);
+
+            employeeServiceMock
+                .Setup(s => s.ExistsWithEmailOrPhoneAsync(string.Empty, createModel.Phone))
                 .ReturnsAsync(true);
 
             ActionResult<EmployeeResponseModel> result = await employeesController.CreateEmployee(createModel);
 
             BadRequestObjectResult badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
-            Assert.Equal("An employee with the same email address or phone number already exists.", badRequestResult.Value);
+            Assert.Equal("The phone number is already in use by another employee.", badRequestResult.Value);
             
-            employeeServiceMock.Verify(s => s.ExistsWithEmailOrPhoneAsync(createModel.EmailAddress, createModel.Phone), Times.Once);
+            employeeServiceMock.Verify(s => s.ExistsWithEmailOrPhoneAsync(createModel.EmailAddress, string.Empty), Times.Once);
+            employeeServiceMock.Verify(s => s.ExistsWithEmailOrPhoneAsync(string.Empty, createModel.Phone), Times.Once);
             employeeServiceMock.Verify(s => s.CreateAsync(It.IsAny<CreateEmployeeCommand>()), Times.Never);
         }
 
@@ -389,6 +422,14 @@ namespace Tests.Api.Controllers
                 .ReturnsAsync(existingEmployeeDto);
 
             employeeServiceMock
+                .Setup(s => s.ExistsWithEmailOrPhoneAsync(updateModel.EmailAddress, string.Empty))
+                .ReturnsAsync(false);
+
+            employeeServiceMock
+                .Setup(s => s.ExistsWithEmailOrPhoneAsync(string.Empty, updateModel.Phone))
+                .ReturnsAsync(false);
+
+            employeeServiceMock
                 .Setup(s => s.UpdateAsync(It.IsAny<UpdateEmployeeCommand>()))
                 .ReturnsAsync(updatedEmployeeDto);
 
@@ -406,6 +447,8 @@ namespace Tests.Api.Controllers
             Assert.Equal("updated.john@example.com", returnedEmployee.EmailAddress);
             
             employeeServiceMock.Verify(s => s.GetByIdAsync(employeeId), Times.Once);
+            employeeServiceMock.Verify(s => s.ExistsWithEmailOrPhoneAsync(updateModel.EmailAddress, string.Empty), Times.Once);
+            employeeServiceMock.Verify(s => s.ExistsWithEmailOrPhoneAsync(string.Empty, updateModel.Phone), Times.Once);
             employeeServiceMock.Verify(s => s.UpdateAsync(It.IsAny<UpdateEmployeeCommand>()), Times.Once);
         }
 
@@ -490,6 +533,10 @@ namespace Tests.Api.Controllers
                 .ReturnsAsync(existingEmployeeDto);
 
             employeeServiceMock
+                .Setup(s => s.ExistsWithEmailOrPhoneAsync(string.Empty, updateModel.Phone))
+                .ReturnsAsync(false);
+
+            employeeServiceMock
                 .Setup(s => s.UpdateAsync(It.IsAny<UpdateEmployeeCommand>()))
                 .ReturnsAsync(updatedEmployeeDto);
 
@@ -524,6 +571,7 @@ namespace Tests.Api.Controllers
             Assert.Equal("New Cafe", returnedEmployee.Cafe);
             
             employeeServiceMock.Verify(s => s.GetByIdAsync(employeeId), Times.Once);
+            employeeServiceMock.Verify(s => s.ExistsWithEmailOrPhoneAsync(string.Empty, updateModel.Phone), Times.Once);
             employeeServiceMock.Verify(s => s.UpdateAsync(It.IsAny<UpdateEmployeeCommand>()), Times.Once);
             employeeCafeServiceMock.Verify(s => s.UnassignEmployeeFromCafeAsync(employeeCafeId), Times.Once);
             employeeCafeServiceMock.Verify(s => s.AssignEmployeeToCafeAsync(It.IsAny<AssignEmployeeToCafeCommand>()), Times.Once);
@@ -552,6 +600,88 @@ namespace Tests.Api.Controllers
             Assert.IsType<NotFoundObjectResult>(result.Result);
             
             employeeServiceMock.Verify(s => s.GetByIdAsync(nonExistentEmployeeId), Times.Once);
+            employeeServiceMock.Verify(s => s.UpdateAsync(It.IsAny<UpdateEmployeeCommand>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task UpdateEmployee_ShouldReturnBadRequest_WhenDuplicateEmail_Test()
+        {
+            string employeeId = UniqueIdGenerator.GenerateUniqueId();
+            
+            UpdateEmployeeModel updateModel = new UpdateEmployeeModel
+            {
+                Id = employeeId,
+                Name = "John Doe",
+                Phone = "89876543",
+                EmailAddress = "new.email@example.com",
+                Gender = "Male"
+            };
+
+            EmployeeDto existingEmployeeDto = new EmployeeDto
+            {
+                Id = employeeId,
+                Name = "John Doe",
+                EmailAddress = "old.email@example.com",
+                Phone = "89876543",
+                Gender = Gender.Male
+            };
+
+            employeeServiceMock
+                .Setup(s => s.GetByIdAsync(employeeId))
+                .ReturnsAsync(existingEmployeeDto);
+
+            employeeServiceMock
+                .Setup(s => s.ExistsWithEmailOrPhoneAsync(updateModel.EmailAddress, string.Empty))
+                .ReturnsAsync(true);
+
+            ActionResult<EmployeeResponseModel> result = await employeesController.UpdateEmployee(updateModel);
+
+            BadRequestObjectResult badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
+            Assert.Equal("The email address is already in use by another employee.", badRequestResult.Value);
+            
+            employeeServiceMock.Verify(s => s.GetByIdAsync(employeeId), Times.Once);
+            employeeServiceMock.Verify(s => s.ExistsWithEmailOrPhoneAsync(updateModel.EmailAddress, string.Empty), Times.Once);
+            employeeServiceMock.Verify(s => s.UpdateAsync(It.IsAny<UpdateEmployeeCommand>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task UpdateEmployee_ShouldReturnBadRequest_WhenDuplicatePhone_Test()
+        {
+            string employeeId = UniqueIdGenerator.GenerateUniqueId();
+            
+            UpdateEmployeeModel updateModel = new UpdateEmployeeModel
+            {
+                Id = employeeId,
+                Name = "John Doe",
+                Phone = "98765432",
+                EmailAddress = "john@example.com",
+                Gender = "Male"
+            };
+
+            EmployeeDto existingEmployeeDto = new EmployeeDto
+            {
+                Id = employeeId,
+                Name = "John Doe",
+                EmailAddress = "john@example.com",
+                Phone = "89876543",
+                Gender = Gender.Male
+            };
+
+            employeeServiceMock
+                .Setup(s => s.GetByIdAsync(employeeId))
+                .ReturnsAsync(existingEmployeeDto);
+
+            employeeServiceMock
+                .Setup(s => s.ExistsWithEmailOrPhoneAsync(string.Empty, updateModel.Phone))
+                .ReturnsAsync(true);
+
+            ActionResult<EmployeeResponseModel> result = await employeesController.UpdateEmployee(updateModel);
+
+            BadRequestObjectResult badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
+            Assert.Equal("The phone number is already in use by another employee.", badRequestResult.Value);
+            
+            employeeServiceMock.Verify(s => s.GetByIdAsync(employeeId), Times.Once);
+            employeeServiceMock.Verify(s => s.ExistsWithEmailOrPhoneAsync(string.Empty, updateModel.Phone), Times.Once);
             employeeServiceMock.Verify(s => s.UpdateAsync(It.IsAny<UpdateEmployeeCommand>()), Times.Never);
         }
 

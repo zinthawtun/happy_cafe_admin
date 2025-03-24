@@ -21,7 +21,5 @@ namespace Resource.Interfaces
         Task<int> GetCountAsync();
 
         Task<bool> ExistsAsync(Guid id);
-
-        Task<bool> ExistsByNameAsync(string name);
     }
 } 

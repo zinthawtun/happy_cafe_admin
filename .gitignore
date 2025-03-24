@@ -56,7 +56,8 @@ nunit-*.xml
 
 # Environment variables
 .env
-dev-setup/.env
+dev_setup/.env
+prod_setup/.env
 
 # Docker volumes
 pgdata/
@@ -70,3 +71,14 @@ pgdata/
 
 # Logs
 *.log
+
+#package-lock.json
+package-lock.json
+frontend/package-lock.json
+
+#node_modules
+node_modules/
+frontend/node_modules/
+
+#API/FileStore
+backend/Api/FileStore/

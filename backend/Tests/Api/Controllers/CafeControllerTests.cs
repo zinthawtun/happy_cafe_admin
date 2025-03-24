@@ -224,10 +224,6 @@ namespace Tests.Api.Controllers
             };
 
             cafeServiceMock
-                .Setup(s => s.ExistsByNameAsync(cafeName))
-                .ReturnsAsync(false);
-
-            cafeServiceMock
                 .Setup(s => s.CreateAsync(It.Is<CreateCafeCommand>(c => 
                     c.Name == cafeName && 
                     c.Description == description && 
@@ -251,7 +247,6 @@ namespace Tests.Api.Controllers
             Assert.Equal(location, returnedCafe.Location);
             Assert.Equal(0, returnedCafe.Employees);
             
-            cafeServiceMock.Verify(s => s.ExistsByNameAsync(cafeName), Times.Once);
             cafeServiceMock.Verify(s => s.CreateAsync(It.IsAny<CreateCafeCommand>()), Times.Once);
         }
 
@@ -272,34 +267,6 @@ namespace Tests.Api.Controllers
 
             Assert.IsType<BadRequestObjectResult>(result.Result);
             
-            cafeServiceMock.Verify(s => s.CreateAsync(It.IsAny<CreateCafeCommand>()), Times.Never);
-        }
-
-        [Fact]
-        public async Task CreateCafe_ShouldReturnBadRequest_WhenCafeNameAlreadyExists_Test()
-        {
-            string existingCafeName = "Existing Cafe";
-            
-            CreateCafeModel model = new CreateCafeModel
-            {
-                Name = existingCafeName,
-                Description = "Test Description",
-                Logo = "test-logo.png",
-                Location = "Test Location"
-            };
-
-            cafeServiceMock
-                .Setup(s => s.ExistsByNameAsync(existingCafeName))
-                .ReturnsAsync(true);
-
-            ActionResult<CafeResponseModel> result = await cafesController.CreateCafe(model);
-
-            BadRequestObjectResult badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
-            string errorMessage = Assert.IsType<string>(badRequestResult.Value);
-            
-            Assert.Contains(existingCafeName, errorMessage);
-            
-            cafeServiceMock.Verify(s => s.ExistsByNameAsync(existingCafeName), Times.Once);
             cafeServiceMock.Verify(s => s.CreateAsync(It.IsAny<CreateCafeCommand>()), Times.Never);
         }
 

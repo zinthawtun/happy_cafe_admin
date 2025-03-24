@@ -62,12 +62,5 @@ namespace Service.Services
 
             return await mediator.Send(command);
         }
-
-        public async Task<bool> ExistsByNameAsync(string name)
-        {
-            ExistsCafeByNameQuery query = new ExistsCafeByNameQuery { Name = name };
-
-            return await mediator.Send(query);
-        }
     }
 } 
