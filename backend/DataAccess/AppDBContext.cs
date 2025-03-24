@@ -60,7 +60,7 @@ namespace DataAccess
             modelBuilder.Entity<Cafe>().HasData(
                 new Cafe(
                         id: cafe1Id,
-                        name: "Coffee White",
+                        name: "Coffee C",
                         description: "Medium roated coffee beans and good coffee",
                         logo: "coffee-white-logo.png",
                         location: "Tiong Baru Plaza"
