@@ -142,7 +142,7 @@ namespace Infrastructure.Authentication
                     string? localDir = Path.GetDirectoryName(localEnvPath);
                     if (!string.IsNullOrEmpty(localDir) && Directory.Exists(localDir))
                     {
-                        var localWatcher = new FileSystemWatcher(localDir);
+                        FileSystemWatcher localWatcher = new FileSystemWatcher(localDir);
                         localWatcher.Filter = ".env";
                         localWatcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.CreationTime;
                         localWatcher.Changed += OnEnvFileChanged;

@@ -5,20 +5,20 @@ namespace Infrastructure.Authentication
 {
     public class ApiKeyAuthenticationMiddleware
     {
-        private readonly RequestDelegate _next;
-        private readonly IApiKeyService _apiKeyService;
+        private readonly RequestDelegate next;
+        private readonly IApiKeyService apiKeyService;
 
         public ApiKeyAuthenticationMiddleware(RequestDelegate next, IApiKeyService apiKeyService)
         {
-            _next = next;
-            _apiKeyService = apiKeyService;
+            this.next = next;
+            this.apiKeyService = apiKeyService;
         }
 
         public async Task InvokeAsync(HttpContext context)
         {
             if (ShouldSkipAuthentication(context))
             {
-                await _next(context);
+                await next(context);
                 return;
             }
 
@@ -30,13 +30,13 @@ namespace Infrastructure.Authentication
                 return;
             }
 
-            var apiKey = apiKeyHeaderValues.ToString();
-            var validApiKey = _apiKeyService.GetValidApiKey();
+            string apiKey = apiKeyHeaderValues.ToString();
+            string validApiKey = apiKeyService.GetValidApiKey();
 
             if (string.IsNullOrEmpty(validApiKey) || apiKey != validApiKey)
             {
-                _apiKeyService.RefreshApiKey();
-                validApiKey = _apiKeyService.GetValidApiKey();
+                apiKeyService.RefreshApiKey();
+                validApiKey = apiKeyService.GetValidApiKey();
                 
                 if (string.IsNullOrEmpty(validApiKey) || apiKey != validApiKey)
                 {
@@ -58,7 +58,7 @@ namespace Infrastructure.Authentication
                 }
             }
 
-            await _next(context);
+            await next(context);
         }
 
         private bool ShouldSkipAuthentication(HttpContext context)

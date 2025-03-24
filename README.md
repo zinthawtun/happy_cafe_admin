@@ -127,3 +127,6 @@ API key will be dynamically geenerated for both front-end and backend when we cl
 
 ### Employee Delete Alert
 ![Employee Delete Alert](screenshots/employee-delete.png)
+
+### API Key Generate
+![API Key Generate](screenshots/api-key-generate.png)
