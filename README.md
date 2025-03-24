@@ -1,6 +1,7 @@
 # Happy Cafe Admin
 
-A full-stack application for managing cafe administration.
+### A full-stack application for managing cafes and administration.  
+The application used .Net 9 for backend and React 19 for frontend.
 
 ## Project Structure
 
@@ -21,7 +22,8 @@ A full-stack application for managing cafe administration.
 #### Make sure docker is running before we do the following steps:
 
 1. Go to \setup_dev from the project <root> directory
-2. Create .env files with the following format. 
+
+2. Create .env files with the following format. An example is provided.
 ```bash 
 # Database Configuration
 DB_HOST=localhost
@@ -36,16 +38,17 @@ FILE_STORAGE_PATH=FileStore
 FILE_STORAGE_LOGOS_PATH=FileStore/logos
 FILE_STORAGE_MAX_SIZE=2097152
 ```
+
 3. Run the docker-compose to create DB in Postgres. 
 ```bash
 docker-compose up -d
 ```
 
-4. Run the following to add migrations and seed the data from <Root>\backend\DataAccess
+4. Run the following to add migrations and seed the data from <Root>\backend\DataAccess after Postgres DB container is up and running.
 ```bash
-dotnet tool install --global dotnet-ef #if you haven't installed ef
-dotnet ef migrations add SeedData
-dotnet ef database update
+dotnet tool install --global dotnet-ef # if you haven't installed ef tool
+dotnet ef migrations add SeedData # this will create migrations files under DataAccess/Migrations
+dotnet ef database update # to create, DB schemas and constraints in Postgres
 ```
 
 ### Running the Application
@@ -70,7 +73,7 @@ npm run start
 To run only the frontend:
 
 ```bash
-npm run frontend
+npm run frontend # need to install node_modules in front-end first.
 ```
 
 To run only the backend:
@@ -83,3 +86,23 @@ npm run backend
 
 - Frontend runs on: http://localhost:5173
 - Backend API runs on:  http://localhost:5222
+
+## Examples
+
+### Cafe Overview Page
+![Cafe Overview Page](screenshots/cafe-page.png)
+
+### Employee Overview Page
+![Employee Overview Page](screenshots/employee-page.png)
+
+### Cafe Add or Edit
+![Cafe Add or Edit](screenshots/cafe-add-edit.png)
+
+### Employee Add or Edit
+![Employee Add or Edit](screenshots/employee-add-edit.png)
+
+### Cafe Delete Alert
+![Cafe Delete Alert](screenshots/cafe-delete.png)
+
+### Employee Delete Alert
+![Employee Delete Alert](screenshots/employee-delete.png)

@@ -1,3 +1,5 @@
+#nullable disable
+
 using FluentValidation.TestHelper;
 using Service.Commands.Cafes;
 using Service.Validators;
