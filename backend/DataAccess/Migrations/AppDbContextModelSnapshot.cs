@@ -71,7 +71,7 @@ namespace DataAccess.Migrations
                             Description = "Medium roated coffee beans and good coffee",
                             Location = "Tiong Baru Plaza",
                             Logo = "coffee-white-logo.png",
-                            Name = "Coffee White"
+                            Name = "Coffee C"
                         },
                         new
                         {

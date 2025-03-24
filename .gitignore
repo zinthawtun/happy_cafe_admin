@@ -82,3 +82,6 @@ frontend/node_modules/
 
 #API/FileStore
 backend/Api/FileStore/
+
+#DataAccess/Migrations
+backend/DataAccess/Migrations/
